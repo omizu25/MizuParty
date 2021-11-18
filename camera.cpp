@@ -44,7 +44,7 @@ void InitCamera(void)
 	s_camera.posV = D3DXVECTOR3(0.0f, 50.0f, -100.0f);
 	s_camera.posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// ŒÅ’è‚Å‚¢‚¢
-	s_camera.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_camera.rot  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 //--------------------------------------------------
