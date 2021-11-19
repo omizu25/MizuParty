@@ -480,13 +480,13 @@ static void DrawDebug(void)
 
 	Camera *pCamera = GetCamera();		//カメラの情報を取得
 
-	sprintf(&aStr[nLength], "視点の座標          : (%f, %f, %f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
+	sprintf(&aStr[nLength], "視点の座標          : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点の座標        : (%f, %f, %f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
+	sprintf(&aStr[nLength], "注視点の座標        : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の角度  : %f\n", pCamera->rot.y);
+	sprintf(&aStr[nLength], "注視点と視点の角度  : %.3f\n", pCamera->rot.y);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の距離  : %f\n", pCamera->fDistance);
+	sprintf(&aStr[nLength], "注視点と視点の距離  : %.3f\n", pCamera->fDistance);
 	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画

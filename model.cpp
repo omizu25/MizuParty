@@ -31,8 +31,8 @@ void InitModel(void)
 
 	// Xƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ
 	D3DXLoadMeshFromX(
-		"data\\ƒŠƒ€ƒ‹.x",
-		/*"data\\‚Ä‚é‚Ä‚é‚SŠú¶.x",*/
+		"data\\MODEL\\ƒŠƒ€ƒ‹.x",
+		/*"data\\MODEL\\‚Ä‚é‚Ä‚é‚SŠú¶.x",*/
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -41,8 +41,8 @@ void InitModel(void)
 		&s_nNumMat,
 		&s_pMesh);
 
-		s_pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
-		s_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
+	s_rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
 //--------------------------------------------------
