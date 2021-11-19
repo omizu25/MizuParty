@@ -15,6 +15,8 @@
 #include "model.h"
 #include "polygon.h"
 
+#include <stdio.h>
+
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -452,13 +454,41 @@ LPDIRECT3DDEVICE9 GetDevice(void)
 static void DrawDebug(void)
 {
 	RECT rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
-	char aStr[80];
+	char aStr[4096];
 	int nLength;
 
 	// 文字列の代入
-	wsprintf(&aStr[0], "FPS  : %3d\n", s_nCountFPS);
-	nLength = (int)strlen(&aStr[0]);		// 文字数の取得
+	wsprintf(&aStr[0], "FPS  : %3d\n\n", s_nCountFPS);
+	nLength = (int)strlen(&aStr[0]);
+
+	wsprintf(&aStr[nLength], "[ 操作説明 ]\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "<< カメラ操作 >>\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "A, S, D, Wキー      : 視点の移動\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "Z, Cキー            : 視点の旋回\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "Q, Eキー            : 注視点の旋回\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "T, Gキー            : 視点の上下移動\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "Y, Hキー            : 注視点の上下移動\n");
+	nLength = (int)strlen(&aStr[0]);
+	wsprintf(&aStr[nLength], "U, Jキー            : 視点～注視点間の距離変更\n");
+	nLength = (int)strlen(&aStr[0]);
+
+	Camera *pCamera = GetCamera();		//カメラの情報を取得
+
+	sprintf(&aStr[nLength], "視点の座標          : (%f, %f, %f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "注視点の座標        : (%f, %f, %f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "注視点と視点の角度  : %f\n", pCamera->rot.y);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "注視点と視点の距離  : %f\n", pCamera->fDistance);
+	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画
-	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f));
 }
