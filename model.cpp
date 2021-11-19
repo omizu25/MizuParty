@@ -111,6 +111,6 @@ void DrawModel(void)
 		s_pMesh->DrawSubset(i);
 	}
 
-	// 保存していたマテリアルを
+	// 保存していたマテリアルを戻す
 	pDevice->SetMaterial(&matDef);
 }
