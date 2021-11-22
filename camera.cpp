@@ -202,28 +202,16 @@ static void Move(void)
 //--------------------------------------------------
 static void Rot(void)
 {
-	/* ↓視点の旋回↓ */
+	/* ↓視点・注視点の旋回↓ */
 
-	if (GetKeyboardPress(DIK_Z))
-	{// Zキーが押された
+	if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_E))
+	{// Z, Eキーが押された
 		s_camera.rot.y += MAX_ROTATION;
 	}
-
-	if (GetKeyboardPress(DIK_C))
-	{// Cキーが押された
+	
+	if (GetKeyboardPress(DIK_C) || GetKeyboardPress(DIK_Q))
+	{// C, Qキーが押された
 		s_camera.rot.y += -MAX_ROTATION;
-	}
-
-	/* ↓注視点の旋回↓ */
-
-	if (GetKeyboardPress(DIK_Q))
-	{// Qキーが押された
-		s_camera.rot.y += -MAX_ROTATION;
-	}
-
-	if (GetKeyboardPress(DIK_E))
-	{// Eキーが押された
-		s_camera.rot.y += MAX_ROTATION;
 	}
 
 	// 角度の正規化

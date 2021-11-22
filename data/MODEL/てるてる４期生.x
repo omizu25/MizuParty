@@ -11731,7 +11731,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "C:\\Users\\OC\\Desktop\\メタセコイア\\02_モーションビューワ\\Ver.2.1\\data\\TEXTURE\\しましま.jpg";
+    "data\\TEXTURE\\縺励∪縺励∪.jpg";
    }
   }
   Material {

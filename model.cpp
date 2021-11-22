@@ -21,10 +21,11 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPD3DXMESH		s_pMesh = NULL;			// メッシュ情報へのポインタ
-static LPD3DXBUFFER		s_pBuffMat = NULL;		// マテリアル情報へのポインタ
-static DWORD			s_nNumMat = 0;			// マテリアル情報の数
-static Model			s_model;				// モデルの情報
+static LPD3DXMESH				s_pMesh = NULL;			// メッシュ情報へのポインタ
+static LPD3DXBUFFER				s_pBuffMat = NULL;		// マテリアル情報へのポインタ
+static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;		// テクスチャへのポインタ
+static DWORD					s_nNumMat = 0;			// マテリアル情報の数
+static Model					s_model;				// モデルの情報
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -50,6 +51,28 @@ void InitModel(void)
 		NULL,
 		&s_nNumMat,
 		&s_pMesh);
+
+	// メッシュに使用されているテクスチャ用の配列を用意する
+	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
+
+	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
+	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
+
+	// 各メッシュのマテリアル情報を取得する
+	for (int i = 0; i < (int)s_nNumMat; i++)
+	{
+		// マテリアルで設定されているテクスチャ読み込み
+		if (pMat[i].pTextureFilename != NULL)
+		{
+			D3DXCreateTextureFromFileA(pDevice,
+				pMat[i].pTextureFilename,
+				&s_pTexture[i]);
+		}
+		else
+		{
+			s_pTexture[i] = nullptr;
+		}
+	}
 
 	s_model.pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -113,12 +136,24 @@ void DrawModel(void)
 	// マテリアルデータへのポインタを取得
 	pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
 
+	//for (int i = 0; i < (int)s_nNumMat; i++)
+	//{
+	//	// マテリアルの設定
+	//	pDevice->SetMaterial(&pMat[i].MatD3D);
+
+	//	// モデルパーツの描画
+	//	s_pMesh->DrawSubset(i);
+	//}
+
 	for (int i = 0; i < (int)s_nNumMat; i++)
 	{
 		// マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
-		// モデルパーツの描画
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTexture[i]);
+
+		// メッシュを描画
 		s_pMesh->DrawSubset(i);
 	}
 
