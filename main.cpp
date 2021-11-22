@@ -422,15 +422,11 @@ static void Draw(void)
 		// モデルの描画処理
 		DrawModel();
 
-#ifdef  _DEBUG
-
 		if (s_bDebug)
 		{// デバッグ表示
 			// デバッグの表示
 			DrawDebug();
 		}
-		
-#endif //   _DEBUG
 
 		// 描画終了
 		s_pD3DDevice->EndScene();
@@ -455,27 +451,32 @@ static void DrawDebug(void)
 {
 	RECT rect = { 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT };
 	char aStr[4096];
-	int nLength;
+	int nLength = 0;
 
-	// 文字列の代入
-	wsprintf(&aStr[0], "FPS  : %3d\n\n", s_nCountFPS);
+	/* ↓文字列の代入↓ */
+
+#ifndef NDEBUG
+
+	sprintf(&aStr[0], "FPS  : %3d\n\n", s_nCountFPS);
 	nLength = (int)strlen(&aStr[0]);
 
-	wsprintf(&aStr[nLength], "[ 操作説明 ]\n");
+#endif // !NDEBUG
+
+	sprintf(&aStr[nLength], "[ 操作説明 ]\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "<< カメラ操作 >>\n");
+	sprintf(&aStr[nLength], "<< カメラ操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "A, S, D, Wキー           : 視点の移動\n");
+	sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Z, Cキー                 : 視点の旋回\n");
+	sprintf(&aStr[nLength], "Z, Cキー                  : 視点の旋回\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Q, Eキー                 : 注視点の旋回\n");
+	sprintf(&aStr[nLength], "Q, Eキー                  : 注視点の旋回\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "T, Gキー                 : 視点の上下移動\n");
+	sprintf(&aStr[nLength], "T, Gキー                  : 視点の上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Y, Hキー                 : 注視点の上下移動\n");
+	sprintf(&aStr[nLength], "Y, Hキー                  : 注視点の上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "U, Jキー                 : 視点～注視点間の距離変更\n");
+	sprintf(&aStr[nLength], "U, Jキー                  : 視点～注視点間の距離変更\n");
 	nLength = (int)strlen(&aStr[0]);
 
 	Camera *pCamera = GetCamera();		//カメラの情報を取得
@@ -493,7 +494,7 @@ static void DrawDebug(void)
 
 	Model *pModel = GetModel();		//モデルの情報を取得
 
-	wsprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
+	sprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
 	nLength = (int)strlen(&aStr[0]);
