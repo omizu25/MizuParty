@@ -14,6 +14,7 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
+#define MAX_MOVE			(1.0f)			//移動量の最大値
 #define MAX_ROTATION		(0.035f)		//回転の最大数
 
 //--------------------------------------------------
@@ -25,6 +26,8 @@ static Camera		s_camera;		// カメラの情報
 // プロトタイプ宣言
 //--------------------------------------------------
 static void Input(void);
+static void Move(void);
+static void Rot(void);
 static void RotNormalization(D3DXVECTOR3 *pRot);
 
 //--------------------------------------------------
@@ -62,9 +65,6 @@ void UpdateCamera(void)
 	// 入力
 	Input();
 
-	// 角度の正規化
-	RotNormalization(&s_camera.rot);
-	
 	/* ↓旋回の移動↓ */
 
 	if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_C))
@@ -74,12 +74,9 @@ void UpdateCamera(void)
 		s_camera.posV.z = s_camera.posR.z - cosf(s_camera.rot.y) * s_camera.fDistance;
 	}
 
-	if (GetKeyboardPress(DIK_Q) || GetKeyboardPress(DIK_E))
-	{// Q, Eキーが押された
-		// 注視点の移動
-		s_camera.posR.x = s_camera.posV.x + sinf(s_camera.rot.y) * s_camera.fDistance;
-		s_camera.posR.z = s_camera.posV.z + cosf(s_camera.rot.y) * s_camera.fDistance;
-	}
+	// 注視点の移動
+	s_camera.posR.x = s_camera.posV.x + sinf(s_camera.rot.y) * s_camera.fDistance;
+	s_camera.posR.z = s_camera.posV.z + cosf(s_camera.rot.y) * s_camera.fDistance;
 }
 
 //--------------------------------------------------
@@ -131,51 +128,95 @@ Camera *GetCamera(void)
 //--------------------------------------------------
 static void Input(void)
 {
+	// 移動
+	Move();
+
+	// 回転
+	Rot();
+	
+	if (GetKeyboardPress(DIK_Y))
+	{// Yキーが押された
+		s_camera.rot.x += D3DX_PI * 0.1f;
+	}
+	else if (GetKeyboardPress(DIK_H))
+	{// Hキーが押された
+		s_camera.rot.x += D3DX_PI * 0.1f;
+	}
+}
+
+//--------------------------------------------------
+// 移動
+//--------------------------------------------------
+static void Move(void)
+{
+	float fRot = 0.0f;
+
 	/* ↓視点の移動↓ */
 
 	if (GetKeyboardPress(DIK_A))
 	{// Aキーが押された
-		s_camera.posV.x += sinf(s_camera.rot.y) * 5.0f;
-		s_camera.posR.x += sinf(s_camera.rot.y) * 5.0f;
-		s_camera.posV.z += sinf(s_camera.rot.y) * 5.0f;
-		s_camera.posR.z += sinf(s_camera.rot.y) * 5.0f;
+		if (GetKeyboardPress(DIK_W))
+		{// Wキーが押された
+			fRot = s_camera.rot.y + (-D3DX_PI * 0.25f);
+		}	
+		else if (GetKeyboardPress(DIK_S))
+		{// Sキーが押された
+			fRot = s_camera.rot.y + (-D3DX_PI * 0.75f);
+		}
+		else
+		{
+			fRot = s_camera.rot.y + (-D3DX_PI * 0.5f);
+		}
+
+		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
 	}
 	else if (GetKeyboardPress(DIK_D))
 	{// Dキーが押された
-		s_camera.posV.x += sinf(D3DX_PI + s_camera.rot.y);
-		s_camera.posR.x += sinf(D3DX_PI + s_camera.rot.y);
-		s_camera.posV.z += sinf(D3DX_PI + s_camera.rot.y);
-		s_camera.posR.z += sinf(D3DX_PI + s_camera.rot.y);
-	}
+		if (GetKeyboardPress(DIK_W))
+		{// Wキーが押された
+			fRot = s_camera.rot.y + (D3DX_PI * 0.25f);
+		}
+		else if (GetKeyboardPress(DIK_S))
+		{// Sキーが押された
+			fRot = s_camera.rot.y + (D3DX_PI * 0.75f);
+		}
+		else
+		{
+			fRot = s_camera.rot.y + (D3DX_PI * 0.5f);
+		}
 
-	if (GetKeyboardPress(DIK_W))
+		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+	}
+	else if (GetKeyboardPress(DIK_W))
 	{// Wキーが押された
-		s_camera.posV.z += sinf(-D3DX_PI * 0.5f + s_camera.rot.y);
-		s_camera.posR.z += sinf(-D3DX_PI * 0.5f + s_camera.rot.y);
+		fRot = s_camera.rot.y;
+
+		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
 	}
 	else if (GetKeyboardPress(DIK_S))
 	{// Sキーが押された
-		s_camera.posV.z += sinf(D3DX_PI * 0.5f + s_camera.rot.y);
-		s_camera.posR.z += sinf(D3DX_PI * 0.5f + s_camera.rot.y);
-	}
-	
-	if (GetKeyboardPress(DIK_Y))
-	{// Yキーが押された
-		s_camera.posR.z += 1.0f;
-		s_camera.rot.z += D3DX_PI * 0.1f;
-	}
-	else if (GetKeyboardPress(DIK_H))
-	{// Hキーが押された
-		s_camera.posR.z += -1.0f;
-	}
+		fRot = s_camera.rot.y + (-D3DX_PI);
 
+		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+	}
+}
+
+//--------------------------------------------------
+// 回転
+//--------------------------------------------------
+static void Rot(void)
+{
 	/* ↓視点の旋回↓ */
 
 	if (GetKeyboardPress(DIK_Z))
 	{// Zキーが押された
 		s_camera.rot.y += MAX_ROTATION;
 	}
-	
+
 	if (GetKeyboardPress(DIK_C))
 	{// Cキーが押された
 		s_camera.rot.y += -MAX_ROTATION;
@@ -187,17 +228,20 @@ static void Input(void)
 	{// Qキーが押された
 		s_camera.rot.y += -MAX_ROTATION;
 	}
-	
+
 	if (GetKeyboardPress(DIK_E))
 	{// Eキーが押された
 		s_camera.rot.y += MAX_ROTATION;
 	}
+
+	// 角度の正規化
+	RotNormalization(&s_camera.rot);
 }
 
 //--------------------------------------------------
 // 角度の正規化
 //--------------------------------------------------
-void RotNormalization(D3DXVECTOR3 *pRot)
+static void RotNormalization(D3DXVECTOR3 *pRot)
 {
 	if (pRot->y >= D3DX_PI)
 	{// 3.14より大きい

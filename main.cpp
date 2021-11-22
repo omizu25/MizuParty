@@ -465,28 +465,39 @@ static void DrawDebug(void)
 	nLength = (int)strlen(&aStr[0]);
 	wsprintf(&aStr[nLength], "<< カメラ操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "A, S, D, Wキー      : 視点の移動\n");
+	wsprintf(&aStr[nLength], "A, S, D, Wキー           : 視点の移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Z, Cキー            : 視点の旋回\n");
+	wsprintf(&aStr[nLength], "Z, Cキー                 : 視点の旋回\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Q, Eキー            : 注視点の旋回\n");
+	wsprintf(&aStr[nLength], "Q, Eキー                 : 注視点の旋回\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "T, Gキー            : 視点の上下移動\n");
+	wsprintf(&aStr[nLength], "T, Gキー                 : 視点の上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "Y, Hキー            : 注視点の上下移動\n");
+	wsprintf(&aStr[nLength], "Y, Hキー                 : 注視点の上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
-	wsprintf(&aStr[nLength], "U, Jキー            : 視点～注視点間の距離変更\n");
+	wsprintf(&aStr[nLength], "U, Jキー                 : 視点～注視点間の距離変更\n");
 	nLength = (int)strlen(&aStr[0]);
 
 	Camera *pCamera = GetCamera();		//カメラの情報を取得
 
-	sprintf(&aStr[nLength], "視点の座標          : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
+	sprintf(&aStr[nLength], "視点の座標                : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点の座標        : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
+	sprintf(&aStr[nLength], "注視点の座標              : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の角度  : %.3f\n", pCamera->rot.y);
+	sprintf(&aStr[nLength], "注視点と視点の角度( y )   : %.3f\n", pCamera->rot.y);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の距離  : %.3f\n", pCamera->fDistance);
+	sprintf(&aStr[nLength], "注視点と視点の角度( x )   : %.3f\n", pCamera->rot.x);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "注視点と視点の距離        : %.3f\n", pCamera->fDistance);
+	nLength = (int)strlen(&aStr[0]);
+
+	Model *pModel = GetModel();		//モデルの情報を取得
+
+	wsprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "左Shiftキー, 右Shiftキー  : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
 	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画
