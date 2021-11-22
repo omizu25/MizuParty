@@ -16,7 +16,8 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_MOVE		(1.0f)		//移動量の最大値
+#define MAX_MOVE			(1.0f)			//移動量の最大値
+#define MAX_ROTATION		(0.035f)		//回転の最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -52,7 +53,8 @@ void InitModel(void)
 		&s_nNumMat,
 		&s_pMesh);
 
-	// メッシュに使用されているテクスチャ用の配列を用意する
+	//テクスチャ実験中
+	/*// メッシュに使用されているテクスチャ用の配列を用意する
 	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
 
 	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
@@ -61,18 +63,17 @@ void InitModel(void)
 	// 各メッシュのマテリアル情報を取得する
 	for (int i = 0; i < (int)s_nNumMat; i++)
 	{
-		// マテリアルで設定されているテクスチャ読み込み
 		if (pMat[i].pTextureFilename != NULL)
-		{
+		{// マテリアルで設定されているテクスチャ読み込み
 			D3DXCreateTextureFromFileA(pDevice,
 				pMat[i].pTextureFilename,
 				&s_pTexture[i]);
 		}
 		else
 		{
-			s_pTexture[i] = nullptr;
+			s_pTexture[i] = NULL;
 		}
-	}
+	}*/
 
 	s_model.pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -136,24 +137,16 @@ void DrawModel(void)
 	// マテリアルデータへのポインタを取得
 	pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
 
-	//for (int i = 0; i < (int)s_nNumMat; i++)
-	//{
-	//	// マテリアルの設定
-	//	pDevice->SetMaterial(&pMat[i].MatD3D);
-
-	//	// モデルパーツの描画
-	//	s_pMesh->DrawSubset(i);
-	//}
-
 	for (int i = 0; i < (int)s_nNumMat; i++)
 	{
 		// マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
-		// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture[i]);
+		//テクスチャ実験中
+		/*// テクスチャの設定
+		pDevice->SetTexture(0, s_pTexture[i]);*/
 
-		// メッシュを描画
+		// モデルパーツの描画
 		s_pMesh->DrawSubset(i);
 	}
 
@@ -176,6 +169,8 @@ static void Move(void)
 { 
 	Camera *pCamera = GetCamera();		//カメラの取得
 	float fRot = 0.0f;
+
+	/* ↓モデルの移動↓ */
 
 	if (GetKeyboardPress(DIK_LEFT))
 	{// ←キーが押された
@@ -242,5 +237,16 @@ static void Move(void)
 		s_model.pos.z += cosf(fRot) * MAX_MOVE;
 
 		s_model.rot.y = pCamera->rot.y;
+	}
+
+	/* ↓モデルの回転↓ */
+
+	if (GetKeyboardPress(DIK_LSHIFT))
+	{// 左シフトキーが押された
+		s_model.rot.y += -MAX_ROTATION;
+	}
+	else if (GetKeyboardPress(DIK_RSHIFT))
+	{//右シフトキーが押された
+		s_model.rot.y += MAX_ROTATION;
 	}
 }

@@ -14,8 +14,10 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
+#define MAX_NEAR			(10.0f)			//ニアの最大値
+#define MAX_FAR				(1000.0f)		//ファーの最大値
 #define MAX_MOVE			(1.0f)			//移動量の最大値
-#define MAX_ROTATION		(0.035f)		//回転の最大数
+#define MAX_ROTATION		(0.035f)		//回転の最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -67,8 +69,9 @@ void UpdateCamera(void)
 
 	/* ↓旋回の移動↓ */
 
-	if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_C))
-	{// Z, Cキーが押された
+	if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_C) ||
+		GetKeyboardPress(DIK_U) || GetKeyboardPress(DIK_J))
+	{// Z, C, U, Jキーが押された
 		// 視点の移動
 		s_camera.posV.x = s_camera.posR.x - sinf(s_camera.rot.y) * s_camera.fDistance;
 		s_camera.posV.z = s_camera.posR.z - cosf(s_camera.rot.y) * s_camera.fDistance;
@@ -109,8 +112,8 @@ void SetCamera(void)
 		&s_camera.mtxProjection,
 		D3DXToRadian(45.0f),
 		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
-		10.0f,
-		1000.0f);
+		MAX_NEAR,
+		MAX_FAR);
 
 	// プロジェクションマトリックスの設定
 	pDevice->SetTransform(D3DTS_PROJECTION, &s_camera.mtxProjection);
@@ -194,6 +197,39 @@ static void Move(void)
 
 		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
 		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+	}
+
+	if (GetKeyboardPress(DIK_T))
+	{// Tキーが押された
+		fRot = D3DX_PI * 0.5f;
+
+		s_camera.posV.y += sinf(fRot) * MAX_MOVE;
+	}
+	else if (GetKeyboardPress(DIK_G))
+	{// Gキーが押された
+		fRot = -D3DX_PI * 0.5f;
+
+		s_camera.posV.y += sinf(fRot) * MAX_MOVE;
+	}
+
+	/* ↓視点と注視点の距離↓ */
+
+	if (GetKeyboardPress(DIK_U))
+	{// Uキーが押された
+		s_camera.fDistance += -MAX_MOVE;
+	}
+	else if (GetKeyboardPress(DIK_J))
+	{// Jキーが押された
+		s_camera.fDistance += MAX_MOVE;
+	}
+
+	if (s_camera.fDistance <= MAX_NEAR)
+	{// 指定の値以下
+		s_camera.fDistance = MAX_NEAR;
+	}
+	else if (s_camera.fDistance >= MAX_FAR)
+	{// 指定の値以上
+		s_camera.fDistance = MAX_FAR;
 	}
 }
 
