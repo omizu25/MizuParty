@@ -28,7 +28,7 @@ static Camera		s_camera;		// カメラの情報
 static void Input(void);
 static void Move(void);
 static void Rot(void);
-static void RotNormalization(D3DXVECTOR3 *pRot);
+static void RotNormalization(float *pRot);
 
 //--------------------------------------------------
 // 初期化
@@ -39,7 +39,7 @@ void InitCamera(void)
 	s_camera.posV = D3DXVECTOR3(0.0f, 50.0f, -100.0f);
 	s_camera.posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
-	s_camera.rot  = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_camera.rot  = D3DXVECTOR3((D3DX_PI * 0.5f), 0.0f, 0.0f);
 
 	float fDifX, fDifZ;
 
@@ -77,6 +77,7 @@ void UpdateCamera(void)
 	// 注視点の移動
 	s_camera.posR.x = s_camera.posV.x + sinf(s_camera.rot.y) * s_camera.fDistance;
 	s_camera.posR.z = s_camera.posV.z + cosf(s_camera.rot.y) * s_camera.fDistance;
+	s_camera.posR.y = s_camera.posV.y + tanf(-s_camera.rot.x + (D3DX_PI * 0.5f)) * s_camera.fDistance;
 }
 
 //--------------------------------------------------
@@ -133,15 +134,6 @@ static void Input(void)
 
 	// 回転
 	Rot();
-	
-	if (GetKeyboardPress(DIK_Y))
-	{// Yキーが押された
-		s_camera.rot.x += D3DX_PI * 0.1f;
-	}
-	else if (GetKeyboardPress(DIK_H))
-	{// Hキーが押された
-		s_camera.rot.x += D3DX_PI * 0.1f;
-	}
 }
 
 //--------------------------------------------------
@@ -235,20 +227,40 @@ static void Rot(void)
 	}
 
 	// 角度の正規化
-	RotNormalization(&s_camera.rot);
+	RotNormalization(&s_camera.rot.y);
+
+	/* ↓注視点の上下↓ */
+
+	if (GetKeyboardPress(DIK_Y))
+	{// Yキーが押された
+		s_camera.rot.x += -MAX_ROTATION;
+	}
+	else if (GetKeyboardPress(DIK_H))
+	{// Hキーが押された
+		s_camera.rot.x += MAX_ROTATION;
+	}
+
+	if (s_camera.rot.x <= 0.1f)
+	{// 指定の値以下
+		s_camera.rot.x = 0.1f;
+	}
+	else if (s_camera.rot.x >= 3.0f)
+	{// 指定の値以上
+		s_camera.rot.x = 3.0f;
+	}
 }
 
 //--------------------------------------------------
 // 角度の正規化
 //--------------------------------------------------
-static void RotNormalization(D3DXVECTOR3 *pRot)
+static void RotNormalization(float *pRot)
 {
-	if (pRot->y >= D3DX_PI)
+	if (*pRot >= D3DX_PI)
 	{// 3.14より大きい
-		pRot->y -= D3DX_PI * 2.0f;
+		*pRot -= D3DX_PI * 2.0f;
 	}
-	else if (pRot->y <= -D3DX_PI)
+	else if (*pRot <= -D3DX_PI)
 	{// -3.14より小さい
-		pRot->y += D3DX_PI * 2.0f;
+		*pRot += D3DX_PI * 2.0f;
 	}
 }
