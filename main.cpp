@@ -336,19 +336,19 @@ static void Uninit(void)
 	UninitLight();
 
 	if (s_pFont != NULL)
-	{// デバッグ表示用フォントの破棄
+	{// デバッグ表示用フォントの解放
 		s_pFont->Release();
 		s_pFont = NULL;
 	}
 
 	if (s_pD3DDevice != NULL)
-	{// Direct3Dデバイスの破棄
+	{// Direct3Dデバイスの解放
 		s_pD3DDevice->Release();
 		s_pD3DDevice = NULL;
 	}
 
 	if (s_pD3D != NULL)
-	{// Direct3Dオブジェクトの破棄
+	{// Direct3Dオブジェクトの解放
 		s_pD3D->Release();
 		s_pD3D = NULL;
 	}

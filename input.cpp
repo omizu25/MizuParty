@@ -93,7 +93,7 @@ HRESULT InitJoypad(void)
 //--------------------------------------------------
 void UninitKeyboard(void)
 {
-	// 入力デバイス(キーボード)の破棄
+	// 入力デバイス(キーボード)の解放
 	if (s_pDevKeyboard != NULL)
 	{
 		s_pDevKeyboard->Unacquire();
@@ -101,7 +101,7 @@ void UninitKeyboard(void)
 		s_pDevKeyboard = NULL;
 	}
 
-	// DirectInputオブジェクトの破棄
+	// DirectInputオブジェクトの解放
 	if (s_pInput != NULL)
 	{
 		s_pInput->Release();

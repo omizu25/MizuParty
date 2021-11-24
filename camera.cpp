@@ -27,7 +27,6 @@ static Camera		s_camera;		// カメラの情報
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-static void Input(void);
 static void Move(void);
 static void Rot(void);
 static void RotNormalization(float *pRot);
@@ -64,8 +63,11 @@ void UninitCamera(void)
 //--------------------------------------------------
 void UpdateCamera(void)
 {
-	// 入力
-	Input();
+	// 移動
+	Move();
+
+	// 回転
+	Rot();
 
 	/* ↓旋回の移動↓ */
 
@@ -125,18 +127,6 @@ void SetCamera(void)
 Camera *GetCamera(void)
 {
 	return &s_camera;
-}
-
-//--------------------------------------------------
-// 入力
-//--------------------------------------------------
-static void Input(void)
-{
-	// 移動
-	Move();
-
-	// 回転
-	Rot();
 }
 
 //--------------------------------------------------

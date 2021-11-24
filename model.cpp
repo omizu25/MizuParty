@@ -53,8 +53,7 @@ void InitModel(void)
 		&s_nNumMat,
 		&s_pMesh);
 
-	//テクスチャ実験中
-	/*// メッシュに使用されているテクスチャ用の配列を用意する
+	// メッシュに使用されているテクスチャ用の配列を用意する
 	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
 
 	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
@@ -63,6 +62,8 @@ void InitModel(void)
 	// 各メッシュのマテリアル情報を取得する
 	for (int i = 0; i < (int)s_nNumMat; i++)
 	{
+		s_pTexture[i] = NULL;
+
 		if (pMat[i].pTextureFilename != NULL)
 		{// マテリアルで設定されているテクスチャ読み込み
 			D3DXCreateTextureFromFileA(pDevice,
@@ -73,7 +74,7 @@ void InitModel(void)
 		{
 			s_pTexture[i] = NULL;
 		}
-	}*/
+	}
 
 	s_model.pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -84,14 +85,29 @@ void InitModel(void)
 //--------------------------------------------------
 void UninitModel(void)
 {
+	if (s_pTexture != NULL)
+	{
+		for (int i = 0; i < (int)s_nNumMat; i++)
+		{
+			if (s_pTexture[i] != NULL)
+			{// テクスチャの解放
+				s_pTexture[i]->Release();
+				s_pTexture[i] = NULL;
+			}
+		}
+
+		delete[](s_pTexture);
+		s_pTexture = NULL;
+	}
+
 	if (s_pMesh != NULL)
-	{// メッシュの破棄
+	{// メッシュの解放
 		s_pMesh->Release();
 		s_pMesh = NULL;
 	}
 
 	if (s_pBuffMat != NULL)
-	{// マテリアルの破棄
+	{// マテリアルの解放
 		s_pBuffMat->Release();
 		s_pBuffMat = NULL;
 	}
@@ -142,9 +158,8 @@ void DrawModel(void)
 		// マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
-		//テクスチャ実験中
-		/*// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture[i]);*/
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTexture[i]);
 
 		// モデルパーツの描画
 		s_pMesh->DrawSubset(i);
@@ -152,6 +167,9 @@ void DrawModel(void)
 
 	// 保存していたマテリアルを戻す
 	pDevice->SetMaterial(&matDef);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, NULL);
 }
 
 //--------------------------------------------------

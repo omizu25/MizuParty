@@ -11692,7 +11692,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "data\\TEXTURE\\ÇµÇ‹ÇµÇ‹.jpg";
+    "data\\TEXTURE\\ÇµÇ?µÇ‹.jpg";
    }
   }
   Material {
@@ -11731,7 +11731,7 @@ Mesh {
    0.000000;0.000000;0.000000;;
    0.000000;0.000000;0.000000;;
    TextureFilename {
-    "data\\TEXTURE\\„Åó„Åæ„Åó„Åæ.jpg";
+    "data\\TEXTURE\\ÇµÇ‹ÇµÇ‹.jpg";
    }
   }
   Material {

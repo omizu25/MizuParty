@@ -82,13 +82,13 @@ void InitPolygon(void)
 void UninitPolygon(void)
 {
 	if (s_pTexture != NULL)
-	{// テクスチャの破棄
+	{// テクスチャの解放
 		s_pTexture->Release();
 		s_pTexture = NULL;
 	}
 
 	if (s_pVtxBuff != NULL)
-	{// 頂点バッファの破棄
+	{// 頂点バッファの解放
 		s_pVtxBuff->Release();
 		s_pVtxBuff = NULL;
 	}
