@@ -66,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 	HWND hWnd;												// ウインドウハンドル (識別子)
 	MSG msg;												// メッセージを格納する変数
 	RECT rect = {0, 0, SCREEN_WIDTH, SCREEN_HEIGHT};		// 画面サイズの構造体
-	DWORD dwCorrentTime;									// 現在時刻
+	DWORD dwCurrentTime;									// 現在時刻
 	DWORD dwExecLastTime;									// 最後に処理した時刻
 	DWORD dwFrameCount;										// フレームカウント
 	DWORD dwFPSLastTime;									// 最後にFPSを計算した時刻
@@ -101,7 +101,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 	// 分解能を設定
 	timeBeginPeriod(1);
 
-	dwCorrentTime = 0;					// 初期化する
+	dwCurrentTime = 0;					// 初期化する
 	dwExecLastTime = timeGetTime();		// 現在時刻を取得 (保存)
 	dwFrameCount = 0;					// 初期化する
 	dwFPSLastTime = timeGetTime();		// 現在時刻を取得 (保存)
@@ -126,21 +126,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 		}
 		else
 		{// DirectXの処理
-			dwCorrentTime = timeGetTime();		// 現在時刻を取得
+			dwCurrentTime = timeGetTime();		// 現在時刻を取得
 
-			if ((dwCorrentTime - dwFPSLastTime) >= 500)
+			if ((dwCurrentTime - dwFPSLastTime) >= 500)
 			{// 0.5秒経過
 				// FPSの計算
-				s_nCountFPS = (dwFrameCount * 1000) / (dwCorrentTime - dwFPSLastTime);
+				s_nCountFPS = (dwFrameCount * 1000) / (dwCurrentTime - dwFPSLastTime);
 
-				dwFPSLastTime = dwCorrentTime;		// FPSを計測した時刻を保存
+				dwFPSLastTime = dwCurrentTime;		// FPSを計測した時刻を保存
 
 				dwFrameCount = 0;					// フレームカウントをクリア
 			}
 
-			if ((dwCorrentTime - dwExecLastTime) >= (1000 / 60))
+			if ((dwCurrentTime - dwExecLastTime) >= (1000 / 60))
 			{// 60分の1秒経過
-				dwExecLastTime = dwCorrentTime;		// 処理開始の時刻[現在時刻]を保存
+				dwExecLastTime = dwCurrentTime;		// 処理開始の時刻[現在時刻]を保存
 
 				// 更新処理
 				Update();

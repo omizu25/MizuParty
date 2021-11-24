@@ -43,7 +43,6 @@ void InitModel(void)
 
 	// Xƒtƒ@ƒCƒ‹‚Ì“Ç‚İ‚İ
 	D3DXLoadMeshFromX(
-		/*"data\\MODEL\\ƒŠƒ€ƒ‹.x",*/
 		"data\\MODEL\\‚Ä‚é‚Ä‚é‚SŠú¶.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
