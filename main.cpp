@@ -455,12 +455,12 @@ static void DrawDebug(void)
 
 	/* «•¶š—ñ‚Ì‘ã“ü« */
 
-#ifndef NDEBUG
+#ifdef _DEBUG
 
 	sprintf(&aStr[0], "FPS  : %3d\n\n", s_nCountFPS);
 	nLength = (int)strlen(&aStr[0]);
 
-#endif // !NDEBUG
+#endif // !_DEBUG
 
 	sprintf(&aStr[nLength], "[ ‘€ìà–¾ ]\n");
 	nLength = (int)strlen(&aStr[0]);
