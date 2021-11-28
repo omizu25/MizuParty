@@ -14,6 +14,7 @@ typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
 	D3DXVECTOR3		rot;			// 向き
+	D3DXVECTOR3		rotDest;		// 目的の向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
 }Model;
 

@@ -159,6 +159,8 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="polygon.cpp" />
+    <ClCompile Include="setup.cpp" />
+    <ClCompile Include="shadow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="camera.h" />
@@ -167,6 +169,8 @@
     <ClInclude Include="main.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="polygon.h" />
+    <ClInclude Include="setup.h" />
+    <ClInclude Include="shadow.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

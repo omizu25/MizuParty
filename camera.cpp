@@ -42,12 +42,12 @@ void InitCamera(void)
 	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// ŒÅ’è‚Å‚¢‚¢
 	s_camera.rot  = D3DXVECTOR3((D3DX_PI * 0.5f), 0.0f, 0.0f);
 
-	float fDifX, fDifZ;
+	float fDisX, fDisZ;
 
-	fDifX = s_camera.posV.x - s_camera.posR.x;
-	fDifZ = s_camera.posV.z - s_camera.posR.z;
+	fDisX = s_camera.posV.x - s_camera.posR.x;
+	fDisZ = s_camera.posV.z - s_camera.posR.z;
 
-	s_camera.fDistance = sqrtf((fDifX * fDifX) + (fDifZ * fDifZ));
+	s_camera.fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
 }
 
 //--------------------------------------------------

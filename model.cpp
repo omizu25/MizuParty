@@ -18,6 +18,7 @@
 //--------------------------------------------------
 #define MAX_MOVE			(1.0f)			//移動量の最大値
 #define MAX_ROTATION		(0.035f)		//回転の最大値
+#define MAX_ATTENUATION		(0.1f)			//減衰係数の最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -32,6 +33,8 @@ static Model					s_model;				// モデルの情報
 // プロトタイプ宣言
 //--------------------------------------------------
 static void Move(void);
+static void Rot(void);
+static void RotNormalization(float *pRot);
 
 //--------------------------------------------------
 // 初期化
@@ -75,7 +78,7 @@ void InitModel(void)
 		}
 	}
 
-	s_model.pos = D3DXVECTOR3(0.0f, 5.0f, 0.0f);
+	s_model.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
 
@@ -119,6 +122,20 @@ void UpdateModel(void)
 {
 	// 移動
 	Move();
+
+	// 回転
+	Rot();
+
+	float fAngle = s_model.rotDest.y - s_model.rot.y;
+
+	// 角度の正規化
+	RotNormalization(&fAngle);
+
+	//慣性・向きを更新 (減衰させる)
+	s_model.rot.y += fAngle * MAX_ATTENUATION;
+
+	// 角度の正規化
+	RotNormalization(&s_model.rot.y);
 }
 
 //--------------------------------------------------
@@ -195,23 +212,20 @@ static void Move(void)
 		{// ↑キーが押された
 			fRot = pCamera->rot.y + (-D3DX_PI * 0.25f);
 
-			s_model.rot.y = pCamera->rot.y + (D3DX_PI * 0.75f);
+			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.75f);
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
 		{// ↓キーが押された
 			fRot = pCamera->rot.y + (-D3DX_PI * 0.75f);
 
-			s_model.rot.y = pCamera->rot.y + (D3DX_PI * 0.25f);
+			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.25f);
 		}
 		else
 		{
 			fRot = pCamera->rot.y + (-D3DX_PI * 0.5f);
 
-			s_model.rot.y = pCamera->rot.y + (D3DX_PI * 0.5f);
+			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.5f);
 		}
-
-		s_model.pos.x += sinf(fRot) * MAX_MOVE;
-		s_model.pos.z += cosf(fRot) * MAX_MOVE;
 	}
 	else if (GetKeyboardPress(DIK_RIGHT))
 	{// →キーが押された
@@ -219,51 +233,70 @@ static void Move(void)
 		{// ↑キーが押された
 			fRot = pCamera->rot.y + (D3DX_PI * 0.25f);
 
-			s_model.rot.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
+			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
 		{// ↓キーが押された
 			fRot = pCamera->rot.y + (D3DX_PI * 0.75f);
 
-			s_model.rot.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
+			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
 		}
 		else
 		{
 			fRot = pCamera->rot.y + (D3DX_PI * 0.5f);
 
-			s_model.rot.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
+			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
 		}
-
-		s_model.pos.x += sinf(fRot) * MAX_MOVE;
-		s_model.pos.z += cosf(fRot) * MAX_MOVE;
 	}
 	else if (GetKeyboardPress(DIK_UP))
 	{// ↑キーが押された
 		fRot = pCamera->rot.y;
 
-		s_model.pos.x += sinf(fRot) * MAX_MOVE;
-		s_model.pos.z += cosf(fRot) * MAX_MOVE;
-
-		s_model.rot.y = pCamera->rot.y + D3DX_PI;
+		s_model.rotDest.y = pCamera->rot.y + D3DX_PI;
 	}
 	else if (GetKeyboardPress(DIK_DOWN))
 	{// ↓キーが押された
 		fRot = pCamera->rot.y + D3DX_PI;
 
-		s_model.pos.x += sinf(fRot) * MAX_MOVE;
-		s_model.pos.z += cosf(fRot) * MAX_MOVE;
-
-		s_model.rot.y = pCamera->rot.y;
+		s_model.rotDest.y = pCamera->rot.y;
 	}
 
+	if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+		GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+	{// ←, →, ↑, ↓キーが押された
+		s_model.pos.x += sinf(fRot) * MAX_MOVE;
+		s_model.pos.z += cosf(fRot) * MAX_MOVE;
+	}
+}
+
+//--------------------------------------------------
+// 回転
+//--------------------------------------------------
+static void Rot(void)
+{
 	/* ↓モデルの回転↓ */
 
 	if (GetKeyboardPress(DIK_LSHIFT))
 	{// 左シフトキーが押された
-		s_model.rot.y += -MAX_ROTATION;
+		s_model.rotDest.y += -MAX_ROTATION;
 	}
 	else if (GetKeyboardPress(DIK_RSHIFT))
 	{//右シフトキーが押された
-		s_model.rot.y += MAX_ROTATION;
+		s_model.rotDest.y += MAX_ROTATION;
+	}
+}
+
+//--------------------------------------------------
+// 角度の正規化
+//--------------------------------------------------
+static void RotNormalization(float *pRot)
+{
+	if (*pRot >= D3DX_PI)
+	{// 3.14より大きい
+		*pRot -= D3DX_PI * 2.0f;
+	}
+	else if (*pRot <= -D3DX_PI)
+	{// -3.14より小さい
+		*pRot += D3DX_PI * 2.0f;
 	}
 }
