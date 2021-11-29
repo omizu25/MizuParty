@@ -10,6 +10,14 @@
 //--------------------------------------------------
 #include "main.h"
 #include "polygon.h"
+#include "setup.h"
+
+//--------------------------------------------------
+// マクロ定義
+//--------------------------------------------------
+#define MAX_WIDTH		(100.0f)		//幅の最大値
+#define MAX_HEIGHT		(0.0f)			//高さの最大値
+#define MAX_DEPTH		(100.0f)		//奥行きの最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -48,29 +56,19 @@ void InitPolygon(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点座標の指定
-	pVtx[0].pos = D3DXVECTOR3(-100.0f, 0.0f,  100.0f);
-	pVtx[1].pos = D3DXVECTOR3( 100.0f, 0.0f,  100.0f);
-	pVtx[2].pos = D3DXVECTOR3(-100.0f, 0.0f, -100.0f);
-	pVtx[3].pos = D3DXVECTOR3( 100.0f, 0.0f, -100.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// 頂点座標の設定
+	Setpos3D(pVtx, pos, MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH);
 
 	// 各頂点の法線の設定
-	pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[2].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
-	pVtx[3].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
+	Initnor3D(pVtx);
 
 	// 頂点カラーの設定
-	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[2].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-	pVtx[3].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	Initcol3D(pVtx);
 
 	// テクスチャ座標の設定
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
-	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
-	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
-	pVtx[3].tex = D3DXVECTOR2(1.0f, 1.0f);
+	Inittex3D(pVtx);
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
