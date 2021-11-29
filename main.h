@@ -24,8 +24,6 @@
 #pragma comment(lib, "d3dx9.lib")		// [d3d9.lib]の拡張ライブラリ
 #pragma comment(lib, "dxguid.lib")		// DirectXコンポーネント(部品)使用に必要
 #pragma comment(lib, "winmm.lib")		// システム時刻取得に必要
-#pragma comment(lib, "dinput8.lib")		// 入力処理に必要
-#pragma comment(lib, "xinput.lib")		// ジョイパッド処理に必要
 
 //--------------------------------------------------
 // マクロ定義
