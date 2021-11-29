@@ -21,6 +21,8 @@
 #define MAX_MOVE			(1.0f)			//移動量の最大値
 #define MAX_ROTATION		(0.035f)		//回転の最大値
 #define MAX_ATTENUATION		(0.1f)			//減衰係数の最大値
+#define MAX_HEIGHT			(80.0f)			//高さの最大値
+#define MIN_HEIGHT			(10.0f)			//高さの最小値
 
 //--------------------------------------------------
 // スタティック変数
@@ -274,6 +276,24 @@ static void Move(void)
 	{// ←, →, ↑, ↓キーが押された
 		s_model.pos.x += sinf(fRot) * MAX_MOVE;
 		s_model.pos.z += cosf(fRot) * MAX_MOVE;
+	}
+
+	if (GetKeyboardPress(DIK_I))
+	{// Iキーが押された
+		s_model.pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
+	}
+	else if (GetKeyboardPress(DIK_K))
+	{// Kキーが押された
+		s_model.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
+	}
+
+	if (s_model.pos.y <= MIN_HEIGHT)
+	{// 指定の値以下
+		s_model.pos.y = MIN_HEIGHT;
+	}
+	else if (s_model.pos.y >= MAX_HEIGHT)
+	{// 指定の値以上
+		s_model.pos.y = MAX_HEIGHT;
 	}
 }
 

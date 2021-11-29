@@ -513,6 +513,8 @@ static void DrawDebug(void)
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "左Shiftキー, 右Shiftキー  : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
 	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "Iキー, Kキー              : 上下移動\n");
+	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画
 	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f));

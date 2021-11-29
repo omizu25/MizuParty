@@ -17,6 +17,9 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_SHADOW		(255)		//影の最大数
+#define BASIC_WIDTH		(15.0f)		//幅の基準値
+#define BASIC_HEIGHT	(0.1f)		//高さの基準値
+#define BASIC_DEPTH		(15.0f)		//奥行きの基準値
 
 //--------------------------------------------------
 // 影の構造体を定義
@@ -70,8 +73,17 @@ void InitShadow(void)
 		s_shadow[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		s_shadow[i].bUse = false;
 
-		// 全ての初期化
-		InitAll3D(pVtx);
+		// 頂点座標の設定
+		Setpos3D(pVtx, s_shadow[i].pos, BASIC_WIDTH, BASIC_HEIGHT, BASIC_DEPTH);
+
+		// 各頂点の法線の設定
+		Initnor3D(pVtx);
+
+		// 頂点カラーの設定
+		Initcol3D(pVtx);
+
+		// テクスチャ座標の設定
+		Inittex3D(pVtx);
 	}
 
 	// 頂点バッファをアンロックする
@@ -113,6 +125,14 @@ void DrawShadow(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
+	// 減算合成
+	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
+	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, s_pTexture);
+
 	for (int i = 0; i < MAX_SHADOW; i++)
 	{
 		Shadow *pShadow = &s_shadow[i];
@@ -144,28 +164,20 @@ void DrawShadow(void)
 		// 頂点フォーマットの設定
 		pDevice->SetFVF(FVF_VERTEX_3D);
 
-		// 減算合成
-		pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
-		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
-
-		// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture);
-
 		// ポリゴンの描画 四角
 		pDevice->DrawPrimitive(
 			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 			i * 4,						// 描画する最初の頂点インデックス
 			2);							// プリミティブ(ポリゴン)数
-
-		// テクスチャの解除
-		pDevice->SetTexture(0, NULL);
-
-		// 元に戻す
-		pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-		pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-		pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 	}
+
+	// テクスチャの解除
+	pDevice->SetTexture(0, NULL);
+
+	// 元に戻す
+	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
+	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 }
 
 //--------------------------------------------------
@@ -200,8 +212,15 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 
 		pVtx += (i * 4);		//該当の位置まで進める
 
+		float fSize = pos.y * 0.15f;
+
 		// 頂点座標の設定
-		Setpos3D(pVtx, pShadow->pos, 15.0f, 0.0f, 15.0f);
+		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+
+		float Alpha = 1.0f - (pos.y * 0.005f);
+
+		// 頂点カラーの設定
+		Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -224,4 +243,24 @@ void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
 	polygon *pPolygon = GetPolygon();
 
 	pShadow->pos.y = pPolygon->pos.y + 0.1f;
+
+	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	pVtx += (nIdxShadow * 4);		//該当の位置まで進める
+
+	float fSize = pos.y * 0.15f;
+
+	// 頂点座標の設定
+	Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+
+	float Alpha = 1.0f - (pos.y * 0.005f);
+
+	// 頂点カラーの設定
+	Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuff->Unlock();
 }
