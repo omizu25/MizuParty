@@ -7,6 +7,9 @@
 #ifndef _SETUP_H_		//このマクロ定義がされてなかったら
 #define _SETUP_H_		//２重インクルード防止のマクロ定義
 
+//--------------------------------------------------
+// インクルード
+//--------------------------------------------------
 #include "main.h"
 
 //-------------------------
@@ -28,5 +31,6 @@ void Initnor3D(VERTEX_3D *pVtx);
 void Initcol3D(VERTEX_3D *pVtx);
 void Inittex3D(VERTEX_3D *pVtx);
 void InitAll3D(VERTEX_3D *pVtx);
+void NormalizeRot(float *pRot);
 
 #endif // !_SETUP_H_

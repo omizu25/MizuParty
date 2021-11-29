@@ -8,11 +8,22 @@
 #define _POLYGON_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
+// ポリゴンの構造体を定義
+//--------------------------------------------------
+typedef struct
+{
+	D3DXVECTOR3		pos;			// 位置
+	D3DXVECTOR3		rot;			// 向き
+	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
+}polygon;
+
+//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 void InitPolygon(void);
 void UninitPolygon(void);
 void UpdatePolygon(void);
 void DrawPolygon(void);
+polygon *GetPolygon(void);
 
 #endif // !_POLYGON_H_

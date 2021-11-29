@@ -199,3 +199,18 @@ void InitAll3D(VERTEX_3D *pVtx)
 	// テクスチャの初期化 [3D]
 	Inittex3D(pVtx);
 }
+
+//--------------------------------------------------
+// 角度の正規化
+//--------------------------------------------------
+void NormalizeRot(float *pRot)
+{
+	if (*pRot >= D3DX_PI)
+	{// 3.14より大きい
+		*pRot -= D3DX_PI * 2.0f;
+	}
+	else if (*pRot <= -D3DX_PI)
+	{// -3.14より小さい
+		*pRot += D3DX_PI * 2.0f;
+	}
+}

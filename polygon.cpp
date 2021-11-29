@@ -24,9 +24,7 @@
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
-static D3DXVECTOR3					s_pos;					// 位置
-static D3DXVECTOR3					s_rot;					// 向き
-static D3DXMATRIX					s_mtxWorld;				// ワールドマトリックス
+static polygon						s_polygon;				// ポリゴンの情報
 
 //--------------------------------------------------
 // 初期化
@@ -56,10 +54,11 @@ void InitPolygon(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_polygon.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_polygon.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 頂点座標の設定
-	Setpos3D(pVtx, pos, MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH);
+	Setpos3D(pVtx, s_polygon.pos, MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH);
 
 	// 各頂点の法線の設定
 	Initnor3D(pVtx);
@@ -110,18 +109,18 @@ void DrawPolygon(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_mtxWorld);
+	D3DXMatrixIdentity(&s_polygon.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_rot.y, s_rot.x, s_rot.z);
-	D3DXMatrixMultiply(&s_mtxWorld, &s_mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_polygon.rot.y, s_polygon.rot.x, s_polygon.rot.z);
+	D3DXMatrixMultiply(&s_polygon.mtxWorld, &s_polygon.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_pos.x, s_pos.y, s_pos.z);
-	D3DXMatrixMultiply(&s_mtxWorld, &s_mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_polygon.pos.x, s_polygon.pos.y, s_polygon.pos.z);
+	D3DXMatrixMultiply(&s_polygon.mtxWorld, &s_polygon.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_polygon.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -140,4 +139,12 @@ void DrawPolygon(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
+}
+
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
+polygon *GetPolygon(void)
+{
+	return &s_polygon;
 }

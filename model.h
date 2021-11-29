@@ -16,6 +16,7 @@ typedef struct
 	D3DXVECTOR3		rot;			// 向き
 	D3DXVECTOR3		rotDest;		// 目的の向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
+	int				nIdxShadow;		// 使用している影の番号
 }Model;
 
 //--------------------------------------------------

@@ -10,6 +10,7 @@
 //--------------------------------------------------
 #include "camera.h"
 #include "input.h"
+#include "setup.h"
 
 //--------------------------------------------------
 // マクロ定義
@@ -240,7 +241,7 @@ static void Rot(void)
 	}
 
 	// 角度の正規化
-	RotNormalization(&s_camera.rot.y);
+	NormalizeRot(&s_camera.rot.y);
 
 	/* ↓注視点の上下↓ */
 

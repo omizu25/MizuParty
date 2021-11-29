@@ -12,6 +12,8 @@
 #include "input.h"
 #include "main.h"
 #include "model.h"
+#include "setup.h"
+#include "shadow.h"
 
 //--------------------------------------------------
 // マクロ定義
@@ -79,6 +81,10 @@ void InitModel(void)
 
 	s_model.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// 影の設定
+	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot);
 }
 
 //--------------------------------------------------
@@ -128,13 +134,16 @@ void UpdateModel(void)
 	float fAngle = s_model.rotDest.y - s_model.rot.y;
 
 	// 角度の正規化
-	RotNormalization(&fAngle);
+	NormalizeRot(&fAngle);
 
 	//慣性・向きを更新 (減衰させる)
 	s_model.rot.y += fAngle * MAX_ATTENUATION;
 
 	// 角度の正規化
-	RotNormalization(&s_model.rot.y);
+	NormalizeRot(&s_model.rot.y);
+
+	// 影の位置の設定
+	SetPosShadow(s_model.nIdxShadow, s_model.pos);
 }
 
 //--------------------------------------------------

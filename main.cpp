@@ -14,6 +14,7 @@
 #include "main.h"
 #include "model.h"
 #include "polygon.h"
+#include "shadow.h"
 
 #include <stdio.h>
 
@@ -296,6 +297,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ポリゴンの初期化処理
 	InitPolygon();
 
+	// 影の初期化処理
+	InitShadow();
+
 	// モデルの初期化処理
 	InitModel();
 
@@ -325,6 +329,9 @@ static void Uninit(void)
 
 	// ポリゴンの終了処理
 	UninitPolygon();
+
+	// 影の終了処理
+	UninitShadow();
 
 	// モデルの終了処理
 	UninitModel();
@@ -375,6 +382,9 @@ static void Update(void)
 	// モデルの更新処理
 	UpdateModel();
 
+	// 影の更新処理
+	UpdateShadow();
+
 	// カメラの更新処理
 	UpdateCamera();
 
@@ -422,6 +432,9 @@ static void Draw(void)
 		// モデルの描画処理
 		DrawModel();
 
+		// 影の描画処理
+		DrawShadow();
+
 		if (s_bDebug)
 		{// デバッグ表示
 			// デバッグの表示
@@ -442,21 +455,6 @@ static void Draw(void)
 LPDIRECT3DDEVICE9 GetDevice(void)
 {
 	return s_pD3DDevice;
-}
-
-//--------------------------------------------------
-// 角度の正規化
-//--------------------------------------------------
-void RotNormalization(float *pRot)
-{
-	if (*pRot >= D3DX_PI)
-	{// 3.14より大きい
-		*pRot -= D3DX_PI * 2.0f;
-	}
-	else if (*pRot <= -D3DX_PI)
-	{// -3.14より小さい
-		*pRot += D3DX_PI * 2.0f;
-	}
 }
 
 //--------------------------------------------------
