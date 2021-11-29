@@ -61,5 +61,6 @@ typedef struct
 // プロトタイプ宣言
 //--------------------------------------------------
 LPDIRECT3DDEVICE9 GetDevice(void);
+void RotNormalization(float *pRot);
 
 #endif // !_MAIN_H_

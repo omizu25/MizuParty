@@ -34,7 +34,6 @@ static Model					s_model;				// モデルの情報
 //--------------------------------------------------
 static void Move(void);
 static void Rot(void);
-static void RotNormalization(float *pRot);
 
 //--------------------------------------------------
 // 初期化
@@ -283,20 +282,5 @@ static void Rot(void)
 	else if (GetKeyboardPress(DIK_RSHIFT))
 	{//右シフトキーが押された
 		s_model.rotDest.y += MAX_ROTATION;
-	}
-}
-
-//--------------------------------------------------
-// 角度の正規化
-//--------------------------------------------------
-static void RotNormalization(float *pRot)
-{
-	if (*pRot >= D3DX_PI)
-	{// 3.14より大きい
-		*pRot -= D3DX_PI * 2.0f;
-	}
-	else if (*pRot <= -D3DX_PI)
-	{// -3.14より小さい
-		*pRot += D3DX_PI * 2.0f;
 	}
 }

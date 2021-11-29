@@ -29,7 +29,6 @@ static Camera		s_camera;		// ƒJƒƒ‰‚Ìî•ñ
 //--------------------------------------------------
 static void Move(void);
 static void Rot(void);
-static void RotNormalization(float *pRot);
 
 //--------------------------------------------------
 // ‰Šú‰»
@@ -261,20 +260,5 @@ static void Rot(void)
 	else if (s_camera.rot.x >= 3.0f)
 	{// Žw’è‚Ì’lˆÈã
 		s_camera.rot.x = 3.0f;
-	}
-}
-
-//--------------------------------------------------
-// Šp“x‚Ì³‹K‰»
-//--------------------------------------------------
-static void RotNormalization(float *pRot)
-{
-	if (*pRot >= D3DX_PI)
-	{// 3.14‚æ‚è‘å‚«‚¢
-		*pRot -= D3DX_PI * 2.0f;
-	}
-	else if (*pRot <= -D3DX_PI)
-	{// -3.14‚æ‚è¬‚³‚¢
-		*pRot += D3DX_PI * 2.0f;
 	}
 }
