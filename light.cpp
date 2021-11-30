@@ -36,7 +36,7 @@ void InitLight(void)
 	s_light.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ライトの方向を設定
-	vecDir = D3DXVECTOR3(0.2f, -0.8f, -0.4f);
+	vecDir = D3DXVECTOR3(0.2f, -0.8f, 0.4f);
 
 	// 正規化する ( 大きさ 1 のベクトルにする )
 	D3DXVec3Normalize(&vecDir, &vecDir);

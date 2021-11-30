@@ -285,14 +285,11 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
 		"Terminal", &s_pFont);
 
-	// キーボードの初期化処理
-	if (FAILED(InitKeyboard(hInstance, hWnd)))
+	// 入力処理の初期化処理
+	if (FAILED(InitInput(hInstance, hWnd)))
 	{
 		return E_FAIL;
 	}
-
-	// ジョイパッドの初期化処理
-	InitJoypad();
 
 	// ポリゴンの初期化処理
 	InitPolygon();
@@ -321,11 +318,8 @@ static void Uninit(void)
 	// 各種オブジェクトの終了処理
 	//--------------------------------------------------
 
-	// キーボードの終了処理
-	UninitKeyboard();
-
-	// ジョイパッドの終了処理
-	UninitJoypad();
+	// 入力処理の終了処理
+	UninitInput();
 
 	// ポリゴンの終了処理
 	UninitPolygon();
@@ -370,11 +364,8 @@ static void Update(void)
 	// 各種オブジェクトの更新処理
 	//--------------------------------------------------
 
-	// キーボードの更新処理
-	UpdateKeyboard();
-
-	// ジョイパッドの更新処理
-	UpdateJoypad();
+	// 入力処理の更新処理
+	UpdateInput();
 
 	// ポリゴンの更新処理
 	UpdatePolygon();
@@ -393,7 +384,7 @@ static void Update(void)
 
 #ifdef  _DEBUG
 
-	if (GetKeyboardTrigger(DIK_F1) || GetJoypadTrigger(JOYKEY_BACK))
+	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
 		s_bDebug = !s_bDebug;
 	}
