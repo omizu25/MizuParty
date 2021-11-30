@@ -15,9 +15,9 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WIDTH		(100.0f)		//幅の最大値
+#define MAX_WIDTH		(200.0f)		//幅の最大値
 #define MAX_HEIGHT		(0.0f)			//高さの最大値
-#define MAX_DEPTH		(100.0f)		//奥行きの最大値
+#define MAX_DEPTH		(200.0f)		//奥行きの最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -37,7 +37,7 @@ void InitPolygon(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\ヤンデレ戌亥.jpg",
+		"data\\TEXTURE\\Inui Toko 000.jpg",
 		&s_pTexture);
 
 	// 頂点バッファの生成
@@ -56,9 +56,12 @@ void InitPolygon(void)
 
 	s_polygon.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_polygon.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_polygon.fWidth = MAX_WIDTH;
+	s_polygon.fHeight = MAX_HEIGHT;
+	s_polygon.fDepth = MAX_DEPTH;
 
 	// 頂点座標の設定
-	Setpos3D(pVtx, s_polygon.pos, MAX_WIDTH, MAX_HEIGHT, MAX_DEPTH);
+	Setpos3D(pVtx, s_polygon.pos, s_polygon.fWidth, s_polygon.fHeight, s_polygon.fDepth);
 
 	// 各頂点の法線の設定
 	Initnor3D(pVtx);

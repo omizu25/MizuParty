@@ -1,6 +1,6 @@
 //==================================================
 // 
-// 3Dゲーム制作 ( shadow.cpp )
+// 3Dゲーム制作 ( wall.cpp )
 // Author  : katsuki mizuki
 // 
 //==================================================
@@ -11,15 +11,14 @@
 #include "main.h"
 #include "polygon.h"
 #include "setup.h"
-#include "shadow.h"
+#include "wall.h"
+
+#include <assert.h>
 
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_SHADOW		(256)		//影の最大数
-#define BASIC_WIDTH		(15.0f)		//幅の基準値
-#define BASIC_HEIGHT	(0.1f)		//高さの基準値
-#define BASIC_DEPTH		(15.0f)		//奥行きの基準値
+#define MAX_WALL		(256)		//影の最大数
 
 //--------------------------------------------------
 // 影の構造体を定義
@@ -30,19 +29,19 @@ typedef struct
 	D3DXVECTOR3		rot;			// 向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
 	bool			bUse;			// 使用しているかどうか
-}Shadow;
+}Wall;
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
-static Shadow						s_shadow[MAX_SHADOW];		// 影の情報
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
+static Wall							s_wall[MAX_WALL];		// 影の情報
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
-void InitShadow(void)
+void InitWall(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -50,12 +49,12 @@ void InitShadow(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\shadow000.jpg",
+		"data\\TEXTURE\\Inui Toko 002.jpg",
 		&s_pTexture);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_3D) * 4 * MAX_SHADOW,
+		sizeof(VERTEX_3D) * 4 * MAX_WALL,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_3D,
 		D3DPOOL_MANAGED,
@@ -67,13 +66,13 @@ void InitShadow(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < MAX_SHADOW; i++)
+	for (int i = 0; i < MAX_WALL; i++)
 	{
-		s_shadow[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_shadow[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_shadow[i].bUse = false;
+		s_wall[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		s_wall[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		s_wall[i].bUse = false;
 
-		// 全ての初期化
+		//全ての初期化処理
 		InitAll3D(pVtx);
 
 		pVtx += 4;
@@ -86,7 +85,7 @@ void InitShadow(void)
 //--------------------------------------------------
 // 終了
 //--------------------------------------------------
-void UninitShadow(void)
+void UninitWall(void)
 {
 	if (s_pTexture != NULL)
 	{// テクスチャの解放
@@ -104,7 +103,7 @@ void UninitShadow(void)
 //--------------------------------------------------
 // 更新
 //--------------------------------------------------
-void UpdateShadow(void)
+void UpdateWall(void)
 {
 
 }
@@ -112,25 +111,26 @@ void UpdateShadow(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawShadow(void)
+void DrawWall(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
-	// 減算合成
-	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_REVSUBTRACT);
-	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
 	pDevice->SetTexture(0, s_pTexture);
 
-	for (int i = 0; i < MAX_SHADOW; i++)
+	for (int i = 0; i < MAX_WALL; i++)
 	{
-		Shadow *pShadow = &s_shadow[i];
+		Wall *pWall = &s_wall[i];
 
-		if (!pShadow->bUse)
+		if (!pWall->bUse)
 		{//使用されていない
 			continue;
 		}
@@ -138,24 +138,18 @@ void DrawShadow(void)
 		/*↓ 使用されている ↓*/
 
 		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&pShadow->mtxWorld);
+		D3DXMatrixIdentity(&pWall->mtxWorld);
 
 		// 向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, pShadow->rot.y, pShadow->rot.x, pShadow->rot.z);
-		D3DXMatrixMultiply(&pShadow->mtxWorld, &pShadow->mtxWorld, &mtxRot);
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, pWall->rot.y, pWall->rot.x, pWall->rot.z);
+		D3DXMatrixMultiply(&pWall->mtxWorld, &pWall->mtxWorld, &mtxRot);
 
 		// 位置を反映
-		D3DXMatrixTranslation(&mtxTrans, pShadow->pos.x, pShadow->pos.y, pShadow->pos.z);
-		D3DXMatrixMultiply(&pShadow->mtxWorld, &pShadow->mtxWorld, &mtxTrans);
+		D3DXMatrixTranslation(&mtxTrans, pWall->pos.x, pWall->pos.y, pWall->pos.z);
+		D3DXMatrixMultiply(&pWall->mtxWorld, &pWall->mtxWorld, &mtxTrans);
 
 		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &pShadow->mtxWorld);
-
-		// 頂点バッファをデータストリームに設定
-		pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
-
-		// 頂点フォーマットの設定
-		pDevice->SetFVF(FVF_VERTEX_3D);
+		pDevice->SetTransform(D3DTS_WORLD, &pWall->mtxWorld);
 
 		// ポリゴンの描画 四角
 		pDevice->DrawPrimitive(
@@ -166,94 +160,75 @@ void DrawShadow(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
-
-	// 元に戻す
-	pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
-	pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
-	pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
 }
 
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool bCulling)
 {
-	int i;
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
-	for (i = 0; i < MAX_SHADOW; i++)
+	for (int i = 0; i < MAX_WALL; i++)
 	{
-		Shadow *pShadow = &s_shadow[i];
+		Wall *pWall = &s_wall[i];
 
-		if (pShadow->bUse)
+		if (pWall->bUse)
 		{//使用されている
 			continue;
 		}
 
 		/*↓ 使用されていない ↓*/
 
-		pShadow->pos = pos;
-		pShadow->rot = rot;
-		pShadow->bUse = true;
-
-		polygon *pPolygon = GetPolygon();
-
-		pShadow->pos.y = pPolygon->pos.y + 0.1f;
+		pWall->pos = pos;
+		pWall->rot = rot;
+		pWall->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += (i * 4);		//該当の位置まで進める
 
-		float fSize = pos.y * 0.15f;
-
 		// 頂点座標の設定
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
 
-		float Alpha = 1.0f - (pos.y * 0.005f);
-
-		// 頂点カラーの設定
-		Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
+		if (bCulling)
+		{
+			// 頂点カラーの設定
+			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 1.0f);
+		}
+		else
+		{
+			// 頂点カラーの設定
+			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 0.5f);
+		}
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
 
 		break;
 	}
-
-	return i;
 }
 
 //--------------------------------------------------
-// 位置の設定
+// 設置
 //--------------------------------------------------
-void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
+void InstallationWall(void)
 {
-	Shadow *pShadow = &s_shadow[nIdxShadow];
-
-	pShadow->pos = pos;
-
 	polygon *pPolygon = GetPolygon();
 
-	pShadow->pos.y = pPolygon->pos.y + 0.1f;
+	float fWidth = pPolygon->fWidth;
+	float fHeight = pPolygon->fWidth * 0.4f;
 
-	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
+	// 壁の設定
 
-	// 頂点情報をロックし、頂点情報へのポインタを取得
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
 
-	pVtx += (nIdxShadow * 4);		//該当の位置まで進める
-
-	float fSize = pos.y * 0.15f;
-
-	// 頂点座標の設定
-	Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
-
-	float Alpha = 1.0f - (pos.y * 0.005f);
-
-	// 頂点カラーの設定
-	Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
-
-	// 頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
 }

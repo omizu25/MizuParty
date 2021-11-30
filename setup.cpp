@@ -110,10 +110,10 @@ void InitAll2D(VERTEX_2D *pVtx)
 //--------------------------------------------------
 void Setpos3D(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
 {
-	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight,  fDepth);
-	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight,  fDepth);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, -fDepth);
-	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,  fHeight, -fDepth);
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth,  fHeight,  fDepth);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth,  fHeight,  fDepth);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, -fDepth);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth, -fHeight, -fDepth);
 }
 
 //--------------------------------------------------

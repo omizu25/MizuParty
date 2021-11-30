@@ -15,6 +15,7 @@
 #include "model.h"
 #include "polygon.h"
 #include "shadow.h"
+#include "wall.h"
 
 #include <stdio.h>
 
@@ -93,9 +94,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 		hInstance,						// インスタンスハンドル
 		NULL);							// ウインドウ作成データ
 
-	// 初期化処理
+	// 初期化
 	if (FAILED(Init(hInstance, hWnd, TRUE)))
-	{// 初期化処理が失敗した場合
+	{// 初期化が失敗した場合
 		return -1;
 	}
 
@@ -143,10 +144,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 			{// 60分の1秒経過
 				dwExecLastTime = dwCurrentTime;		// 処理開始の時刻[現在時刻]を保存
 
-				// 更新処理
+				// 更新
 				Update();
 
-				// 描画処理
+				// 描画
 				Draw();
 
 				dwFrameCount++;						// フレームカウントを加算
@@ -154,7 +155,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hInstancePrev, LPSTR lpCmdLine
 		}
 	}
 	
-	// 終了処理
+	// 終了
 	Uninit();
 
 	// 分解能を戻す
@@ -193,7 +194,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 }
 
 //--------------------------------------------------
-// 初期化処理
+// 初期化
 //--------------------------------------------------
 static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 {
@@ -259,7 +260,7 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	}
 
 	//--------------------------------------------------
-	// 各種オブジェクトの初期化処理
+	// 各種オブジェクトの初期化
 	//--------------------------------------------------
 
 	// レンダーステートの設定
@@ -274,7 +275,7 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	s_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);		// テクスチャのUの繰り返し方を設定
 	s_pD3DDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);		// テクスチャのVの繰り返し方を設定
 
-	// テクスチャステージステートの設定
+	// テクスチャステージステートパラメータの設定
 	s_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE);		// ポリゴンとテクスチャのαをまぜる
 	s_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE);		// １つ目の色はテクスチャの色
 	s_pD3DDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_CURRENT);		// ２つ目の色は現在の色
@@ -285,55 +286,64 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
 		"Terminal", &s_pFont);
 
-	// 入力処理の初期化処理
+	// 入力処理の初期化
 	if (FAILED(InitInput(hInstance, hWnd)))
 	{
 		return E_FAIL;
 	}
 
-	// ポリゴンの初期化処理
+	// ポリゴンの初期化
 	InitPolygon();
 
-	// 影の初期化処理
+	// 壁の初期化
+	InitWall();
+
+	// 壁の設置
+	InstallationWall();
+
+	// 影の初期化
 	InitShadow();
 
-	// モデルの初期化処理
+	// モデルの初期化
 	InitModel();
 
-	// カメラの初期化処理
+	// カメラの初期化
 	InitCamera();
 
-	// ライトの初期化処理
+	// ライトの初期化
 	InitLight();
 
 	return S_OK;
 }
 
 //--------------------------------------------------
-// 終了処理
+// 終了
 //--------------------------------------------------
 static void Uninit(void)
 {
 	//--------------------------------------------------
-	// 各種オブジェクトの終了処理
+	// 各種オブジェクトの終了
 	//--------------------------------------------------
 
-	// 入力処理の終了処理
+	// 入力処理の終了
 	UninitInput();
 
-	// ポリゴンの終了処理
+	// ポリゴンの終了
 	UninitPolygon();
 
-	// 影の終了処理
+	// 壁の終了
+	UninitWall();
+
+	// 影の終了
 	UninitShadow();
 
-	// モデルの終了処理
+	// モデルの終了
 	UninitModel();
 
-	// カメラの終了処理
+	// カメラの終了
 	UninitCamera();
 
-	// ライトの終了処理
+	// ライトの終了
 	UninitLight();
 
 	if (s_pFont != NULL)
@@ -356,30 +366,33 @@ static void Uninit(void)
 }
 
 //--------------------------------------------------
-// 更新処理
+// 更新
 //-------------------------------------------------- 
 static void Update(void)
 {
 	//--------------------------------------------------
-	// 各種オブジェクトの更新処理
+	// 各種オブジェクトの更新
 	//--------------------------------------------------
 
-	// 入力処理の更新処理
+	// 入力処理の更新
 	UpdateInput();
 
-	// ポリゴンの更新処理
+	// ポリゴンの更新
 	UpdatePolygon();
 
-	// モデルの更新処理
+	// 壁の更新
+	UpdateWall();
+
+	// モデルの更新
 	UpdateModel();
 
-	// 影の更新処理
+	// 影の更新
 	UpdateShadow();
 
-	// カメラの更新処理
+	// カメラの更新
 	UpdateCamera();
 
-	// ライトの更新処理
+	// ライトの更新
 	UpdateLight();
 
 #ifdef  _DEBUG
@@ -394,7 +407,7 @@ static void Update(void)
 }
 
 //--------------------------------------------------
-// 描画処理
+// 描画
 //--------------------------------------------------
 static void Draw(void)
 {
@@ -411,23 +424,26 @@ static void Draw(void)
 	if (SUCCEEDED(s_pD3DDevice->BeginScene()))
 	{// 描画開始が成功した場合
 		//--------------------------------------------------
-		// 各種オブジェクトの描画処理
+		// 各種オブジェクトの描画
 		//--------------------------------------------------
 
-		// カメラの設定処理
+		// カメラの設定
 		SetCamera();
 
-		// ポリゴンの描画処理
+		// ポリゴンの描画
 		DrawPolygon();
 
-		// モデルの描画処理
+		// モデルの描画
 		DrawModel();
 
-		// 影の描画処理
+		// 影の描画
 		DrawShadow();
 
+		// 壁の描画
+		DrawWall();
+
 		if (s_bDebug)
-		{// デバッグ表示
+		{
 			// デバッグの表示
 			DrawDebug();
 		}

@@ -63,6 +63,7 @@ typedef enum
 	MOUSE_INPUT_6,				// マウスボタン6
 	MOUSE_INPUT_7,				// マウスボタン7
 	MOUSE_INPUT_8,				// マウスボタン8
+	MOUSE_MAX
 }MOUSE;
 
 //--------------------------------------------------

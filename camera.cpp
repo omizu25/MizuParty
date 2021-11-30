@@ -37,10 +37,10 @@ static void Rot(void);
 void InitCamera(void)
 {
 	// 視点・注視点・上方向・向き・距離を設定する
-	s_camera.posV = D3DXVECTOR3(0.0f, 50.0f, -100.0f);
+	s_camera.posV = D3DXVECTOR3(0.0f, 100.0f, -200.0f);
 	s_camera.posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
-	s_camera.rot  = D3DXVECTOR3((D3DX_PI * 0.5f), 0.0f, 0.0f);
+	s_camera.rot  = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 
 	float fDisX, fDisZ;
 
