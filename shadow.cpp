@@ -62,6 +62,9 @@ void InitShadow(void)
 		&s_pVtxBuff,
 		NULL);
 
+	//メモリのクリア
+	memset(&s_shadow[0], NULL, sizeof(s_shadow));
+
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -69,10 +72,6 @@ void InitShadow(void)
 
 	for (int i = 0; i < MAX_SHADOW; i++)
 	{
-		s_shadow[i].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_shadow[i].rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_shadow[i].bUse = false;
-
 		// 全ての初期化
 		InitAll3D(pVtx);
 

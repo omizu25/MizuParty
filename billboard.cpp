@@ -1,6 +1,6 @@
 //==================================================
 // 
-// 3Dゲーム制作 ( wall.cpp )
+// 3Dゲーム制作 ( billboard.cpp )
 // Author  : katsuki mizuki
 // 
 //==================================================
@@ -9,37 +9,35 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
-#include "polygon.h"
 #include "setup.h"
-#include "wall.h"
+#include "billboard.h"
 
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WALL		(256)		//壁の最大数
+#define MAX_WALL		(256)		//ビルボードの最大数
 
 //--------------------------------------------------
-// 壁の構造体を定義
+// ビルボードの構造体を定義
 //--------------------------------------------------
 typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
-	D3DXVECTOR3		rot;			// 向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
 	bool			bUse;			// 使用しているかどうか
-}Wall;
+}Billboard;
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
-static Wall							s_wall[MAX_WALL];		// 壁の情報
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
+static Billboard					s_billboard[MAX_WALL];		// ビルボードの情報
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
-void InitWall(void)
+void InitBillboard(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -47,7 +45,7 @@ void InitWall(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\Inui Toko 002.jpg",
+		"data\\TEXTURE\\Inui Toko 003.jpg",
 		&s_pTexture);
 
 	// 頂点バッファの生成
@@ -60,7 +58,7 @@ void InitWall(void)
 		NULL);
 
 	//メモリのクリア
-	memset(&s_wall[0], NULL, sizeof(s_wall));
+	memset(&s_billboard[0], NULL, sizeof(s_billboard));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -82,7 +80,7 @@ void InitWall(void)
 //--------------------------------------------------
 // 終了
 //--------------------------------------------------
-void UninitWall(void)
+void UninitBillboard(void)
 {
 	if (s_pTexture != NULL)
 	{// テクスチャの解放
@@ -100,7 +98,7 @@ void UninitWall(void)
 //--------------------------------------------------
 // 更新
 //--------------------------------------------------
-void UpdateWall(void)
+void UpdateBillboard(void)
 {
 
 }
@@ -108,11 +106,11 @@ void UpdateWall(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawWall(void)
+void DrawBillboard(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
+	D3DXMATRIX mtxRot, mtxTrans, mtxView;		// 計算用マトリックス
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -125,9 +123,9 @@ void DrawWall(void)
 
 	for (int i = 0; i < MAX_WALL; i++)
 	{
-		Wall *pWall = &s_wall[i];
+		Billboard *pBillboard = &s_billboard[i];
 
-		if (!pWall->bUse)
+		if (!pBillboard->bUse)
 		{//使用されていない
 			continue;
 		}
@@ -135,18 +133,26 @@ void DrawWall(void)
 		/*↓ 使用されている ↓*/
 
 		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&pWall->mtxWorld);
+		D3DXMatrixIdentity(&pBillboard->mtxWorld);
+		pDevice->GetTransform(D3DTS_VIEW, &mtxView);
 
-		// 向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, pWall->rot.y, pWall->rot.x, pWall->rot.z);
-		D3DXMatrixMultiply(&pWall->mtxWorld, &pWall->mtxWorld, &mtxRot);
+		// カメラの逆行列を設定
+		pBillboard->mtxWorld._11 = mtxView._11;
+		pBillboard->mtxWorld._12 = mtxView._21;
+		pBillboard->mtxWorld._13 = mtxView._31;
+		pBillboard->mtxWorld._21 = mtxView._12;
+		pBillboard->mtxWorld._22 = mtxView._22;
+		pBillboard->mtxWorld._23 = mtxView._32;
+		pBillboard->mtxWorld._31 = mtxView._13;
+		pBillboard->mtxWorld._32 = mtxView._23;
+		pBillboard->mtxWorld._33 = mtxView._33;
 
 		// 位置を反映
-		D3DXMatrixTranslation(&mtxTrans, pWall->pos.x, pWall->pos.y, pWall->pos.z);
-		D3DXMatrixMultiply(&pWall->mtxWorld, &pWall->mtxWorld, &mtxTrans);
+		D3DXMatrixTranslation(&mtxTrans, pBillboard->pos.x, pBillboard->pos.y, pBillboard->pos.z);
+		D3DXMatrixMultiply(&pBillboard->mtxWorld, &pBillboard->mtxWorld, &mtxTrans);
 
 		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &pWall->mtxWorld);
+		pDevice->SetTransform(D3DTS_WORLD, &pBillboard->mtxWorld);
 
 		// ポリゴンの描画 四角
 		pDevice->DrawPrimitive(
@@ -162,24 +168,23 @@ void DrawWall(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool bCulling)
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	for (int i = 0; i < MAX_WALL; i++)
 	{
-		Wall *pWall = &s_wall[i];
+		Billboard *pBillboard = &s_billboard[i];
 
-		if (pWall->bUse)
+		if (pBillboard->bUse)
 		{//使用されている
 			continue;
 		}
 
 		/*↓ 使用されていない ↓*/
 
-		pWall->pos = pos;
-		pWall->rot = rot;
-		pWall->bUse = true;
+		pBillboard->pos = pos;
+		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
@@ -188,17 +193,6 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 
 		// 頂点座標の設定
 		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
-
-		if (bCulling)
-		{
-			// 頂点カラーの設定
-			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 1.0f);
-		}
-		else
-		{
-			// 頂点カラーの設定
-			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 0.5f);
-		}
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -210,22 +204,14 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 //--------------------------------------------------
 // 設置
 //--------------------------------------------------
-void InstallationWall(void)
+void InstallationBillboard(void)
 {
-	polygon *pPolygon = GetPolygon();
+	float fWidth = 10.0f;
+	float fHeight = 10.0f;
 
-	float fWidth = pPolygon->fWidth;
-	float fHeight = pPolygon->fWidth * 0.4f;
-
-	// 壁の設定
-
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
-
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
+	// ビルボードの設定
+	SetBillboard(D3DXVECTOR3(25.0f, fHeight, 0.0f), fWidth, fHeight);
+	SetBillboard(D3DXVECTOR3(-25.0f, fHeight, 0.0f), fWidth, fHeight);
+	SetBillboard(D3DXVECTOR3(75.0f, fHeight, 0.0f), fWidth, fHeight);
+	SetBillboard(D3DXVECTOR3(-75.0f, fHeight, 0.0f), fWidth, fHeight);
 }

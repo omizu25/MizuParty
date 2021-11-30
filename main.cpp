@@ -8,6 +8,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "billboard.h"
 #include "camera.h"
 #include "input.h"
 #include "light.h"
@@ -301,6 +302,12 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// 壁の設置
 	InstallationWall();
 
+	// ビルボードの初期化
+	InitBillboard();
+
+	// ビルボードの設置
+	InstallationBillboard();
+
 	// 影の初期化
 	InitShadow();
 
@@ -333,6 +340,9 @@ static void Uninit(void)
 
 	// 壁の終了
 	UninitWall();
+
+	// ビルボードの終了
+	UninitBillboard();
 
 	// 影の終了
 	UninitShadow();
@@ -382,6 +392,9 @@ static void Update(void)
 
 	// 壁の更新
 	UpdateWall();
+
+	// ビルボードの更新
+	UpdateBillboard();
 
 	// モデルの更新
 	UpdateModel();
@@ -438,6 +451,9 @@ static void Draw(void)
 
 		// 影の描画
 		DrawShadow();
+
+		// ビルボードの描画
+		DrawBillboard();
 
 		// 壁の描画
 		DrawWall();
