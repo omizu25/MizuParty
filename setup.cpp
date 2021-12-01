@@ -117,6 +117,17 @@ void Setpos3D(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, flo
 }
 
 //--------------------------------------------------
+// 頂点の法線の設定 [3D]
+//--------------------------------------------------
+void Setnor3D(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
+{
+	pVtx[0].nor = nor;
+	pVtx[1].nor = nor;
+	pVtx[2].nor = nor;
+	pVtx[3].nor = nor;
+}
+
+//--------------------------------------------------
 // 頂点カラーの設定 [3D]
 //--------------------------------------------------
 void Setcol3D(VERTEX_3D *pVtx, float Red, float Green, float Blue, float Alpha)

@@ -24,6 +24,7 @@ void Initcol2D(VERTEX_2D *pVtx);
 void Inittex2D(VERTEX_2D *pVtx);
 void InitAll2D(VERTEX_2D *pVtx);
 void Setpos3D(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+void Setnor3D(VERTEX_3D *pVtx, D3DXVECTOR3 nor);
 void Setcol3D(VERTEX_3D *pVtx, float Red, float Green, float Blue, float Alpha);
 void Settex3D(VERTEX_3D *pVtx, float ULeft, float URight, float VTop, float VBottom);
 void Initpos3D(VERTEX_3D *pVtx);

@@ -47,7 +47,7 @@ void InitWall(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\Inui Toko 002.jpg",
+		"data\\TEXTURE\\InuiToko002.jpg",
 		&s_pTexture);
 
 	// 頂点バッファの生成
@@ -60,7 +60,7 @@ void InitWall(void)
 		NULL);
 
 	//メモリのクリア
-	memset(&s_wall[0], NULL, sizeof(s_wall));
+	memset(s_wall, NULL, sizeof(s_wall));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 

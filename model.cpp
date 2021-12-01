@@ -95,11 +95,11 @@ void InitModel(void)
 void UninitModel(void)
 {
 	if (s_pTexture != NULL)
-	{
+	{// テクスチャの解放
 		for (int i = 0; i < (int)s_nNumMat; i++)
 		{
 			if (s_pTexture[i] != NULL)
-			{// テクスチャの解放
+			{
 				s_pTexture[i]->Release();
 				s_pTexture[i] = NULL;
 			}
@@ -309,7 +309,7 @@ static void Rot(void)
 		s_model.rotDest.y += -MAX_ROTATION;
 	}
 	else if (GetKeyboardPress(DIK_RSHIFT))
-	{//右シフトキーが押された
+	{// 右シフトキーが押された
 		s_model.rotDest.y += MAX_ROTATION;
 	}
 }

@@ -305,8 +305,8 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ビルボードの初期化
 	InitBillboard();
 
-	// ビルボードの設置
-	InstallationBillboard();
+	// ビルボードの読み込み
+	LoadBillboard();
 
 	// 影の初期化
 	InitShadow();
@@ -493,7 +493,7 @@ static void DrawDebug(void)
 
 #ifdef _DEBUG
 
-	sprintf(&aStr[0], "FPS  : %3d\n\n", s_nCountFPS);
+	sprintf(&aStr[nLength], "FPS  : %3d\n\n", s_nCountFPS);
 	nLength = (int)strlen(&aStr[0]);
 
 #endif // !_DEBUG

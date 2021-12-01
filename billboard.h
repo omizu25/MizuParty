@@ -20,6 +20,6 @@ void UninitBillboard(void);
 void UpdateBillboard(void);
 void DrawBillboard(void);
 void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight);
-void InstallationBillboard(void);
+void LoadBillboard(void);
 
 #endif // !_BILLBOARD_H_

@@ -37,7 +37,7 @@ void InitPolygon(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\Inui Toko 000.jpg",
+		"data\\TEXTURE\\InuiToko000.jpg",
 		&s_pTexture);
 
 	// 頂点バッファの生成
