@@ -28,10 +28,10 @@
 //--------------------------------------------------
 typedef struct
 {
-	D3DXVECTOR3		pos;			// 位置
-	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
-	int				nIdxTex;		// テクスチャ番号
-	bool			bUse;			// 使用しているかどうか
+	D3DXVECTOR3				pos;			// 位置
+	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
+	bool					bUse;			// 使用しているかどうか
+	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
 //--------------------------------------------------
@@ -39,11 +39,12 @@ typedef struct
 //--------------------------------------------------
 typedef struct
 {
-	D3DXVECTOR3		pos;				// 位置
-	float			fWidth;				// 幅
-	float			fHeight;			// 高さ
-	int				nIdxTex;			// テクスチャ番号
-}File;
+	D3DXVECTOR3				pos;			// 位置
+	float					fWidth;			// 幅
+	float					fHeight;		// 高さ
+	int						nIdxTex;		// テクスチャ番号
+	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
+}Text;
 
 //--------------------------------------------------
 // スタティック変数
@@ -51,12 +52,7 @@ typedef struct
 static LPDIRECT3DTEXTURE9			*s_pTexture;				// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
 static Billboard					s_billboard[MAX_WALL];		// ビルボードの情報
-static int							s_nMaxTex;					// テクスチャの最大数
-
-//--------------------------------------------------
-// プロトタイプ宣言
-//--------------------------------------------------
-static void SetFileBillboard(File *pFile);
+static int							s_nUseTex;					// テクスチャの使用数
 
 //--------------------------------------------------
 // 初期化
@@ -102,7 +98,7 @@ void UninitBillboard(void)
 {
 	if (s_pTexture != NULL)
 	{// テクスチャの解放
-		for (int i = 0; i < s_nMaxTex; i++)
+		for (int i = 0; i < s_nUseTex; i++)
 		{
 			if (s_pTexture[i] != NULL)
 			{
@@ -182,7 +178,7 @@ void DrawBillboard(void)
 		pDevice->SetTransform(D3DTS_WORLD, &pBillboard->mtxWorld);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture[pBillboard->nIdxTex]);
+		pDevice->SetTexture(0, pBillboard->pTexture);
 
 		// ポリゴンの描画 四角
 		pDevice->DrawPrimitive(
@@ -201,7 +197,7 @@ void DrawBillboard(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight)
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -217,6 +213,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight)
 		/*↓ 使用されていない ↓*/
 
 		pBillboard->pos = pos;
+		pBillboard->pTexture = *pTexture;
 		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -238,45 +235,33 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight)
 }
 
 //--------------------------------------------------
-// 設置
-//--------------------------------------------------
-void InstallationBillboard(void)
-{
-	float fWidth = 10.0f;
-	float fHeight = 10.0f;
-
-	// ビルボードの設定
-	SetBillboard(D3DXVECTOR3(25.0f, fHeight, 0.0f), fWidth, fHeight);
-	SetBillboard(D3DXVECTOR3(-25.0f, fHeight, 0.0f), fWidth, fHeight);
-	SetBillboard(D3DXVECTOR3(75.0f, fHeight, 0.0f), fWidth, fHeight);
-	SetBillboard(D3DXVECTOR3(-75.0f, fHeight, 0.0f), fWidth, fHeight);
-}
-
-//--------------------------------------------------
 // 読み込み
 //--------------------------------------------------
-void LoadBillboard(void)
+void LoadBillboard(HWND hWnd)
 {
-	FILE *pFile;		// ファイルポインタを宣言
-	File *file;
+	FILE *pFile;			// ファイルポインタを宣言
+	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		fscanf(pFile, "%d", &s_nMaxTex);
+		// 使用する数の読み込み
+		fscanf(pFile, "%d", &s_nUseTex);
+		fscanf(pFile, "%d", &nUseText);
 
 		// ファイルを閉じる
 		fclose(pFile);
 	}
 	else
 	{// ファイルが開かない場合
+		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 
 	// txtに書いてる最大数分の読み込み用の配列を用意する
-	file = new File[s_nMaxTex];
+	Text *pText = new Text[nUseText];
 
 	char aTexture[MAX_TEXTURE][1024];
 
@@ -285,21 +270,23 @@ void LoadBillboard(void)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		fscanf(pFile, "%d", &s_nMaxTex);
+		// 使用する数の読み込み
+		fscanf(pFile, "%d", &s_nUseTex);
+		fscanf(pFile, "%d", &nUseText);
 
-		for (int i = 0; i < s_nMaxTex; i++)
-		{
+		for (int i = 0; i < s_nUseTex; i++)
+		{//テクスチャ名の読み込み
 			fscanf(pFile, "%s", aTexture[i]);
 		}
 
-		for (int i = 0; i < s_nMaxTex; i++)
-		{
-			fscanf(pFile, "%d", &file[i].nIdxTex);
-			fscanf(pFile, "%f", &file[i].fWidth);
-			fscanf(pFile, "%f", &file[i].fHeight);
-			fscanf(pFile, "%f", &file[i].pos.x);
-			fscanf(pFile, "%f", &file[i].pos.y);
-			fscanf(pFile, "%f", &file[i].pos.z);
+		for (int i = 0; i < nUseText; i++)
+		{//テクスチャの番号・幅・高さ・位置の読み込み
+			fscanf(pFile, "%d", &pText[i].nIdxTex);
+			fscanf(pFile, "%f", &pText[i].fWidth);
+			fscanf(pFile, "%f", &pText[i].fHeight);
+			fscanf(pFile, "%f", &pText[i].pos.x);
+			fscanf(pFile, "%f", &pText[i].pos.y);
+			fscanf(pFile, "%f", &pText[i].pos.z);
 		}
 
 		// ファイルを閉じる
@@ -307,16 +294,26 @@ void LoadBillboard(void)
 	}
 	else
 	{// ファイルが開かない場合
+		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 
+	for (int i = 0; i < nUseText; i++)
+	{
+		if (pText[i].nIdxTex >= s_nUseTex)
+		{// 該当しないテクスチャ番号
+			MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
+			assert(false);
+		}
+	}
+
 	// txtに書いてる最大数分のテクスチャの配列を用意する
-	s_pTexture = new LPDIRECT3DTEXTURE9[s_nMaxTex];
+	s_pTexture = new LPDIRECT3DTEXTURE9[s_nUseTex];
 
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	for (int i = 0; i < s_nMaxTex; i++)
+	for (int i = 0; i < s_nUseTex; i++)
 	{
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
@@ -325,48 +322,11 @@ void LoadBillboard(void)
 			&s_pTexture[i]);
 	}
 
-	for (int i = 0; i < s_nMaxTex; i++)
+	for (int i = 0; i < nUseText; i++)
 	{
-		SetFileBillboard(&file[i]);
-	}
-}
+		pText[i].pTexture = s_pTexture[pText[i].nIdxTex];
 
-//--------------------------------------------------
-// 読み込み設定
-//--------------------------------------------------
-static void SetFileBillboard(File *pFile)
-{
-	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
-
-	for (int i = 0; i < MAX_WALL; i++)
-	{
-		Billboard *pBillboard = &s_billboard[i];
-
-		if (pBillboard->bUse)
-		{//使用されている
-			continue;
-		}
-
-		/*↓ 使用されていない ↓*/
-
-		pBillboard->pos = pFile->pos;
-		pBillboard->nIdxTex = pFile->nIdxTex;
-		pBillboard->bUse = true;
-
-		// 頂点情報をロックし、頂点情報へのポインタを取得
-		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
-
-		pVtx += (i * 4);		//該当の位置まで進める
-
-		// 頂点座標の設定
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pFile->fWidth, pFile->fHeight, 0.0f);
-
-		// 頂点の法線の設定
-		Setnor3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
-
-		// 頂点バッファをアンロックする
-		s_pVtxBuff->Unlock();
-
-		break;
+		// 設定
+		SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, &pText[i].pTexture);
 	}
 }

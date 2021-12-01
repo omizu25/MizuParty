@@ -306,7 +306,7 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	InitBillboard();
 
 	// ビルボードの読み込み
-	LoadBillboard();
+	LoadBillboard(hWnd);
 
 	// 影の初期化
 	InitShadow();

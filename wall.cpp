@@ -219,10 +219,14 @@ void InstallationWall(void)
 
 	// ï«ÇÃê›íË
 
+	/*Å´ ì‡ë§ Å´*/
+
 	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
 	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
 	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
 	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
+
+	/*Å´ äOë§ Å´*/
 
 	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
 	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
