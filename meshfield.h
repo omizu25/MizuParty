@@ -29,5 +29,10 @@ void UpdateMeshField(void);
 void DrawMeshField(void);
 void SetMeshField(void);
 MeshField *GetMeshField(void);
+int GetHorizontal(void);
+int GetVertical(void);
+int GetVtxNumber(void);
+int GetIdxNumber(void);
+int GetPolygonNumber(void);
 
 #endif // !_MESHFIELD_H_

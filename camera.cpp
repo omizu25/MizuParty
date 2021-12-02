@@ -30,6 +30,7 @@ static Camera		s_camera;		// カメラの情報
 //--------------------------------------------------
 static void Move(void);
 static void Rot(void);
+static void Specifiedfloat(float *pNumber, float fMax, float fMin);
 
 //--------------------------------------------------
 // 初期化
@@ -213,14 +214,8 @@ static void Move(void)
 		s_camera.fDistance += MAX_MOVE;
 	}
 
-	if (s_camera.fDistance <= MAX_NEAR)
-	{// 指定の値以下
-		s_camera.fDistance = MAX_NEAR;
-	}
-	else if (s_camera.fDistance >= MAX_FAR)
-	{// 指定の値以上
-		s_camera.fDistance = MAX_FAR;
-	}
+	// 指定の値以上・以下
+	Specifiedfloat(&s_camera.fDistance, MAX_FAR, MAX_NEAR);
 }
 
 //--------------------------------------------------
@@ -254,12 +249,21 @@ static void Rot(void)
 		s_camera.rot.x += MAX_ROTATION;
 	}
 
-	if (s_camera.rot.x <= 0.1f)
-	{// 指定の値以下
-		s_camera.rot.x = 0.1f;
-	}
-	else if (s_camera.rot.x >= 3.0f)
+	// 指定の値以上・以下
+	Specifiedfloat(&s_camera.rot.x, 3.0f, 0.1f);
+}
+
+//--------------------------------------------------
+// 指定の値以上・以下
+//--------------------------------------------------
+static void Specifiedfloat(float *pNumber, float fMax, float fMin)
+{
+	if (*pNumber >= fMax)
 	{// 指定の値以上
-		s_camera.rot.x = 3.0f;
+		*pNumber = fMax;
+	}
+	else if (*pNumber <= fMin)
+	{// 指定の値以下
+		*pNumber = fMin;
 	}
 }

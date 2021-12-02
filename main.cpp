@@ -484,7 +484,7 @@ static void Draw(void)
 		DrawBillboard();
 
 		// 壁の描画
-		DrawWall();
+		//DrawWall();
 
 		if (s_bDebug)
 		{
@@ -566,6 +566,8 @@ static void DrawDebug(void)
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "Iキー, Kキー              : 上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
+
+	sprintf(&aStr[nLength], "%d, %d, %d, %d, %d\n", GetHorizontal(), GetVertical(), GetVtxNumber(), GetIdxNumber(), GetPolygonNumber());
 
 	// テキストの描画
 	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f));
