@@ -1,6 +1,6 @@
 //==================================================
 // 
-// 3Dゲーム制作 ( polygon.cpp )
+// 3Dゲーム制作 ( meshfield.cpp )
 // Author  : katsuki mizuki
 // 
 //==================================================
@@ -9,7 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
-#include "polygon.h"
+#include "meshfield.h"
 #include "setup.h"
 
 //--------------------------------------------------
@@ -24,12 +24,12 @@
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
-static polygon						s_polygon;				// ポリゴンの情報
+static MeshField					s_meshfield;			// メッシュフィールドの情報
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
-void InitPolygon(void)
+void InitMeshField(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -42,7 +42,7 @@ void InitPolygon(void)
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_3D) * 4,
+		sizeof(VERTEX_3D) * 14,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_3D,
 		D3DPOOL_MANAGED,
@@ -54,23 +54,39 @@ void InitPolygon(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	s_polygon.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	s_polygon.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	s_polygon.fWidth = MAX_WIDTH;
-	s_polygon.fHeight = MAX_HEIGHT;
-	s_polygon.fDepth = MAX_DEPTH;
+	s_meshfield.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_meshfield.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_meshfield.fWidth = MAX_WIDTH;
+	s_meshfield.fHeight = MAX_HEIGHT;
+	s_meshfield.fDepth = MAX_DEPTH;
 
 	// 頂点座標の設定
-	Setpos3D(pVtx, s_polygon.pos, s_polygon.fWidth, s_polygon.fHeight, s_polygon.fDepth);
+	pVtx[0].pos = D3DXVECTOR3(-MAX_WIDTH, 0.0f, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(-MAX_WIDTH, 0.0f, MAX_DEPTH);
+	pVtx[2].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pVtx[3].pos = D3DXVECTOR3(0.0f, 0.0f, MAX_DEPTH);
+	pVtx[4].pos = D3DXVECTOR3(MAX_WIDTH, 0.0f, 0.0f);
+	pVtx[5].pos = D3DXVECTOR3(MAX_WIDTH, 0.0f, MAX_DEPTH);
+	pVtx[6].pos = D3DXVECTOR3(MAX_WIDTH, 0.0f, MAX_DEPTH);
+	pVtx[7].pos = D3DXVECTOR3(-MAX_WIDTH, 0.0f, -MAX_DEPTH);
+	pVtx[8].pos = D3DXVECTOR3(-MAX_WIDTH, 0.0f, -MAX_DEPTH);
+	pVtx[9].pos = D3DXVECTOR3(-MAX_WIDTH, 0.0f, 0.0f);
+	pVtx[10].pos = D3DXVECTOR3(0.0f, 0.0f, -MAX_DEPTH);
+	pVtx[11].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pVtx[12].pos = D3DXVECTOR3(MAX_WIDTH, 0.0f, -MAX_DEPTH);
+	pVtx[13].pos = D3DXVECTOR3(MAX_WIDTH, 0.0f, 0.0f);
 
-	// 各頂点の法線の設定
-	Initnor3D(pVtx);
+	for (int i = 0; i < 14; i++)
+	{
+		// 各頂点の法線の設定
+		pVtx[i].nor = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-	// 頂点カラーの設定
-	Initcol3D(pVtx);
+		// 頂点カラーの設定
+		pVtx[i].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// テクスチャ座標の設定
-	Inittex3D(pVtx);
+		// テクスチャ座標の設定
+		pVtx[i].tex = D3DXVECTOR2(0.0f, 0.0f);
+	}
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
@@ -79,7 +95,7 @@ void InitPolygon(void)
 //--------------------------------------------------
 // 終了
 //--------------------------------------------------
-void UninitPolygon(void)
+void UninitMeshField(void)
 {
 	if (s_pTexture != NULL)
 	{// テクスチャの解放
@@ -97,7 +113,7 @@ void UninitPolygon(void)
 //--------------------------------------------------
 // 更新
 //--------------------------------------------------
-void UpdatePolygon(void)
+void UpdateMeshField(void)
 {
 
 }
@@ -105,25 +121,25 @@ void UpdatePolygon(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawPolygon(void)
+void DrawMeshField(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_polygon.mtxWorld);
+	D3DXMatrixIdentity(&s_meshfield.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_polygon.rot.y, s_polygon.rot.x, s_polygon.rot.z);
-	D3DXMatrixMultiply(&s_polygon.mtxWorld, &s_polygon.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshfield.rot.y, s_meshfield.rot.x, s_meshfield.rot.z);
+	D3DXMatrixMultiply(&s_meshfield.mtxWorld, &s_meshfield.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_polygon.pos.x, s_polygon.pos.y, s_polygon.pos.z);
-	D3DXMatrixMultiply(&s_polygon.mtxWorld, &s_polygon.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_meshfield.pos.x, s_meshfield.pos.y, s_meshfield.pos.z);
+	D3DXMatrixMultiply(&s_meshfield.mtxWorld, &s_meshfield.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_polygon.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_meshfield.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -132,13 +148,13 @@ void DrawPolygon(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	pDevice->SetTexture(0, NULL);
 
-	// ポリゴンの描画
+	// ポリゴン描画
 	pDevice->DrawPrimitive(
 		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 		0,							// 描画する最初の頂点インデックス
-		2);							// プリミティブ(ポリゴン)数
+		12);						// プリミティブ(ポリゴン)数
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
@@ -147,7 +163,7 @@ void DrawPolygon(void)
 //--------------------------------------------------
 // 取得
 //--------------------------------------------------
-polygon *GetPolygon(void)
+MeshField *GetMeshField(void)
 {
-	return &s_polygon;
+	return &s_meshfield;
 }

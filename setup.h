@@ -12,9 +12,9 @@
 //--------------------------------------------------
 #include "main.h"
 
-//-------------------------
+//--------------------------------------------------
 //プロトタイプ宣言
-//-------------------------
+//--------------------------------------------------
 void Setpos2D(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
 void Setcol2D(VERTEX_2D *pVtx, float Red, float Green, float Blue, float Alpha);
 void Settex2D(VERTEX_2D *pVtx, float ULeft, float URight, float VTop, float VBottom);

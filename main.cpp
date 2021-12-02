@@ -13,6 +13,7 @@
 #include "input.h"
 #include "light.h"
 #include "main.h"
+#include "meshfield.h"
 #include "model.h"
 #include "polygon.h"
 #include "shadow.h"
@@ -44,6 +45,7 @@ static LPDIRECT3DDEVICE9		s_pD3DDevice = NULL;		// Direct3Dデバイスへのポインタ
 static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
+static bool						s_bWireframe = false;		// ワイヤーフレーム表示をするか [表示  : true 非表示  : false]
 
 //--------------------------------------------------
 // main関数
@@ -294,7 +296,10 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	}
 
 	// ポリゴンの初期化
-	InitPolygon();
+	//InitPolygon();
+
+	// メッシュフィールドの初期化
+	InitMeshField();
 
 	// 壁の初期化
 	InitWall();
@@ -336,7 +341,10 @@ static void Uninit(void)
 	UninitInput();
 
 	// ポリゴンの終了
-	UninitPolygon();
+	//UninitPolygon();
+
+	// メッシュフィールドの終了
+	UninitMeshField();
 
 	// 壁の終了
 	UninitWall();
@@ -388,7 +396,10 @@ static void Update(void)
 	UpdateInput();
 
 	// ポリゴンの更新
-	UpdatePolygon();
+	//UpdatePolygon();
+
+	// メッシュフィールドの更新
+	UpdateMeshField();
 
 	// 壁の更新
 	UpdateWall();
@@ -408,15 +419,15 @@ static void Update(void)
 	// ライトの更新
 	UpdateLight();
 
-#ifdef  _DEBUG
+	if (GetKeyboardTrigger(DIK_F2))
+	{// F2キーが押された
+		s_bWireframe = !s_bWireframe;
+	}
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
 		s_bDebug = !s_bDebug;
 	}
-
-#endif //   _DEBUG
-
 }
 
 //--------------------------------------------------
@@ -443,8 +454,22 @@ static void Draw(void)
 		// カメラの設定
 		SetCamera();
 
+		if (s_bWireframe)
+		{// 表示
+			// レンダーステートの設定
+			s_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		}
+		else
+		{// 非表示
+			// レンダーステートを元に戻す
+			s_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+		}
+
 		// ポリゴンの描画
-		DrawPolygon();
+		//DrawPolygon();
+
+		// メッシュフィールドの描画
+		DrawMeshField();
 
 		// モデルの描画
 		DrawModel();

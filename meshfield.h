@@ -1,11 +1,11 @@
 //==================================================
 //
-// 3Dゲーム制作 ( polygon.h )
+// 3Dゲーム制作 ( meshfield.h )
 // Author  : katsuki mizuki
 //
 //==================================================
-#ifndef _POLYGON_H_		// このマクロ定義がされてなかったら
-#define _POLYGON_H_		// ２重インクルード防止のマクロ定義
+#ifndef _MESHFIELD_H_		// このマクロ定義がされてなかったら
+#define _MESHFIELD_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
 // 構造体を定義
@@ -18,15 +18,15 @@ typedef struct
 	float			fWidth;			// 幅
 	float			fHeight;		// 高さ
 	float			fDepth;			// 奥行き
-}polygon;
+}MeshField;
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-void InitPolygon(void);
-void UninitPolygon(void);
-void UpdatePolygon(void);
-void DrawPolygon(void);
-polygon *GetPolygon(void);
+void InitMeshField(void);
+void UninitMeshField(void);
+void UpdateMeshField(void);
+void DrawMeshField(void);
+MeshField *GetMeshField(void);
 
-#endif // !_POLYGON_H_
+#endif // !_MESHFIELD_H_

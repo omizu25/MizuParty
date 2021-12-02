@@ -158,6 +158,7 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="meshfield.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="setup.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />
+    <ClInclude Include="meshfield.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="polygon.h" />
     <ClInclude Include="setup.h" />

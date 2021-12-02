@@ -9,6 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "meshfield.h"
 #include "polygon.h"
 #include "setup.h"
 #include "wall.h"
@@ -19,7 +20,7 @@
 #define MAX_WALL		(256)		//壁の最大数
 
 //--------------------------------------------------
-// 壁の構造体を定義
+// 構造体を定義
 //--------------------------------------------------
 typedef struct
 {
@@ -148,7 +149,7 @@ void DrawWall(void)
 		// ワールドマトリックスの設定
 		pDevice->SetTransform(D3DTS_WORLD, &pWall->mtxWorld);
 
-		// ポリゴンの描画 四角
+		// ポリゴンの描画
 		pDevice->DrawPrimitive(
 			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 			i * 4,						// 描画する最初の頂点インデックス
@@ -212,10 +213,11 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 //--------------------------------------------------
 void InstallationWall(void)
 {
-	polygon *pPolygon = GetPolygon();
+	//polygon *pPolygon = GetPolygon();
+	MeshField *pMeshField = GetMeshField();
 
-	float fWidth = pPolygon->fWidth;
-	float fHeight = pPolygon->fWidth * 0.4f;
+	float fWidth = pMeshField->fWidth;
+	float fHeight = pMeshField->fWidth * 0.4f;
 
 	// 壁の設定
 

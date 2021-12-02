@@ -9,7 +9,6 @@
 // インクルード
 //--------------------------------------------------
 #include "billboard.h"
-#include "camera.h"
 #include "main.h"
 #include "setup.h"
 
@@ -24,8 +23,11 @@
 #define MAX_TEXTURE				(256)					//テクスチャの最大数
 
 //--------------------------------------------------
-// ビルボードの構造体を定義
+// 構造体を定義
 //--------------------------------------------------
+
+/*↓ ビルボード ↓*/
+
 typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
@@ -34,9 +36,8 @@ typedef struct
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
-//--------------------------------------------------
-// 読み込む内容の構造体を定義
-//--------------------------------------------------
+/*↓ 読み込む内容 ↓*/
+
 typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
@@ -180,7 +181,7 @@ void DrawBillboard(void)
 		// テクスチャの設定
 		pDevice->SetTexture(0, pBillboard->pTexture);
 
-		// ポリゴンの描画 四角
+		// ポリゴンの描画
 		pDevice->DrawPrimitive(
 			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 			i * 4,						// 描画する最初の頂点インデックス
@@ -247,7 +248,7 @@ void LoadBillboard(HWND hWnd)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		// 使用する数の読み込み
+		// 使用数の読み込み
 		fscanf(pFile, "%d", &s_nUseTex);
 		fscanf(pFile, "%d", &nUseText);
 
@@ -270,7 +271,7 @@ void LoadBillboard(HWND hWnd)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		// 使用する数の読み込み
+		// 使用数の読み込み
 		fscanf(pFile, "%d", &s_nUseTex);
 		fscanf(pFile, "%d", &nUseText);
 
@@ -329,4 +330,6 @@ void LoadBillboard(HWND hWnd)
 		// 設定
 		SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, &pText[i].pTexture);
 	}
+
+	delete[](pText);
 }
