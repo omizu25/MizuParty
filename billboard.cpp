@@ -51,7 +51,7 @@ typedef struct
 // スタティック変数
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			*s_pTexture;				// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
 static Billboard					s_billboard[MAX_WALL];		// ビルボードの情報
 static int							s_nUseTex;					// テクスチャの使用数
 

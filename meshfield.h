@@ -27,6 +27,7 @@ void InitMeshField(void);
 void UninitMeshField(void);
 void UpdateMeshField(void);
 void DrawMeshField(void);
+void SetMeshField(void);
 MeshField *GetMeshField(void);
 
 #endif // !_MESHFIELD_H_

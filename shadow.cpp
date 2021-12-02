@@ -36,7 +36,7 @@ typedef struct
 // スタティック変数
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
 static Shadow						s_shadow[MAX_SHADOW];		// 影の情報
 
 //--------------------------------------------------

@@ -10,14 +10,13 @@
 //--------------------------------------------------
 #include "main.h"
 #include "meshfield.h"
-#include "polygon.h"
 #include "setup.h"
 #include "wall.h"
 
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WALL		(256)		//壁の最大数
+#define MAX_WALL		(64)		//壁の最大数
 
 //--------------------------------------------------
 // 構造体を定義
@@ -34,7 +33,7 @@ typedef struct
 // スタティック変数
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static Wall							s_wall[MAX_WALL];		// 壁の情報
 
 //--------------------------------------------------
@@ -213,7 +212,6 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 //--------------------------------------------------
 void InstallationWall(void)
 {
-	//polygon *pPolygon = GetPolygon();
 	MeshField *pMeshField = GetMeshField();
 
 	float fWidth = pMeshField->fWidth;
@@ -234,4 +232,13 @@ void InstallationWall(void)
 	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
 	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
 	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
+}
+
+//--------------------------------------------------
+// リセット
+//--------------------------------------------------
+void ResetWall(void)
+{
+	//メモリのクリア
+	memset(s_wall, NULL, sizeof(s_wall));
 }

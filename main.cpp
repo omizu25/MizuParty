@@ -301,6 +301,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// メッシュフィールドの初期化
 	InitMeshField();
 
+	// メッシュフィールドの設定
+	SetMeshField();
+
 	// 壁の初期化
 	InitWall();
 
