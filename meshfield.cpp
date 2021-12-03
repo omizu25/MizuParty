@@ -14,6 +14,8 @@
 #include "setup.h"
 #include "wall.h"
 
+#include <assert.h>
+
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -55,8 +57,8 @@ void InitMeshField(void)
 		"data\\TEXTURE\\InuiToko000.jpg",
 		&s_pTexture);
 
-	s_nHorizontal = 2;
-	s_nVertical = 1;
+	s_nHorizontal = 1;
+	s_nVertical = 10;
 
 	// メモリのクリア
 	memset(&s_meshfield, NULL, sizeof(s_meshfield));
@@ -263,7 +265,7 @@ void SetMeshField(void)
 	// インデックスの設定
 	for (int x = 0, z = 0; z < s_nVertical; x++, z++)
 	{
-		for (; x < (nXWrapping * (z + 1)) + z; x++)
+		for (x = x; x < (nXWrapping * (z + 1)) + z; x++)
 		{
 			pIdx[x * 2] = (WORD)x - (WORD)z + (WORD)nXWrapping;
 			pIdx[(x * 2) + 1] = (WORD)x - (WORD)z;
@@ -271,15 +273,10 @@ void SetMeshField(void)
 
 		if (z < s_nVertical - 1)
 		{// これで終わりじゃないなら
-			int nData = (x % nXWrapping) * nXWrapping;
+			int nData = (x % (z + 1)) * nXWrapping;
 
 			pIdx[x * 2] = (WORD)nData + (WORD)s_nHorizontal;
 			pIdx[(x * 2) + 1] = (WORD)nData + (WORD)(nXWrapping * 2);
-		}
-		else
-		{// これで終わり
-			//pIdx[x * 2] = (WORD)x - (WORD)z + (WORD)nXWrapping;
-			//pIdx[(x * 2) + 1] = (WORD)x - (WORD)z;
 		}
 	}
 
