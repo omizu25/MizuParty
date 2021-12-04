@@ -10,6 +10,9 @@
 //--------------------------------------------------
 // 構造体を定義
 //--------------------------------------------------
+
+/*↓ メッシュフィールド ↓*/
+
 typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
@@ -20,6 +23,17 @@ typedef struct
 	float			fDepth;			// 奥行き
 }MeshField;
 
+/*↓ メッシュフィールドの数系 ↓*/
+
+typedef struct
+{
+	int		nHorizontal;		// 横
+	int		nVertical;			// 縦
+	int		nVtxNumber;			// 頂点数
+	int		nIdxNumber;			// インデックス数
+	int		nPolygonNumber;		// ポリゴン数
+}MeshFieldNumber;
+
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
@@ -29,10 +43,6 @@ void UpdateMeshField(void);
 void DrawMeshField(void);
 void SetMeshField(void);
 MeshField *GetMeshField(void);
-int GetHorizontal(void);
-int GetVertical(void);
-int GetVtxNumber(void);
-int GetIdxNumber(void);
-int GetPolygonNumber(void);
+MeshFieldNumber *GetMeshFieldNumber(void);
 
 #endif // !_MESHFIELD_H_

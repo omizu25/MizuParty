@@ -16,7 +16,10 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WALL		(64)		//壁の最大数
+#define MAX_WALL		(64)			// 壁の最大数
+#define MAX_WIDTH		(150.0f)		// 幅の最大値
+#define MAX_HEIGHT		(0.0f)			// 高さの最大値
+#define MAX_DEPTH		(150.0f)		// 奥行きの最大値
 
 //--------------------------------------------------
 // 構造体を定義
@@ -200,6 +203,12 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 0.5f);
 		}
 
+		//float fULeft = fWidth % (MAX_WIDTH * 0.5f);
+		//float fURight = fWidth / (MAX_WIDTH * 0.5f);
+
+		//// テクスチャの設定
+		//Settex3D(pVtx, fULeft, fURight + 1.5f, 0.0f, 1.0f);
+
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
 
@@ -216,22 +225,23 @@ void InstallationWall(void)
 
 	float fWidth = pMeshField->fWidth;
 	float fHeight = pMeshField->fWidth * 0.4f;
+	float fDepth = pMeshField->fDepth;
 
 	// 壁の設定
 
 	/*↓ 内側 ↓*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, true);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, true);
 
 	/*↓ 外側 ↓*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fWidth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fWidth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, false);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, false);
 }
 
 //--------------------------------------------------

@@ -14,8 +14,6 @@
 #include "setup.h"
 #include "wall.h"
 
-#include <assert.h>
-
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -33,15 +31,13 @@ static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
 static MeshField					s_meshfield;			// メッシュフィールドの情報
-static int							s_nHorizontal;			// 横
-static int							s_nVertical;			// 縦
-static int							s_nVtxNumber;			// 頂点数
+static MeshFieldNumber				s_Number;				// メッシュフィールドの数系の情報
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 static void ResetBuff(void);
-static void SpecifiedInt(int *pNumber, int nMax, int nMin);
+static void Specified(int *pNumber, int nMax, int nMin);
 
 //--------------------------------------------------
 // 初期化
@@ -57,8 +53,10 @@ void InitMeshField(void)
 		"data\\TEXTURE\\InuiToko000.jpg",
 		&s_pTexture);
 
-	s_nHorizontal = 1;
-	s_nVertical = 10;
+	s_Number.nHorizontal = START_SIZE;
+	s_Number.nVertical = START_SIZE;
+	s_Number.nHorizontal = 1;
+	s_Number.nVertical = 10;
 
 	// メモリのクリア
 	memset(&s_meshfield, NULL, sizeof(s_meshfield));
@@ -95,20 +93,20 @@ void UpdateMeshField(void)
 {
 	if (GetKeyboardTrigger(DIK_V))
 	{// Vキーが押された
-		s_nHorizontal++;
+		s_Number.nHorizontal++;
 	}
 	else if (GetKeyboardTrigger(DIK_B))
 	{// Bキーが押された
-		s_nHorizontal--;
+		s_Number.nHorizontal--;
 	}
 
 	if (GetKeyboardTrigger(DIK_N))
 	{// Nキーが押された
-		s_nVertical++;
+		s_Number.nVertical++;
 	}
 	else if (GetKeyboardTrigger(DIK_M))
 	{// Mキーが押された
-		s_nVertical--;
+		s_Number.nVertical--;
 	}
 
 	if (GetKeyboardTrigger(DIK_V) || GetKeyboardTrigger(DIK_B) ||
@@ -116,10 +114,10 @@ void UpdateMeshField(void)
 	{// V, B, N, Mキーが押された
 
 		// 指定の値以上・以下
-		SpecifiedInt(&s_nHorizontal, MAX_SIZE, MIN_SIZE);
+		Specified(&s_Number.nHorizontal, MAX_SIZE, MIN_SIZE);
 
 		// 指定の値以上・以下
-		SpecifiedInt(&s_nVertical, MAX_SIZE, MIN_SIZE);
+		Specified(&s_Number.nVertical, MAX_SIZE, MIN_SIZE);
 
 		// バッファのリセット
 		ResetBuff();
@@ -170,17 +168,14 @@ void DrawMeshField(void)
 	// テクスチャの設定
 	pDevice->SetTexture(0, s_pTexture);
 
-	// インデックス数を計算
-	int nIdxNumber = (((s_nHorizontal + 1) * 2) * s_nVertical) + (2 * (s_nVertical - 1));
-
 	// ポリゴン描画
 	pDevice->DrawIndexedPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点バッファ
-		0,							// インデックスの最小値
-		s_nVtxNumber,				// 頂点数
-		0,							// 描画する最初の頂点インデックス
-		(nIdxNumber - 2));			// プリミティブ(ポリゴン)数
+		D3DPT_TRIANGLESTRIP,			// プリミティブの種類
+		0,								// 描画する最初の頂点バッファ
+		0,								// インデックスの最小値
+		s_Number.nVtxNumber,			// 頂点数
+		0,								// 描画する最初の頂点インデックス
+		s_Number.nPolygonNumber);		// プリミティブ(ポリゴン)数
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
@@ -194,14 +189,21 @@ void SetMeshField(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	int nXLine = s_Number.nHorizontal + 1;
+	int nZLine = s_Number.nVertical + 1;
+
 	// 頂点数を計算
-	int nXWrapping = s_nHorizontal + 1;
-	int nZWrapping = s_nVertical + 1;
-	s_nVtxNumber = nXWrapping * nZWrapping;
+	s_Number.nVtxNumber = nXLine * nZLine;
+
+	// インデックス数を計算
+	s_Number.nIdxNumber = ((nXLine * 2) * s_Number.nVertical) + ((s_Number.nVertical - 1) * 2);
+
+	// ポリゴン数を計算
+	s_Number.nPolygonNumber = (s_Number.nHorizontal * s_Number.nVertical * 2) + ((s_Number.nVertical - 1) * 4);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_3D) * s_nVtxNumber,
+		sizeof(VERTEX_3D) * s_Number.nVtxNumber,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_3D,
 		D3DPOOL_MANAGED,
@@ -212,19 +214,19 @@ void SetMeshField(void)
 	memset(&s_meshfield, NULL, sizeof(s_meshfield));
 
 	// 幅・高さ・奥行きの設定
-	s_meshfield.fWidth = MAX_WIDTH * (s_nHorizontal * 0.5f);
+	s_meshfield.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
 	s_meshfield.fHeight = MAX_HEIGHT;
-	s_meshfield.fDepth = MAX_DEPTH * (s_nVertical * 0.5f);
+	s_meshfield.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < s_nVtxNumber; i++)
+	for (int i = 0; i < s_Number.nVtxNumber; i++)
 	{
-		float fXPos = (float)(i % nXWrapping) - (s_nHorizontal * 0.5f);
-		float fZPos = ((float)(i / nXWrapping) - (s_nVertical * 0.5f)) * -1.0f;
+		float fXPos = (float)(i % nXLine) - (s_Number.nHorizontal * 0.5f);
+		float fZPos = ((float)(i / nXLine) - (s_Number.nVertical * 0.5f)) * -1.0f;
 
 		// 頂点座標の設定
 		pVtx[i].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, 0.0f, MAX_DEPTH * fZPos);
@@ -235,8 +237,8 @@ void SetMeshField(void)
 		// 頂点カラーの設定
 		pVtx[i].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-		float fUTex = (float)(i % nXWrapping);
-		float fVTex = (float)(i / nXWrapping);
+		float fUTex = (float)(i % nXLine);
+		float fVTex = (float)(i / nXLine);
 
 		// テクスチャ座標の設定
 		pVtx[i].tex = D3DXVECTOR2(fUTex, fVTex);
@@ -245,12 +247,9 @@ void SetMeshField(void)
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
 
-	// インデックス数を計算
-	int nIdxNumber = ((nXWrapping * 2) * s_nVertical) + (2 * (s_nVertical - 1));
-
 	// インデックスバッファの生成
 	pDevice->CreateIndexBuffer(
-		sizeof(VERTEX_3D) * nIdxNumber,
+		sizeof(VERTEX_3D) * s_Number.nIdxNumber,
 		D3DUSAGE_WRITEONLY,
 		D3DFMT_INDEX16,
 		D3DPOOL_MANAGED,
@@ -263,20 +262,18 @@ void SetMeshField(void)
 	s_pIdxBuff->Lock(0, 0, (void**)&pIdx, 0);
 
 	// インデックスの設定
-	for (int x = 0, z = 0; z < s_nVertical; x++, z++)
+	for (int x = 0, z = 0; z < s_Number.nVertical; x++, z++)
 	{
-		for (x = x; x < (nXWrapping * (z + 1)) + z; x++)
+		for (; x < (nXLine * (z + 1)) + z; x++)
 		{
-			pIdx[x * 2] = (WORD)x - (WORD)z + (WORD)nXWrapping;
-			pIdx[(x * 2) + 1] = (WORD)x - (WORD)z;
+			pIdx[x * 2] = (WORD)(x - z + nXLine);
+			pIdx[(x * 2) + 1] = (WORD)(x - z);
 		}
 
-		if (z < s_nVertical - 1)
+		if (z < s_Number.nVertical - 1)
 		{// これで終わりじゃないなら
-			int nData = (x % (z + 1)) * nXWrapping;
-
-			pIdx[x * 2] = (WORD)nData + (WORD)s_nHorizontal;
-			pIdx[(x * 2) + 1] = (WORD)nData + (WORD)(nXWrapping * 2);
+			pIdx[x * 2] = (WORD)(x - (z + 1));
+			pIdx[(x * 2) + 1] = (WORD)((x * 2) - (z * (s_Number.nHorizontal + 3)));
 		}
 	}
 
@@ -292,35 +289,12 @@ MeshField *GetMeshField(void)
 	return &s_meshfield;
 }
 
-int GetHorizontal(void)
+//--------------------------------------------------
+// 数系の取得
+//--------------------------------------------------
+MeshFieldNumber *GetMeshFieldNumber(void)
 {
-	return s_nHorizontal;
-}
-
-int GetVertical(void)
-{
-	return s_nVertical;
-}
-
-int GetVtxNumber(void)
-{
-	return s_nVtxNumber;
-}
-
-int GetIdxNumber(void)
-{
-	// インデックス数を計算
-	int nIdxNumber = (((s_nHorizontal + 1) * 2) * s_nVertical) + (2 * (s_nVertical - 1));
-
-	return nIdxNumber;
-}
-
-int GetPolygonNumber(void)
-{
-	// インデックス数を計算
-	int nIdxNumber = (((s_nHorizontal + 1) * 2) * s_nVertical) + (2 * (s_nVertical - 1));
-
-	return nIdxNumber - 2;
+	return &s_Number;
 }
 
 //--------------------------------------------------
@@ -344,7 +318,7 @@ static void ResetBuff(void)
 //--------------------------------------------------
 // 指定の値以上・以下
 //--------------------------------------------------
-static void SpecifiedInt(int *pNumber, int nMax, int nMin)
+static void Specified(int *pNumber, int nMax, int nMin)
 {
 	if (*pNumber >= nMax)
 	{// 指定の値以上

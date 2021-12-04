@@ -484,7 +484,7 @@ static void Draw(void)
 		DrawBillboard();
 
 		// 壁の描画
-		//DrawWall();
+		DrawWall();
 
 		if (s_bDebug)
 		{
@@ -526,9 +526,20 @@ static void DrawDebug(void)
 
 #endif // !_DEBUG
 
-	sprintf(&aStr[nLength], "[ 操作説明 ]\n");
+	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "<< カメラ操作 >>\n");
+
+	if (s_bWireframe)
+	{
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F2 ]  :【 ON 】\n");
+	}
+	else
+	{
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F2 ]  :【 OFF 】\n");
+	}
+	nLength = (int)strlen(&aStr[0]);
+
+	sprintf(&aStr[nLength], "\n<< カメラ操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
 	nLength = (int)strlen(&aStr[0]);
@@ -567,7 +578,20 @@ static void DrawDebug(void)
 	sprintf(&aStr[nLength], "Iキー, Kキー              : 上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
 
-	sprintf(&aStr[nLength], "%d, %d, %d, %d, %d\n", GetHorizontal(), GetVertical(), GetVtxNumber(), GetIdxNumber(), GetPolygonNumber());
+	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
+
+	sprintf(&aStr[nLength], "\n<< メッシュ操作 >>\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "Vキー, Bキー              : 横 増減 [ %d ]\n", pNumber->nHorizontal);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "Nキー, Mキー              : 縦 増減 [ %d ]\n", pNumber->nVertical);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "頂点数                    : %d\n", pNumber->nVtxNumber);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "インデックス数            : %d\n", pNumber->nIdxNumber);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pNumber->nPolygonNumber);
+	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画
 	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f));

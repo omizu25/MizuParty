@@ -24,23 +24,23 @@ void Setpos2D(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 //--------------------------------------------------
 // 頂点カラーの設定 [2D]
 //--------------------------------------------------
-void Setcol2D(VERTEX_2D *pVtx, float Red, float Green, float Blue, float Alpha)
+void Setcol2D(VERTEX_2D *pVtx, float fRed, float fGreen, float fBlue, float fAlpha)
 {
-	pVtx[0].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[1].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[2].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[3].col = D3DXCOLOR(Red, Green, Blue, Alpha);
+	pVtx[0].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[1].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[2].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[3].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
 }
 
 //--------------------------------------------------
 // テクスチャの設定 [2D]
 //--------------------------------------------------
-void Settex2D(VERTEX_2D *pVtx, float ULeft, float URight, float VTop, float VBottom)
+void Settex2D(VERTEX_2D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
 {
-	pVtx[0].tex = D3DXVECTOR2(ULeft,  VTop);
-	pVtx[1].tex = D3DXVECTOR2(URight, VTop);
-	pVtx[2].tex = D3DXVECTOR2(ULeft,  VBottom);
-	pVtx[3].tex = D3DXVECTOR2(URight, VBottom);
+	pVtx[0].tex = D3DXVECTOR2(fULeft,  fVTop);
+	pVtx[1].tex = D3DXVECTOR2(fURight, fVTop);
+	pVtx[2].tex = D3DXVECTOR2(fULeft,  fVBottom);
+	pVtx[3].tex = D3DXVECTOR2(fURight, fVBottom);
 }
 
 //--------------------------------------------------
@@ -130,23 +130,23 @@ void Setnor3D(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
 //--------------------------------------------------
 // 頂点カラーの設定 [3D]
 //--------------------------------------------------
-void Setcol3D(VERTEX_3D *pVtx, float Red, float Green, float Blue, float Alpha)
+void Setcol3D(VERTEX_3D *pVtx, float fRed, float fGreen, float fBlue, float fAlpha)
 {
-	pVtx[0].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[1].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[2].col = D3DXCOLOR(Red, Green, Blue, Alpha);
-	pVtx[3].col = D3DXCOLOR(Red, Green, Blue, Alpha);
+	pVtx[0].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[1].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[2].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[3].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
 }
 
 //--------------------------------------------------
 // テクスチャの設定 [3D]
 //--------------------------------------------------
-void Settex3D(VERTEX_3D *pVtx, float ULeft, float URight, float VTop, float VBottom)
+void Settex3D(VERTEX_3D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
 {
-	pVtx[0].tex = D3DXVECTOR2(ULeft,  VTop);
-	pVtx[1].tex = D3DXVECTOR2(URight, VTop);
-	pVtx[2].tex = D3DXVECTOR2(ULeft,  VBottom);
-	pVtx[3].tex = D3DXVECTOR2(URight, VBottom);
+	pVtx[0].tex = D3DXVECTOR2(fULeft,  fVTop);
+	pVtx[1].tex = D3DXVECTOR2(fURight, fVTop);
+	pVtx[2].tex = D3DXVECTOR2(fULeft,  fVBottom);
+	pVtx[3].tex = D3DXVECTOR2(fURight, fVBottom);
 }
 
 //--------------------------------------------------
