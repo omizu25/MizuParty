@@ -573,18 +573,18 @@ static void DrawDebug(void)
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "左Shiftキー, 右Shiftキー  : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
+	sprintf(&aStr[nLength], "左Shift, 右Shiftキー      : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Iキー, Kキー              : 上下移動\n");
+	sprintf(&aStr[nLength], "I, Kキー                  : 上下移動\n");
 	nLength = (int)strlen(&aStr[0]);
 
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
 
 	sprintf(&aStr[nLength], "\n<< メッシュ操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Vキー, Bキー              : 横 増減 [ %d ]\n", pNumber->nHorizontal);
+	sprintf(&aStr[nLength], "V, Bキー                  : 横 増減 [ %d ]\n", pNumber->nHorizontal);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Nキー, Mキー              : 縦 増減 [ %d ]\n", pNumber->nVertical);
+	sprintf(&aStr[nLength], "N, Mキー                  : 縦 増減 [ %d ]\n", pNumber->nVertical);
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "頂点数                    : %d\n", pNumber->nVtxNumber);
 	nLength = (int)strlen(&aStr[0]);

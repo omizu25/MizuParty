@@ -55,9 +55,7 @@ void InitMeshField(void)
 
 	s_Number.nHorizontal = START_SIZE;
 	s_Number.nVertical = START_SIZE;
-	s_Number.nHorizontal = 1;
-	s_Number.nVertical = 10;
-
+	
 	// ƒƒ‚ƒŠ‚ÌƒNƒŠƒA
 	memset(&s_meshfield, NULL, sizeof(s_meshfield));
 }
