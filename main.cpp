@@ -15,18 +15,31 @@
 #include "main.h"
 #include "meshcylinder.h"
 #include "meshfield.h"
+#include "meshsphere.h"
 #include "model.h"
 #include "polygon.h"
 #include "shadow.h"
 #include "wall.h"
 
 #include <stdio.h>
+#include <assert.h>
 
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
 #define CLASS_NAME		"windowClass"		// ウインドウクラスの名前
 #define WINDOW_NAME		"3Dゲーム制作"		// ウインドウの名前 (キャプションに表示)
+
+//--------------------------------------------------
+// 列挙型
+//--------------------------------------------------
+typedef enum
+{
+	DEBUG_CAMERA = 0,		// カメラ
+	DEBUG_MODEL,			// モデル
+	DEBUG_MESH,				// メッシュ
+	DEBUG_MAX
+}DEBUG;
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -46,6 +59,7 @@ static LPDIRECT3DDEVICE9		s_pD3DDevice = NULL;		// Direct3Dデバイスへのポインタ
 static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
+static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
 static bool						s_bWireframe = false;		// ワイヤーフレーム表示をするか [表示  : true 非表示  : false]
 
 //--------------------------------------------------
@@ -299,17 +313,23 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ポリゴンの初期化
 	//InitPolygon();
 
+	// メッシュフィールドの初期化
+	InitMeshField();
+
+	// メッシュフィールドの設定
+	SetMeshField();
+
 	// メッシュ円柱の初期化
 	InitMeshCylinder();
 
 	// メッシュ円柱の設定
 	SetMeshCylinder();
 
-	// メッシュフィールドの初期化
-	InitMeshField();
+	// メッシュ球の初期化
+	InitMeshSphere();
 
-	// メッシュフィールドの設定
-	SetMeshField();
+	// メッシュ球の設定
+	SetMeshSphere();
 
 	// 壁の初期化
 	InitWall();
@@ -353,11 +373,14 @@ static void Uninit(void)
 	// ポリゴンの終了
 	//UninitPolygon();
 
-	// メッシュ円柱の設定
-	UninitMeshCylinder();
-
 	// メッシュフィールドの終了
 	UninitMeshField();
+
+	// メッシュ円柱の終了
+	UninitMeshCylinder();
+
+	// メッシュ球の終了
+	UninitMeshSphere();
 
 	// 壁の終了
 	UninitWall();
@@ -411,11 +434,14 @@ static void Update(void)
 	// ポリゴンの更新
 	//UpdatePolygon();
 
+	// メッシュフィールドの更新
+	UpdateMeshField();
+
 	// メッシュ円柱の更新
 	UpdateMeshCylinder();
 
-	// メッシュフィールドの更新
-	UpdateMeshField();
+	// メッシュ球の更新
+	UpdateMeshSphere();
 
 	// 壁の更新
 	UpdateWall();
@@ -435,14 +461,33 @@ static void Update(void)
 	// ライトの更新
 	UpdateLight();
 
-	if (GetKeyboardTrigger(DIK_F2))
-	{// F2キーが押された
-		s_bWireframe = !s_bWireframe;
-	}
-
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
 		s_bDebug = !s_bDebug;
+	}
+
+	if (GetKeyboardTrigger(DIK_F2))
+	{// F2キーが押された
+		s_Debug = (DEBUG)(s_Debug - 1);
+
+		if (s_Debug < DEBUG_CAMERA)
+		{
+			s_Debug = DEBUG_CAMERA;
+		}
+	}
+	else if (GetKeyboardTrigger(DIK_F3))
+	{// F3キーが押された
+		s_Debug = (DEBUG)(s_Debug + 1);
+
+		if (s_Debug >= DEBUG_MAX)
+		{
+			s_Debug = (DEBUG)(DEBUG_MAX - 1);
+		}
+	}
+
+	if (GetKeyboardTrigger(DIK_F4))
+	{// F4キーが押された
+		s_bWireframe = !s_bWireframe;
 	}
 }
 
@@ -484,23 +529,26 @@ static void Draw(void)
 		// ポリゴンの描画
 		//DrawPolygon();
 
-		// メッシュ円柱の描画
-		DrawMeshCylinder();
+		//// メッシュフィールドの描画
+		//DrawMeshField();
 
-		// メッシュフィールドの描画
-		DrawMeshField();
+		//// メッシュ円柱の描画
+		//DrawMeshCylinder();
 
-		// モデルの描画
-		DrawModel();
+		// メッシュ球の描画
+		DrawMeshSphere();
 
-		// 影の描画
-		DrawShadow();
+		//// モデルの描画
+		//DrawModel();
 
-		// ビルボードの描画
-		DrawBillboard();
+		//// 影の描画
+		//DrawShadow();
 
-		// 壁の描画
-		DrawWall();
+		//// ビルボードの描画
+		//DrawBillboard();
+
+		//// 壁の描画
+		//DrawWall();
 
 		if (s_bDebug)
 		{
@@ -545,81 +593,96 @@ static void DrawDebug(void)
 	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
 	nLength = (int)strlen(&aStr[0]);
 
+	sprintf(&aStr[nLength], "カメラ ⇔ モデル ⇔ メッシュ\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "    ←  : [ F2 ]      →  : [ F3 ]  \n");
+	nLength = (int)strlen(&aStr[0]);
+
 	if (s_bWireframe)
 	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F2 ]  :【 ON 】\n");
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 ON 】\n");
 	}
 	else
 	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F2 ]  :【 OFF 】\n");
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 OFF 】\n");
 	}
 	nLength = (int)strlen(&aStr[0]);
 
-	sprintf(&aStr[nLength], "\n<< カメラ操作 >>\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Z, Cキー                  : 視点の旋回\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Q, Eキー                  : 注視点の旋回\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "T, Gキー                  : 視点の上下移動\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "Y, Hキー                  : 注視点の上下移動\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "U, Jキー                  : 視点～注視点間の距離変更\n");
-	nLength = (int)strlen(&aStr[0]);
-
-	Camera *pCamera = GetCamera();		//カメラの情報を取得
-
-	sprintf(&aStr[nLength], "視点の座標                : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点の座標              : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の角度( y )   : %.3f\n", pCamera->rot.y);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の角度( x )   : %.3f\n", pCamera->rot.x);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "注視点と視点の距離        : %.3f\n", pCamera->fDistance);
-	nLength = (int)strlen(&aStr[0]);
-
-	Model *pModel = GetModel();		//モデルの情報を取得
-
-	sprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "左Shift, 右Shiftキー      : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "I, Kキー                  : 上下移動\n");
-	nLength = (int)strlen(&aStr[0]);
-
-	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
-
-	sprintf(&aStr[nLength], "\n<< 地面のメッシュ操作 >>\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "V, B, N, Mキー            : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "頂点数                    : %d\n", pNumber->nVtx);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "インデックス数            : %d\n", pNumber->nIdx);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pNumber->nPolygon);
-	nLength = (int)strlen(&aStr[0]);
-
+	Camera *pCamera = GetCamera();										//カメラの取得
+	Model *pModel = GetModel();											//モデルの取得
+	MeshFieldNumber *pNumber = GetMeshFieldNumber();					//メッシュフィールドの数系の取得
 	MeshCylinderNumber *pCylinderNumber = GetMeshCylinderNumber();		//メッシュ円柱の数系の取得
+	MeshSphereNumber *pSphereNumber = GetMeshSphereNumber();			//メッシュ球の数系の取得
 
-	sprintf(&aStr[nLength], "\n<< 円柱メッシュ操作 >>\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "1, 2, 3, 4キー            : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "頂点数                    : %d\n", pCylinderNumber->nVtx);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "インデックス数            : %d\n", pCylinderNumber->nIdx);
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pCylinderNumber->nPolygon);
-	nLength = (int)strlen(&aStr[0]);
+	switch (s_Debug)
+	{
+	case DEBUG_CAMERA:		// カメラ
+
+		sprintf(&aStr[nLength], "\n<< カメラ操作 >>\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "Z, Cキー                  : 視点の旋回\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "Q, Eキー                  : 注視点の旋回\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "T, Gキー                  : 視点の上下移動\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "Y, Hキー                  : 注視点の上下移動\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "U, Jキー                  : 視点～注視点間の距離変更\n");
+		nLength = (int)strlen(&aStr[0]);
+
+		sprintf(&aStr[nLength], "視点の座標                : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "注視点の座標              : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "注視点と視点の角度( y )   : %.3f\n", pCamera->rot.y);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "注視点と視点の角度( x )   : %.3f\n", pCamera->rot.x);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "注視点と視点の距離        : %.3f\n", pCamera->fDistance);
+		nLength = (int)strlen(&aStr[0]);
+
+		break;
+
+	case DEBUG_MODEL:		// モデル
+
+		sprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "左Shift, 右Shiftキー      : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "I, Kキー                  : 上下移動\n");
+		nLength = (int)strlen(&aStr[0]);
+
+		break;
+
+	case DEBUG_MESH:		//メッシュ
+
+		sprintf(&aStr[nLength], "\n<< 地面 円柱 球のメッシュ操作 >>\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "V, B, N, Mキー [地面]     : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "1, 2, 3, 4キー [円柱]     : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "5, 6, 7, 8キー [球]       : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "頂点数                    : %2d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "インデックス数            : %2d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "ポリゴン数                : %2d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon);
+		nLength = (int)strlen(&aStr[0]);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// テキストの描画
-	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f));
+	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(0.25f, 0.75f, 1.0f, 1.0f));
 }

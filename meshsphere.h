@@ -18,9 +18,6 @@ typedef struct
 	D3DXVECTOR3		pos;			// 位置
 	D3DXVECTOR3		rot;			// 向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
-	float			fWidth;			// 幅
-	float			fHeight;		// 高さ
-	float			fDepth;			// 奥行き
 }MeshSphere;
 
 /*↓ メッシュ球の数系 ↓*/

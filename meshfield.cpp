@@ -52,12 +52,14 @@ void InitMeshField(void)
 		pDevice,
 		"data\\TEXTURE\\InuiToko000.jpg",
 		&s_pTexture);
-
-	s_Number.nHorizontal = START_SIZE;
-	s_Number.nVertical = START_SIZE;
 	
 	// ƒƒ‚ƒŠ‚ÌƒNƒŠƒA
 	memset(&s_meshfield, NULL, sizeof(s_meshfield));
+	memset(&s_Number, NULL, sizeof(s_Number));
+
+	// ‰¡Ec‚Ì‰Šú‰»
+	s_Number.nHorizontal = START_SIZE;
+	s_Number.nVertical = START_SIZE;
 }
 
 //--------------------------------------------------

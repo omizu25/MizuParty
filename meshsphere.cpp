@@ -17,15 +17,13 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WIDTH				(50.0f)		// 幅の最大値
-#define MAX_HEIGHT				(10.0f)		// 高さの最大値
-#define MAX_DEPTH				(50.0f)		// 奥行きの最大値
+#define MAX_SIZE				(50.0f)		// サイズの最大値
 #define MAX_HORIZONTAL			(30)		// 横の最大値
 #define MIN_HORIZONTAL			(3)			// 横の最小値
 #define START_HORIZONTAL		(8)			// 横の最初の値
 #define MAX_VERTICAL			(10)		// 縦の最大値
-#define MIN_VERTICAL			(1)			// 縦の最小値
-#define START_VERTICAL			(8)			// 縦の最初の値
+#define MIN_VERTICAL			(3)			// 縦の最小値
+#define START_VERTICAL			(4)			// 縦の最初の値
 
 //--------------------------------------------------
 // スタティック変数
@@ -56,11 +54,13 @@ void InitMeshSphere(void)
 		"data\\TEXTURE\\InuiToko003.jpg",
 		&s_pTexture);
 
-	s_Number.nHorizontal = START_HORIZONTAL;
-	s_Number.nVertical = START_VERTICAL;
-
 	// メモリのクリア
 	memset(&s_meshsphere, NULL, sizeof(s_meshsphere));
+	memset(&s_Number, NULL, sizeof(s_Number));
+
+	// 横・縦の初期化
+	s_Number.nHorizontal = START_HORIZONTAL;
+	s_Number.nVertical = START_VERTICAL;
 }
 
 //--------------------------------------------------
@@ -170,7 +170,7 @@ void DrawMeshSphere(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	pDevice->SetTexture(0, NULL);
 
 	// ポリゴン描画
 	pDevice->DrawIndexedPrimitive(
@@ -220,11 +220,6 @@ void SetMeshSphere(void)
 	// メモリのクリア
 	memset(&s_meshsphere, NULL, sizeof(s_meshsphere));
 
-	// 幅・高さ・奥行きの設定
-	s_meshsphere.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
-	s_meshsphere.fHeight = MAX_HEIGHT;
-	s_meshsphere.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
-
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -232,14 +227,19 @@ void SetMeshSphere(void)
 
 	for (int y = 0; y < nYLine; y++)
 	{
-		float fYPos = MAX_HEIGHT - ((MAX_HEIGHT / s_Number.nVertical) * y);
+		float fYRot = (D3DX_PI / s_Number.nVertical) * y;
+
+		float fYPos = cosf(fYRot) * MAX_SIZE;
 
 		for (int x = 0; x < nXLine; x++)
 		{
-			float fRot = (D3DX_PI * 2.0f) / s_Number.nHorizontal;
+			float fRot = ((D3DX_PI * 2.0f) / s_Number.nHorizontal) * x;
 
-			float fXPos = cosf(fRot * x) * MAX_WIDTH;
-			float fZPos = sinf(fRot * x) * MAX_DEPTH;
+			// 角度の正規化
+			NormalizeRot(&fRot);
+
+			float fXPos = cosf(fRot) * MAX_SIZE;
+			float fZPos = sinf(fRot) * MAX_SIZE;
 			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos, fZPos);
 
 			// 頂点座標の設定

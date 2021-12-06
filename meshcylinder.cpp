@@ -56,11 +56,13 @@ void InitMeshCylinder(void)
 		"data\\TEXTURE\\InuiToko003.jpg",
 		&s_pTexture);
 
-	s_Number.nHorizontal = START_HORIZONTAL;
-	s_Number.nVertical = START_VERTICAL;
-
 	// メモリのクリア
 	memset(&s_meshcylinder, NULL, sizeof(s_meshcylinder));
+	memset(&s_Number, NULL, sizeof(s_Number));
+
+	//横・縦の初期化
+	s_Number.nHorizontal = START_HORIZONTAL;
+	s_Number.nVertical = START_VERTICAL;
 }
 
 //--------------------------------------------------
@@ -220,11 +222,6 @@ void SetMeshCylinder(void)
 	// メモリのクリア
 	memset(&s_meshcylinder, NULL, sizeof(s_meshcylinder));
 
-	// 幅・高さ・奥行きの設定
-	s_meshcylinder.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
-	s_meshcylinder.fHeight = MAX_HEIGHT;
-	s_meshcylinder.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
-
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
 	// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -236,10 +233,13 @@ void SetMeshCylinder(void)
 
 		for (int x = 0; x < nXLine; x++)
 		{
-			float fRot = (D3DX_PI * 2.0f) / s_Number.nHorizontal;
+			float fRot = (D3DX_PI * 2.0f) / s_Number.nHorizontal * x;
 
-			float fXPos = cosf(fRot * x) * MAX_WIDTH;
-			float fZPos = sinf(fRot * x) * MAX_DEPTH;
+			// 角度の正規化
+			NormalizeRot(&fRot);
+
+			float fXPos = cosf(fRot) * MAX_WIDTH;
+			float fZPos = sinf(fRot) * MAX_DEPTH;
 			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos, fZPos);
 
 			// 頂点座標の設定
