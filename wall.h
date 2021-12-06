@@ -14,7 +14,7 @@ void InitWall(void);
 void UninitWall(void);
 void UpdateWall(void);
 void DrawWall(void);
-void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool bCulling);
+void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, float fURight, bool bCulling);
 void InstallationWall(void);
 void ResetWall(void);
 

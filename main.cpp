@@ -13,6 +13,7 @@
 #include "input.h"
 #include "light.h"
 #include "main.h"
+#include "meshcylinder.h"
 #include "meshfield.h"
 #include "model.h"
 #include "polygon.h"
@@ -298,6 +299,12 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ポリゴンの初期化
 	//InitPolygon();
 
+	// メッシュ円柱の初期化
+	InitMeshCylinder();
+
+	// メッシュ円柱の設定
+	SetMeshCylinder();
+
 	// メッシュフィールドの初期化
 	InitMeshField();
 
@@ -345,6 +352,9 @@ static void Uninit(void)
 
 	// ポリゴンの終了
 	//UninitPolygon();
+
+	// メッシュ円柱の設定
+	UninitMeshCylinder();
 
 	// メッシュフィールドの終了
 	UninitMeshField();
@@ -400,6 +410,9 @@ static void Update(void)
 
 	// ポリゴンの更新
 	//UpdatePolygon();
+
+	// メッシュ円柱の更新
+	UpdateMeshCylinder();
 
 	// メッシュフィールドの更新
 	UpdateMeshField();
@@ -470,6 +483,9 @@ static void Draw(void)
 
 		// ポリゴンの描画
 		//DrawPolygon();
+
+		// メッシュ円柱の描画
+		DrawMeshCylinder();
 
 		// メッシュフィールドの描画
 		DrawMeshField();
@@ -580,17 +596,28 @@ static void DrawDebug(void)
 
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
 
-	sprintf(&aStr[nLength], "\n<< メッシュ操作 >>\n");
+	sprintf(&aStr[nLength], "\n<< 地面のメッシュ操作 >>\n");
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "V, Bキー                  : 横 増減 [ %d ]\n", pNumber->nHorizontal);
+	sprintf(&aStr[nLength], "V, B, N, Mキー            : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "N, Mキー                  : 縦 増減 [ %d ]\n", pNumber->nVertical);
+	sprintf(&aStr[nLength], "頂点数                    : %d\n", pNumber->nVtx);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "頂点数                    : %d\n", pNumber->nVtxNumber);
+	sprintf(&aStr[nLength], "インデックス数            : %d\n", pNumber->nIdx);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "インデックス数            : %d\n", pNumber->nIdxNumber);
+	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pNumber->nPolygon);
 	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pNumber->nPolygonNumber);
+
+	MeshCylinderNumber *pCylinderNumber = GetMeshCylinderNumber();		//メッシュ円柱の数系の取得
+
+	sprintf(&aStr[nLength], "\n<< 円柱メッシュ操作 >>\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "1, 2, 3, 4キー            : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "頂点数                    : %d\n", pCylinderNumber->nVtx);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "インデックス数            : %d\n", pCylinderNumber->nIdx);
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "ポリゴン数                : %d\n", pCylinderNumber->nPolygon);
 	nLength = (int)strlen(&aStr[0]);
 
 	// テキストの描画

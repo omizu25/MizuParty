@@ -165,7 +165,7 @@ void DrawWall(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool bCulling)
+void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, float fURight, bool bCulling)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -203,11 +203,8 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 0.5f);
 		}
 
-		//float fULeft = fWidth % (MAX_WIDTH * 0.5f);
-		//float fURight = fWidth / (MAX_WIDTH * 0.5f);
-
-		//// テクスチャの設定
-		//Settex3D(pVtx, fULeft, fURight + 1.5f, 0.0f, 1.0f);
+		// テクスチャの設定
+		Settex3D(pVtx, 0.0f, fURight, 0.0f, 1.0f);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -221,7 +218,8 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, bool
 //--------------------------------------------------
 void InstallationWall(void)
 {
-	MeshField *pMeshField = GetMeshField();
+	MeshField *pMeshField = GetMeshField();					//メッシュフィールドの取得
+	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
 
 	float fWidth = pMeshField->fWidth;
 	float fHeight = pMeshField->fWidth * 0.4f;
@@ -231,17 +229,17 @@ void InstallationWall(void)
 
 	/*↓ 内側 ↓*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, true);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, true);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, pNumber->nHorizontal, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, pNumber->nHorizontal, true);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, pNumber->nVertical, true);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, pNumber->nVertical, true);
 
 	/*↓ 外側 ↓*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, false);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, false);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, false);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, pNumber->nHorizontal, false);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, pNumber->nHorizontal, false);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, pNumber->nVertical, false);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, pNumber->nVertical, false);
 }
 
 //--------------------------------------------------
