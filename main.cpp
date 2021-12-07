@@ -15,6 +15,7 @@
 #include "main.h"
 #include "mesh_cylinder.h"
 #include "mesh_field.h"
+#include "mesh_sky.h"
 #include "mesh_sphere.h"
 #include "model.h"
 #include "polygon.h"
@@ -331,6 +332,12 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// メッシュ球の設定
 	SetMeshSphere();
 
+	// メッシュ空の初期化
+	InitMeshSky();
+
+	// メッシュ空の設定
+	SetMeshSky();
+
 	// 壁の初期化
 	InitWall();
 
@@ -381,6 +388,9 @@ static void Uninit(void)
 
 	// メッシュ球の終了
 	UninitMeshSphere();
+
+	// メッシュ空の終了
+	UninitMeshSky();
 
 	// 壁の終了
 	UninitWall();
@@ -442,6 +452,9 @@ static void Update(void)
 
 	// メッシュ球の更新
 	UpdateMeshSphere();
+
+	// メッシュ空の更新
+	UpdateMeshSky();
 
 	// 壁の更新
 	UpdateWall();
@@ -536,7 +549,10 @@ static void Draw(void)
 		//DrawMeshCylinder();
 
 		// メッシュ球の描画
-		DrawMeshSphere();
+		//DrawMeshSphere();
+
+		// メッシュ空の描画
+		DrawMeshSky();
 
 		//// モデルの描画
 		//DrawModel();

@@ -16,7 +16,7 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_NEAR			(10.0f)			//ニアの最大値
-#define MAX_FAR				(1000.0f)		//ファーの最大値
+#define MAX_FAR				(1500.0f)		//ファーの最大値
 #define MAX_MOVE			(1.0f)			//移動量の最大値
 #define MAX_ROTATION		(0.035f)		//回転の最大値
 
