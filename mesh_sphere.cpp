@@ -1,6 +1,6 @@
 //==================================================
 // 
-// 3Dゲーム制作 ( meshsphere.cpp )
+// 3Dゲーム制作 ( mesh_sphere.cpp )
 // Author  : katsuki mizuki
 // 
 //==================================================
@@ -10,7 +10,7 @@
 //--------------------------------------------------
 #include "input.h"
 #include "main.h"
-#include "meshsphere.h"
+#include "mesh_sphere.h"
 #include "setup.h"
 #include "wall.h"
 
@@ -31,7 +31,7 @@
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
-static MeshSphere					s_meshsphere;			// メッシュ球の情報
+static MeshSphere					s_meshSphere;			// メッシュ球の情報
 static MeshSphereNumber				s_Number;				// メッシュ球の数系の情報
 
 //--------------------------------------------------
@@ -55,7 +55,7 @@ void InitMeshSphere(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshsphere, NULL, sizeof(s_meshsphere));
+	memset(&s_meshSphere, NULL, sizeof(s_meshSphere));
 	memset(&s_Number, NULL, sizeof(s_Number));
 
 	// 横・縦の初期化
@@ -144,18 +144,18 @@ void DrawMeshSphere(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshsphere.mtxWorld);
+	D3DXMatrixIdentity(&s_meshSphere.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshsphere.rot.y, s_meshsphere.rot.x, s_meshsphere.rot.z);
-	D3DXMatrixMultiply(&s_meshsphere.mtxWorld, &s_meshsphere.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshSphere.rot.y, s_meshSphere.rot.x, s_meshSphere.rot.z);
+	D3DXMatrixMultiply(&s_meshSphere.mtxWorld, &s_meshSphere.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshsphere.pos.x, s_meshsphere.pos.y, s_meshsphere.pos.z);
-	D3DXMatrixMultiply(&s_meshsphere.mtxWorld, &s_meshsphere.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_meshSphere.pos.x, s_meshSphere.pos.y, s_meshSphere.pos.z);
+	D3DXMatrixMultiply(&s_meshSphere.mtxWorld, &s_meshSphere.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshsphere.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_meshSphere.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -212,7 +212,7 @@ void SetMeshSphere(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshsphere, NULL, sizeof(s_meshsphere));
+	memset(&s_meshSphere, NULL, sizeof(s_meshSphere));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -302,7 +302,7 @@ void SetMeshSphere(void)
 //--------------------------------------------------
 MeshSphere *GetMeshSphere(void)
 {
-	return &s_meshsphere;
+	return &s_meshSphere;
 }
 
 //--------------------------------------------------

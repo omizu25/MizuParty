@@ -1,26 +1,29 @@
 //==================================================
 //
-// 3Dゲーム制作 ( meshcylinder.h )
+// 3Dゲーム制作 ( mesh_field.h )
 // Author  : katsuki mizuki
 //
 //==================================================
-#ifndef _MESHCYLINDER_H_		// このマクロ定義がされてなかったら
-#define _MESHCYLINDER_H_		// ２重インクルード防止のマクロ定義
+#ifndef _MESH_FIELD_H_		// このマクロ定義がされてなかったら
+#define _MESH_FIELD_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
 // 構造体を定義
 //--------------------------------------------------
 
-/*↓ メッシュ円柱 ↓*/
+/*↓ メッシュフィールド ↓*/
 
 typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
 	D3DXVECTOR3		rot;			// 向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
-}MeshCylinder;
+	float			fWidth;			// 幅
+	float			fHeight;		// 高さ
+	float			fDepth;			// 奥行き
+}MeshField;
 
-/*↓ メッシュ円柱の数系 ↓*/
+/*↓ メッシュフィールドの数系 ↓*/
 
 typedef struct
 {
@@ -29,17 +32,17 @@ typedef struct
 	int		nVtx;				// 頂点数
 	int		nIdx;				// インデックス数
 	int		nPolygon;			// ポリゴン数
-}MeshCylinderNumber;
+}MeshFieldNumber;
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-void InitMeshCylinder(void);
-void UninitMeshCylinder(void);
-void UpdateMeshCylinder(void);
-void DrawMeshCylinder(void);
-void SetMeshCylinder(void);
-MeshCylinder *GetMeshCylinder(void);
-MeshCylinderNumber *GetMeshCylinderNumber(void);
+void InitMeshField(void);
+void UninitMeshField(void);
+void UpdateMeshField(void);
+void DrawMeshField(void);
+void SetMeshField(void);
+MeshField *GetMeshField(void);
+MeshFieldNumber *GetMeshFieldNumber(void);
 
-#endif // !_MESHCYLINDER_H_
+#endif // !_MESH_FIELD_H_

@@ -1,11 +1,11 @@
 //==================================================
 //
-// 3Dゲーム制作 ( meshsphere.h )
+// 3Dゲーム制作 ( mesh_sphere.h )
 // Author  : katsuki mizuki
 //
 //==================================================
-#ifndef _MESHSPHERE_H_		// このマクロ定義がされてなかったら
-#define _MESHSPHERE_H_		// ２重インクルード防止のマクロ定義
+#ifndef _MESH_SPHERE_H_		// このマクロ定義がされてなかったら
+#define _MESH_SPHERE_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
 // 構造体を定義
@@ -42,4 +42,4 @@ void SetMeshSphere(void);
 MeshSphere *GetMeshSphere(void);
 MeshSphereNumber *GetMeshSphereNumber(void);
 
-#endif // !_MESHSPHERE_H_
+#endif // !_MESH_SPHERE_H_

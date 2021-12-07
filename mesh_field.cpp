@@ -1,6 +1,6 @@
 //==================================================
 // 
-// 3Dゲーム制作 ( meshfield.cpp )
+// 3Dゲーム制作 ( mesh_field.cpp )
 // Author  : katsuki mizuki
 // 
 //==================================================
@@ -10,7 +10,7 @@
 //--------------------------------------------------
 #include "input.h"
 #include "main.h"
-#include "meshfield.h"
+#include "mesh_field.h"
 #include "setup.h"
 #include "wall.h"
 
@@ -30,7 +30,7 @@
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
-static MeshField					s_meshfield;			// メッシュフィールドの情報
+static MeshField					s_meshField;			// メッシュフィールドの情報
 static MeshFieldNumber				s_Number;				// メッシュフィールドの数系の情報
 
 //--------------------------------------------------
@@ -52,9 +52,9 @@ void InitMeshField(void)
 		pDevice,
 		"data\\TEXTURE\\InuiToko000.jpg",
 		&s_pTexture);
-	
+
 	// メモリのクリア
-	memset(&s_meshfield, NULL, sizeof(s_meshfield));
+	memset(&s_meshField, NULL, sizeof(s_meshField));
 	memset(&s_Number, NULL, sizeof(s_Number));
 
 	// 横・縦の初期化
@@ -143,18 +143,18 @@ void DrawMeshField(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshfield.mtxWorld);
+	D3DXMatrixIdentity(&s_meshField.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshfield.rot.y, s_meshfield.rot.x, s_meshfield.rot.z);
-	D3DXMatrixMultiply(&s_meshfield.mtxWorld, &s_meshfield.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshField.rot.y, s_meshField.rot.x, s_meshField.rot.z);
+	D3DXMatrixMultiply(&s_meshField.mtxWorld, &s_meshField.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshfield.pos.x, s_meshfield.pos.y, s_meshfield.pos.z);
-	D3DXMatrixMultiply(&s_meshfield.mtxWorld, &s_meshfield.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_meshField.pos.x, s_meshField.pos.y, s_meshField.pos.z);
+	D3DXMatrixMultiply(&s_meshField.mtxWorld, &s_meshField.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshfield.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_meshField.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -211,12 +211,12 @@ void SetMeshField(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshfield, NULL, sizeof(s_meshfield));
+	memset(&s_meshField, NULL, sizeof(s_meshField));
 
 	// 幅・高さ・奥行きの設定
-	s_meshfield.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
-	s_meshfield.fHeight = MAX_HEIGHT;
-	s_meshfield.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
+	s_meshField.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
+	s_meshField.fHeight = MAX_HEIGHT;
+	s_meshField.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -278,7 +278,7 @@ void SetMeshField(void)
 	}
 
 	// インデックスバッファをアンロックする
-	s_pIdxBuff ->Unlock();
+	s_pIdxBuff->Unlock();
 }
 
 //--------------------------------------------------
@@ -286,7 +286,7 @@ void SetMeshField(void)
 //--------------------------------------------------
 MeshField *GetMeshField(void)
 {
-	return &s_meshfield;
+	return &s_meshField;
 }
 
 //--------------------------------------------------
