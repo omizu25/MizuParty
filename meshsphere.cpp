@@ -19,11 +19,11 @@
 //--------------------------------------------------
 #define MAX_SIZE				(50.0f)		// サイズの最大値
 #define MAX_HORIZONTAL			(30)		// 横の最大値
-#define MIN_HORIZONTAL			(3)			// 横の最小値
+#define MIN_HORIZONTAL			(5)			// 横の最小値
 #define START_HORIZONTAL		(8)			// 横の最初の値
-#define MAX_VERTICAL			(10)		// 縦の最大値
-#define MIN_VERTICAL			(3)			// 縦の最小値
-#define START_VERTICAL			(4)			// 縦の最初の値
+#define MAX_VERTICAL			(30)		// 縦の最大値
+#define MIN_VERTICAL			(5)			// 縦の最小値
+#define START_VERTICAL			(10)		// 縦の最初の値
 
 //--------------------------------------------------
 // スタティック変数
@@ -143,9 +143,6 @@ void DrawMeshSphere(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
-	// レンダーステートの設定
-	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&s_meshsphere.mtxWorld);
 
@@ -170,7 +167,7 @@ void DrawMeshSphere(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
+	pDevice->SetTexture(0, s_pTexture);
 
 	// ポリゴン描画
 	pDevice->DrawIndexedPrimitive(
@@ -183,9 +180,6 @@ void DrawMeshSphere(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
-
-	// 元に戻す
-	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
 }
 
 //--------------------------------------------------
@@ -238,8 +232,8 @@ void SetMeshSphere(void)
 			// 角度の正規化
 			NormalizeRot(&fRot);
 
-			float fXPos = cosf(fRot) * MAX_SIZE;
-			float fZPos = sinf(fRot) * MAX_SIZE;
+			float fXPos = cosf(fRot) * sinf(fYRot) * MAX_SIZE;
+			float fZPos = sinf(fRot) * sinf(fYRot) * MAX_SIZE;
 			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos, fZPos);
 
 			// 頂点座標の設定

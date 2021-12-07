@@ -593,11 +593,6 @@ static void DrawDebug(void)
 	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
 	nLength = (int)strlen(&aStr[0]);
 
-	sprintf(&aStr[nLength], "カメラ ⇔ モデル ⇔ メッシュ\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "    ←  : [ F2 ]      →  : [ F3 ]  \n");
-	nLength = (int)strlen(&aStr[0]);
-
 	if (s_bWireframe)
 	{
 		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 ON 】\n");
@@ -606,6 +601,11 @@ static void DrawDebug(void)
 	{
 		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 OFF 】\n");
 	}
+	nLength = (int)strlen(&aStr[0]);
+
+	sprintf(&aStr[nLength], "F2, F3キー                : 表示項目の変更\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "\n( カメラ ⇔ モデル ⇔ メッシュ )\n");
 	nLength = (int)strlen(&aStr[0]);
 
 	Camera *pCamera = GetCamera();										//カメラの取得
@@ -618,7 +618,9 @@ static void DrawDebug(void)
 	{
 	case DEBUG_CAMERA:		// カメラ
 
-		sprintf(&aStr[nLength], "\n<< カメラ操作 >>\n");
+		sprintf(&aStr[nLength], "    ↑\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "\n\n<< カメラ操作 >>\n\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
 		nLength = (int)strlen(&aStr[0]);
@@ -648,7 +650,9 @@ static void DrawDebug(void)
 
 	case DEBUG_MODEL:		// モデル
 
-		sprintf(&aStr[nLength], "\n<< モデル操作 >>\n");
+		sprintf(&aStr[nLength], "              ↑\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "\n\n<< モデル操作 >>\n\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
 		nLength = (int)strlen(&aStr[0]);
@@ -661,7 +665,9 @@ static void DrawDebug(void)
 
 	case DEBUG_MESH:		//メッシュ
 
-		sprintf(&aStr[nLength], "\n<< 地面 円柱 球のメッシュ操作 >>\n");
+		sprintf(&aStr[nLength], "                         ↑\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "\n\n<< 地面 円柱 球のメッシュ操作 >>\n\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "V, B, N, Mキー [地面]     : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
