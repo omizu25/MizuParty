@@ -691,11 +691,11 @@ static void DrawDebug(void)
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "V , B , N , M キー [空]       : 横 * 縦 増減 [ %d * %d ]\n", pSkyNumber->nHorizontal, pSkyNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "頂点数                    : %2d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx);
+		sprintf(&aStr[nLength], "頂点数                    : %2d  %3d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx, pSkyNumber->nVtx);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "インデックス数            : %2d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx);
+		sprintf(&aStr[nLength], "インデックス数            : %2d  %3d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx, pSkyNumber->nIdx);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "ポリゴン数                : %2d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon);
+		sprintf(&aStr[nLength], "ポリゴン数                : %2d  %3d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon, pSkyNumber->nPolygon);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;
