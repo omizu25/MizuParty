@@ -37,8 +37,8 @@ static MeshSphereNumber				s_Number;				// メッシュ球の数系の情報
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void Input(void);
 static void ResetBuff(void);
-static void Specified(int *pNumber, int nMax, int nMin);
 
 //--------------------------------------------------
 // 初期化
@@ -92,27 +92,12 @@ void UninitMeshSphere(void)
 //--------------------------------------------------
 void UpdateMeshSphere(void)
 {
-	if (GetKeyboardTrigger(DIK_5))
-	{// 5キーが押された
-		s_Number.nHorizontal++;
-	}
-	else if (GetKeyboardTrigger(DIK_6))
-	{// 6キーが押された
-		s_Number.nHorizontal--;
-	}
+	// 入力
+	Input();
 
-	if (GetKeyboardTrigger(DIK_7))
-	{// 7キーが押された
-		s_Number.nVertical++;
-	}
-	else if (GetKeyboardTrigger(DIK_8))
-	{// 8キーが押された
-		s_Number.nVertical--;
-	}
-
-	if (GetKeyboardTrigger(DIK_5) || GetKeyboardTrigger(DIK_6) ||
-		GetKeyboardTrigger(DIK_7) || GetKeyboardTrigger(DIK_8))
-	{// 5, 6, 7, 8キーが押された
+	if (GetKeyboardTrigger(DIK_Q) || GetKeyboardTrigger(DIK_E) ||
+		GetKeyboardTrigger(DIK_Z) || GetKeyboardTrigger(DIK_C))
+	{// Q, E, Z, Cキーが押された
 
 		// 指定の値以上・以下
 		Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
@@ -234,7 +219,7 @@ void SetMeshSphere(void)
 
 			float fXPos = cosf(fRot) * sinf(fYRot) * MAX_SIZE;
 			float fZPos = sinf(fRot) * sinf(fYRot) * MAX_SIZE;
-			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos, fZPos);
+			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos + MAX_SIZE, fZPos);
 
 			// 頂点座標の設定
 			pVtx[x + (y * nXLine)].pos = pos;
@@ -314,6 +299,33 @@ MeshSphereNumber *GetMeshSphereNumber(void)
 }
 
 //--------------------------------------------------
+// 入力
+//--------------------------------------------------
+static void Input(void)
+{
+	if (GetDebug() == DEBUG_MESH)
+	{// デバッグ表示がメッシュの時
+		if (GetKeyboardTrigger(DIK_Q))
+		{// Qキーが押された
+			s_Number.nHorizontal++;
+		}
+		else if (GetKeyboardTrigger(DIK_E))
+		{// Eキーが押された
+			s_Number.nHorizontal--;
+		}
+
+		if (GetKeyboardTrigger(DIK_Z))
+		{// Zキーが押された
+			s_Number.nVertical++;
+		}
+		else if (GetKeyboardTrigger(DIK_C))
+		{// Cキーが押された
+			s_Number.nVertical--;
+		}
+	}
+}
+
+//--------------------------------------------------
 // バッファのリセット
 //--------------------------------------------------
 static void ResetBuff(void)
@@ -328,20 +340,5 @@ static void ResetBuff(void)
 	{// インデックスバッファの解放
 		s_pIdxBuff->Release();
 		s_pIdxBuff = NULL;
-	}
-}
-
-//--------------------------------------------------
-// 指定の値以上・以下
-//--------------------------------------------------
-static void Specified(int *pNumber, int nMax, int nMin)
-{
-	if (*pNumber >= nMax)
-	{// 指定の値以上
-		*pNumber = nMax;
-	}
-	else if (*pNumber <= nMin)
-	{// 指定の値以下
-		*pNumber = nMin;
 	}
 }

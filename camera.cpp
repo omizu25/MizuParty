@@ -17,7 +17,7 @@
 //--------------------------------------------------
 #define MAX_NEAR			(10.0f)			//ニアの最大値
 #define MAX_FAR				(1500.0f)		//ファーの最大値
-#define MAX_MOVE			(1.0f)			//移動量の最大値
+#define MAX_MOVE			(2.0f)			//移動量の最大値
 #define MAX_ROTATION		(0.035f)		//回転の最大値
 
 //--------------------------------------------------
@@ -30,7 +30,6 @@ static Camera		s_camera;		// カメラの情報
 //--------------------------------------------------
 static void Move(void);
 static void Rot(void);
-static void Specified(float *pNumber, float fMax, float fMin);
 
 //--------------------------------------------------
 // 初期化
@@ -137,85 +136,89 @@ static void Move(void)
 {
 	float fRot = 0.0f;
 
-	/* ↓視点の移動↓ */
+	if (GetDebug() != DEBUG_MESH)
+	{// デバッグ表示がメッシュではない時
 
-	if (GetKeyboardPress(DIK_A))
-	{// Aキーが押された
-		if (GetKeyboardPress(DIK_W))
+		/* ↓視点の移動↓ */
+
+		if (GetKeyboardPress(DIK_A))
+		{// Aキーが押された
+			if (GetKeyboardPress(DIK_W))
+			{// Wキーが押された
+				fRot = s_camera.rot.y + (-D3DX_PI * 0.25f);
+			}
+			else if (GetKeyboardPress(DIK_S))
+			{// Sキーが押された
+				fRot = s_camera.rot.y + (-D3DX_PI * 0.75f);
+			}
+			else
+			{
+				fRot = s_camera.rot.y + (-D3DX_PI * 0.5f);
+			}
+
+			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+		}
+		else if (GetKeyboardPress(DIK_D))
+		{// Dキーが押された
+			if (GetKeyboardPress(DIK_W))
+			{// Wキーが押された
+				fRot = s_camera.rot.y + (D3DX_PI * 0.25f);
+			}
+			else if (GetKeyboardPress(DIK_S))
+			{// Sキーが押された
+				fRot = s_camera.rot.y + (D3DX_PI * 0.75f);
+			}
+			else
+			{
+				fRot = s_camera.rot.y + (D3DX_PI * 0.5f);
+			}
+
+			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+		}
+		else if (GetKeyboardPress(DIK_W))
 		{// Wキーが押された
-			fRot = s_camera.rot.y + (-D3DX_PI * 0.25f);
-		}	
+			fRot = s_camera.rot.y;
+
+			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+		}
 		else if (GetKeyboardPress(DIK_S))
 		{// Sキーが押された
-			fRot = s_camera.rot.y + (-D3DX_PI * 0.75f);
-		}
-		else
-		{
-			fRot = s_camera.rot.y + (-D3DX_PI * 0.5f);
-		}
+			fRot = s_camera.rot.y + (-D3DX_PI);
 
-		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-	}
-	else if (GetKeyboardPress(DIK_D))
-	{// Dキーが押された
-		if (GetKeyboardPress(DIK_W))
-		{// Wキーが押された
-			fRot = s_camera.rot.y + (D3DX_PI * 0.25f);
-		}
-		else if (GetKeyboardPress(DIK_S))
-		{// Sキーが押された
-			fRot = s_camera.rot.y + (D3DX_PI * 0.75f);
-		}
-		else
-		{
-			fRot = s_camera.rot.y + (D3DX_PI * 0.5f);
+			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
+			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
 		}
 
-		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
+		if (GetKeyboardPress(DIK_T))
+		{// Tキーが押された
+			fRot = D3DX_PI * 0.5f;
+
+			s_camera.posV.y += sinf(fRot) * MAX_MOVE;
+		}
+		else if (GetKeyboardPress(DIK_G))
+		{// Gキーが押された
+			fRot = -D3DX_PI * 0.5f;
+
+			s_camera.posV.y += sinf(fRot) * MAX_MOVE;
+		}
+
+		/* ↓視点と注視点の距離↓ */
+
+		if (GetKeyboardPress(DIK_U))
+		{// Uキーが押された
+			s_camera.fDistance += -MAX_MOVE;
+		}
+		else if (GetKeyboardPress(DIK_J))
+		{// Jキーが押された
+			s_camera.fDistance += MAX_MOVE;
+		}
+
+		// 指定の値以上・以下
+		Specified(&s_camera.fDistance, MAX_FAR, MAX_NEAR);
 	}
-	else if (GetKeyboardPress(DIK_W))
-	{// Wキーが押された
-		fRot = s_camera.rot.y;
-
-		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-	}
-	else if (GetKeyboardPress(DIK_S))
-	{// Sキーが押された
-		fRot = s_camera.rot.y + (-D3DX_PI);
-
-		s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-		s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-	}
-
-	if (GetKeyboardPress(DIK_T))
-	{// Tキーが押された
-		fRot = D3DX_PI * 0.5f;
-
-		s_camera.posV.y += sinf(fRot) * MAX_MOVE;
-	}
-	else if (GetKeyboardPress(DIK_G))
-	{// Gキーが押された
-		fRot = -D3DX_PI * 0.5f;
-
-		s_camera.posV.y += sinf(fRot) * MAX_MOVE;
-	}
-
-	/* ↓視点と注視点の距離↓ */
-
-	if (GetKeyboardPress(DIK_U))
-	{// Uキーが押された
-		s_camera.fDistance += -MAX_MOVE;
-	}
-	else if (GetKeyboardPress(DIK_J))
-	{// Jキーが押された
-		s_camera.fDistance += MAX_MOVE;
-	}
-
-	// 指定の値以上・以下
-	Specified(&s_camera.fDistance, MAX_FAR, MAX_NEAR);
 }
 
 //--------------------------------------------------
@@ -223,47 +226,36 @@ static void Move(void)
 //--------------------------------------------------
 static void Rot(void)
 {
-	/* ↓視点・注視点の旋回↓ */
+	if (GetDebug() != DEBUG_MESH)
+	{// デバッグ表示がメッシュではない時
 
-	if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_E))
-	{// Z, Eキーが押された
-		s_camera.rot.y += MAX_ROTATION;
-	}
-	
-	if (GetKeyboardPress(DIK_C) || GetKeyboardPress(DIK_Q))
-	{// C, Qキーが押された
-		s_camera.rot.y += -MAX_ROTATION;
-	}
+		/* ↓視点・注視点の旋回↓ */
 
-	// 角度の正規化
-	NormalizeRot(&s_camera.rot.y);
+		if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_E))
+		{// Z, Eキーが押された
+			s_camera.rot.y += MAX_ROTATION;
+		}
 
-	/* ↓注視点の上下↓ */
+		if (GetKeyboardPress(DIK_C) || GetKeyboardPress(DIK_Q))
+		{// C, Qキーが押された
+			s_camera.rot.y += -MAX_ROTATION;
+		}
 
-	if (GetKeyboardPress(DIK_Y))
-	{// Yキーが押された
-		s_camera.rot.x += -MAX_ROTATION;
-	}
-	else if (GetKeyboardPress(DIK_H))
-	{// Hキーが押された
-		s_camera.rot.x += MAX_ROTATION;
-	}
+		// 角度の正規化
+		NormalizeRot(&s_camera.rot.y);
 
-	// 指定の値以上・以下
-	Specified(&s_camera.rot.x, 3.0f, 0.1f);
-}
+		/* ↓注視点の上下↓ */
 
-//--------------------------------------------------
-// 指定の値以上・以下
-//--------------------------------------------------
-static void Specified(float *pNumber, float fMax, float fMin)
-{
-	if (*pNumber >= fMax)
-	{// 指定の値以上
-		*pNumber = fMax;
-	}
-	else if (*pNumber <= fMin)
-	{// 指定の値以下
-		*pNumber = fMin;
+		if (GetKeyboardPress(DIK_Y))
+		{// Yキーが押された
+			s_camera.rot.x += -MAX_ROTATION;
+		}
+		else if (GetKeyboardPress(DIK_H))
+		{// Hキーが押された
+			s_camera.rot.x += MAX_ROTATION;
+		}
+
+		// 指定の値以上・以下
+		Specified(&s_camera.rot.x, 3.0f, 0.1f);
 	}
 }

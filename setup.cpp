@@ -225,3 +225,33 @@ void NormalizeRot(float *pRot)
 		*pRot += D3DX_PI * 2.0f;
 	}
 }
+
+//--------------------------------------------------
+// 指定の値以上・以下 [int]
+//--------------------------------------------------
+void Specified(int *pNumber, int nMax, int nMin)
+{
+	if (*pNumber >= nMax)
+	{// 指定の値以上
+		*pNumber = nMax;
+	}
+	else if (*pNumber <= nMin)
+	{// 指定の値以下
+		*pNumber = nMin;
+	}
+}
+
+//--------------------------------------------------
+// 指定の値以上・以下 [float]
+//--------------------------------------------------
+void Specified(float *pNumber, float fMax, float fMin)
+{
+	if (*pNumber >= fMax)
+	{// 指定の値以上
+		*pNumber = fMax;
+	}
+	else if (*pNumber <= fMin)
+	{// 指定の値以下
+		*pNumber = fMin;
+	}
+}

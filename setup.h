@@ -33,5 +33,7 @@ void Initcol3D(VERTEX_3D *pVtx);
 void Inittex3D(VERTEX_3D *pVtx);
 void InitAll3D(VERTEX_3D *pVtx);
 void NormalizeRot(float *pRot);
+void Specified(int *pNumber, int nMax, int nMin);
+void Specified(float *pNumber, float fMax, float fMin);
 
 #endif // !_SETUP_H_

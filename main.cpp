@@ -32,17 +32,6 @@
 #define WINDOW_NAME		"3Dゲーム制作"		// ウインドウの名前 (キャプションに表示)
 
 //--------------------------------------------------
-// 列挙型
-//--------------------------------------------------
-typedef enum
-{
-	DEBUG_CAMERA = 0,		// カメラ
-	DEBUG_MODEL,			// モデル
-	DEBUG_MESH,				// メッシュ
-	DEBUG_MAX
-}DEBUG;
-
-//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -542,29 +531,29 @@ static void Draw(void)
 		// ポリゴンの描画
 		//DrawPolygon();
 
-		//// メッシュフィールドの描画
-		//DrawMeshField();
+		// メッシュフィールドの描画
+		DrawMeshField();
 
-		//// メッシュ円柱の描画
-		//DrawMeshCylinder();
+		// メッシュ円柱の描画
+		DrawMeshCylinder();
 
 		// メッシュ球の描画
-		//DrawMeshSphere();
+		DrawMeshSphere();
 
 		// メッシュ空の描画
 		DrawMeshSky();
 
-		//// モデルの描画
-		//DrawModel();
+		// モデルの描画
+		DrawModel();
 
-		//// 影の描画
-		//DrawShadow();
+		// 影の描画
+		DrawShadow();
 
-		//// ビルボードの描画
-		//DrawBillboard();
+		// ビルボードの描画
+		DrawBillboard();
 
-		//// 壁の描画
-		//DrawWall();
+		// 壁の描画
+		DrawWall();
 
 		if (s_bDebug)
 		{
@@ -586,6 +575,14 @@ static void Draw(void)
 LPDIRECT3DDEVICE9 GetDevice(void)
 {
 	return s_pD3DDevice;
+}
+
+//--------------------------------------------------
+// デバッグの取得
+//--------------------------------------------------
+DEBUG GetDebug(void)
+{
+	return s_Debug;
 }
 
 //--------------------------------------------------
@@ -629,6 +626,7 @@ static void DrawDebug(void)
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();					//メッシュフィールドの数系の取得
 	MeshCylinderNumber *pCylinderNumber = GetMeshCylinderNumber();		//メッシュ円柱の数系の取得
 	MeshSphereNumber *pSphereNumber = GetMeshSphereNumber();			//メッシュ球の数系の取得
+	MeshSkyNumber *pSkyNumber = GetMeshSkyNumber();						//メッシュ空の数系の取得
 
 	switch (s_Debug)
 	{
@@ -685,11 +683,13 @@ static void DrawDebug(void)
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "\n\n<< 地面 円柱 球のメッシュ操作 >>\n\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "V, B, N, Mキー [地面]     : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
+		sprintf(&aStr[nLength], "A , D , W , S キー [地面]     : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "1, 2, 3, 4キー [円柱]     : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
+		sprintf(&aStr[nLength], "←, →, ↑, ↓キー [円柱]     : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "5, 6, 7, 8キー [球]       : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
+		sprintf(&aStr[nLength], "Q , E , Z , C キー [球]       : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "V , B , N , M キー [空]       : 横 * 縦 増減 [ %d * %d ]\n", pSkyNumber->nHorizontal, pSkyNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "頂点数                    : %2d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx);
 		nLength = (int)strlen(&aStr[0]);

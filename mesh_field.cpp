@@ -36,8 +36,8 @@ static MeshFieldNumber				s_Number;				// メッシュフィールドの数系の情報
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void Input(void);
 static void ResetBuff(void);
-static void Specified(int *pNumber, int nMax, int nMin);
 
 //--------------------------------------------------
 // 初期化
@@ -91,27 +91,12 @@ void UninitMeshField(void)
 //--------------------------------------------------
 void UpdateMeshField(void)
 {
-	if (GetKeyboardTrigger(DIK_V))
-	{// Vキーが押された
-		s_Number.nHorizontal++;
-	}
-	else if (GetKeyboardTrigger(DIK_B))
-	{// Bキーが押された
-		s_Number.nHorizontal--;
-	}
+	// 入力
+	Input();
 
-	if (GetKeyboardTrigger(DIK_N))
-	{// Nキーが押された
-		s_Number.nVertical++;
-	}
-	else if (GetKeyboardTrigger(DIK_M))
-	{// Mキーが押された
-		s_Number.nVertical--;
-	}
-
-	if (GetKeyboardTrigger(DIK_V) || GetKeyboardTrigger(DIK_B) ||
-		GetKeyboardTrigger(DIK_N) || GetKeyboardTrigger(DIK_M))
-	{// V, B, N, Mキーが押された
+	if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
+		GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
+	{// A, D, W, Sキーが押された
 
 		// 指定の値以上・以下
 		Specified(&s_Number.nHorizontal, MAX_SIZE, MIN_SIZE);
@@ -298,6 +283,33 @@ MeshFieldNumber *GetMeshFieldNumber(void)
 }
 
 //--------------------------------------------------
+// 入力
+//--------------------------------------------------
+static void Input(void)
+{
+	if (GetDebug() == DEBUG_MESH)
+	{// デバッグ表示がメッシュの時
+		if (GetKeyboardTrigger(DIK_A))
+		{// Aキーが押された
+			s_Number.nHorizontal++;
+		}
+		else if (GetKeyboardTrigger(DIK_D))
+		{// Dキーが押された
+			s_Number.nHorizontal--;
+		}
+
+		if (GetKeyboardTrigger(DIK_W))
+		{// Wキーが押された
+			s_Number.nVertical++;
+		}
+		else if (GetKeyboardTrigger(DIK_S))
+		{// Sキーが押された
+			s_Number.nVertical--;
+		}
+	}
+}
+
+//--------------------------------------------------
 // バッファのリセット
 //--------------------------------------------------
 static void ResetBuff(void)
@@ -312,20 +324,5 @@ static void ResetBuff(void)
 	{// インデックスバッファの解放
 		s_pIdxBuff->Release();
 		s_pIdxBuff = NULL;
-	}
-}
-
-//--------------------------------------------------
-// 指定の値以上・以下
-//--------------------------------------------------
-static void Specified(int *pNumber, int nMax, int nMin)
-{
-	if (*pNumber >= nMax)
-	{// 指定の値以上
-		*pNumber = nMax;
-	}
-	else if (*pNumber <= nMin)
-	{// 指定の値以下
-		*pNumber = nMin;
 	}
 }

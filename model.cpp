@@ -211,89 +211,93 @@ Model *GetModel(void)
 //--------------------------------------------------
 static void Move(void)
 { 
-	Camera *pCamera = GetCamera();		//カメラの取得
-	float fRot = 0.0f;
+	if (GetDebug() != DEBUG_MESH)
+	{// デバッグ表示がメッシュではない時
 
-	/* ↓モデルの移動↓ */
+		Camera *pCamera = GetCamera();		//カメラの取得
+		float fRot = 0.0f;
 
-	if (GetKeyboardPress(DIK_LEFT))
-	{// ←キーが押された
-		if (GetKeyboardPress(DIK_UP))
+		/* ↓モデルの移動↓ */
+
+		if (GetKeyboardPress(DIK_LEFT))
+		{// ←キーが押された
+			if (GetKeyboardPress(DIK_UP))
+			{// ↑キーが押された
+				fRot = pCamera->rot.y + (-D3DX_PI * 0.25f);
+
+				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.75f);
+			}
+			else if (GetKeyboardPress(DIK_DOWN))
+			{// ↓キーが押された
+				fRot = pCamera->rot.y + (-D3DX_PI * 0.75f);
+
+				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.25f);
+			}
+			else
+			{
+				fRot = pCamera->rot.y + (-D3DX_PI * 0.5f);
+
+				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.5f);
+			}
+		}
+		else if (GetKeyboardPress(DIK_RIGHT))
+		{// →キーが押された
+			if (GetKeyboardPress(DIK_UP))
+			{// ↑キーが押された
+				fRot = pCamera->rot.y + (D3DX_PI * 0.25f);
+
+				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
+			}
+			else if (GetKeyboardPress(DIK_DOWN))
+			{// ↓キーが押された
+				fRot = pCamera->rot.y + (D3DX_PI * 0.75f);
+
+				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
+			}
+			else
+			{
+				fRot = pCamera->rot.y + (D3DX_PI * 0.5f);
+
+				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
+			}
+		}
+		else if (GetKeyboardPress(DIK_UP))
 		{// ↑キーが押された
-			fRot = pCamera->rot.y + (-D3DX_PI * 0.25f);
+			fRot = pCamera->rot.y;
 
-			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.75f);
+			s_model.rotDest.y = pCamera->rot.y + D3DX_PI;
 		}
 		else if (GetKeyboardPress(DIK_DOWN))
 		{// ↓キーが押された
-			fRot = pCamera->rot.y + (-D3DX_PI * 0.75f);
+			fRot = pCamera->rot.y + D3DX_PI;
 
-			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.25f);
+			s_model.rotDest.y = pCamera->rot.y;
 		}
-		else
-		{
-			fRot = pCamera->rot.y + (-D3DX_PI * 0.5f);
 
-			s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.5f);
+		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+		{// ←, →, ↑, ↓キーが押された
+			s_model.pos.x += sinf(fRot) * MAX_MOVE;
+			s_model.pos.z += cosf(fRot) * MAX_MOVE;
 		}
-	}
-	else if (GetKeyboardPress(DIK_RIGHT))
-	{// →キーが押された
-		if (GetKeyboardPress(DIK_UP))
-		{// ↑キーが押された
-			fRot = pCamera->rot.y + (D3DX_PI * 0.25f);
 
-			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
+		if (GetKeyboardPress(DIK_I))
+		{// Iキーが押された
+			s_model.pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
 		}
-		else if (GetKeyboardPress(DIK_DOWN))
-		{// ↓キーが押された
-			fRot = pCamera->rot.y + (D3DX_PI * 0.75f);
-
-			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
+		else if (GetKeyboardPress(DIK_K))
+		{// Kキーが押された
+			s_model.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
 		}
-		else
-		{
-			fRot = pCamera->rot.y + (D3DX_PI * 0.5f);
 
-			s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
+		if (s_model.pos.y <= MIN_HEIGHT)
+		{// 指定の値以下
+			s_model.pos.y = MIN_HEIGHT;
 		}
-	}
-	else if (GetKeyboardPress(DIK_UP))
-	{// ↑キーが押された
-		fRot = pCamera->rot.y;
-
-		s_model.rotDest.y = pCamera->rot.y + D3DX_PI;
-	}
-	else if (GetKeyboardPress(DIK_DOWN))
-	{// ↓キーが押された
-		fRot = pCamera->rot.y + D3DX_PI;
-
-		s_model.rotDest.y = pCamera->rot.y;
-	}
-
-	if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-		GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
-	{// ←, →, ↑, ↓キーが押された
-		s_model.pos.x += sinf(fRot) * MAX_MOVE;
-		s_model.pos.z += cosf(fRot) * MAX_MOVE;
-	}
-
-	if (GetKeyboardPress(DIK_I))
-	{// Iキーが押された
-		s_model.pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
-	}
-	else if (GetKeyboardPress(DIK_K))
-	{// Kキーが押された
-		s_model.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
-	}
-
-	if (s_model.pos.y <= MIN_HEIGHT)
-	{// 指定の値以下
-		s_model.pos.y = MIN_HEIGHT;
-	}
-	else if (s_model.pos.y >= MAX_HEIGHT)
-	{// 指定の値以上
-		s_model.pos.y = MAX_HEIGHT;
+		else if (s_model.pos.y >= MAX_HEIGHT)
+		{// 指定の値以上
+			s_model.pos.y = MAX_HEIGHT;
+		}
 	}
 }
 
@@ -302,14 +306,18 @@ static void Move(void)
 //--------------------------------------------------
 static void Rot(void)
 {
-	/* ↓モデルの回転↓ */
+	if (GetDebug() != DEBUG_MESH)
+	{// デバッグ表示がメッシュではない時
+	
+		/* ↓モデルの回転↓ */
 
-	if (GetKeyboardPress(DIK_LSHIFT))
-	{// 左シフトキーが押された
-		s_model.rotDest.y += -MAX_ROTATION;
-	}
-	else if (GetKeyboardPress(DIK_RSHIFT))
-	{// 右シフトキーが押された
-		s_model.rotDest.y += MAX_ROTATION;
+		if (GetKeyboardPress(DIK_LSHIFT))
+		{// 左シフトキーが押された
+			s_model.rotDest.y += -MAX_ROTATION;
+		}
+		else if (GetKeyboardPress(DIK_RSHIFT))
+		{// 右シフトキーが押された
+			s_model.rotDest.y += MAX_ROTATION;
+		}
 	}
 }
