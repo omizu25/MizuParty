@@ -531,17 +531,11 @@ static void Draw(void)
 		// ポリゴンの描画
 		//DrawPolygon();
 
-		// メッシュフィールドの描画
-		DrawMeshField();
-
-		// メッシュ円柱の描画
-		DrawMeshCylinder();
-
-		// メッシュ球の描画
-		DrawMeshSphere();
-
 		// メッシュ空の描画
 		DrawMeshSky();
+
+		// メッシュフィールドの描画
+		DrawMeshField();
 
 		// モデルの描画
 		DrawModel();
@@ -549,11 +543,17 @@ static void Draw(void)
 		// 影の描画
 		DrawShadow();
 
-		// ビルボードの描画
-		DrawBillboard();
+		// メッシュ球の描画
+		DrawMeshSphere();
+
+		// メッシュ円柱の描画
+		DrawMeshCylinder();
 
 		// 壁の描画
 		DrawWall();
+
+		// ビルボードの描画
+		DrawBillboard();
 
 		if (s_bDebug)
 		{

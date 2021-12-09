@@ -19,7 +19,7 @@ void InitBillboard(void);
 void UninitBillboard(void);
 void UpdateBillboard(void);
 void DrawBillboard(void);
-void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, LPDIRECT3DTEXTURE9 *pTexture);
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture);
 void LoadBillboard(HWND hWnd);
 
 #endif // !_BILLBOARD_H_

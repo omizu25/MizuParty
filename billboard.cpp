@@ -18,9 +18,10 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define FILE_NAME		"data\\TXT\\billboard.txt"		//ファイルの名前
-#define MAX_WALL				(256)					//ビルボードの最大数
-#define MAX_TEXTURE				(256)					//テクスチャの最大数
+#define FILE_NAME		"data\\TXT\\billboard.txt"		// ファイルの名前
+#define MAX_WALL				(256)					// ビルボードの最大数
+#define MAX_TEXTURE				(256)					// テクスチャの最大数
+#define DO_NOT_ROT_Y			(0)						// Y軸回転をしない数値
 
 //--------------------------------------------------
 // 構造体を定義
@@ -33,6 +34,7 @@ typedef struct
 	D3DXVECTOR3				pos;			// 位置
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
 	bool					bUse;			// 使用しているかどうか
+	bool					bYRot;			// Y軸回転をするかどうか
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
@@ -44,6 +46,7 @@ typedef struct
 	float					fWidth;			// 幅
 	float					fHeight;		// 高さ
 	int						nIdxTex;		// テクスチャ番号
+	int						nYRot;			// Y軸回転をするかどうか
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Text;
 
@@ -135,7 +138,7 @@ void DrawBillboard(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans, mtxView;		// 計算用マトリックス
-
+	
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
 
@@ -144,6 +147,10 @@ void DrawBillboard(void)
 
 	// ライトを無効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	// Zバッファの値を変更する
+	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
 
 	for (int i = 0; i < MAX_WALL; i++)
 	{
@@ -161,15 +168,25 @@ void DrawBillboard(void)
 		pDevice->GetTransform(D3DTS_VIEW, &mtxView);
 
 		// カメラの逆行列を設定
-		pBillboard->mtxWorld._11 = mtxView._11;
-		pBillboard->mtxWorld._12 = mtxView._21;
-		pBillboard->mtxWorld._13 = mtxView._31;
-		pBillboard->mtxWorld._21 = mtxView._12;
-		pBillboard->mtxWorld._22 = mtxView._22;
-		pBillboard->mtxWorld._23 = mtxView._32;
-		pBillboard->mtxWorld._31 = mtxView._13;
-		pBillboard->mtxWorld._32 = mtxView._23;
-		pBillboard->mtxWorld._33 = mtxView._33;
+		if (pBillboard->bYRot)
+		{// Y軸回転をする
+			pBillboard->mtxWorld._11 = mtxView._11;
+			pBillboard->mtxWorld._12 = mtxView._21;
+			pBillboard->mtxWorld._13 = mtxView._31;
+			pBillboard->mtxWorld._21 = mtxView._12;
+			pBillboard->mtxWorld._22 = mtxView._22;
+			pBillboard->mtxWorld._23 = mtxView._32;
+			pBillboard->mtxWorld._31 = mtxView._13;
+			pBillboard->mtxWorld._32 = mtxView._23;
+			pBillboard->mtxWorld._33 = mtxView._33;
+		}
+		else
+		{// Y軸回転をしない
+			pBillboard->mtxWorld._11 = mtxView._11;
+			pBillboard->mtxWorld._13 = mtxView._31;
+			pBillboard->mtxWorld._31 = mtxView._13;
+			pBillboard->mtxWorld._33 = mtxView._33;
+		}
 
 		// 位置を反映
 		D3DXMatrixTranslation(&mtxTrans, pBillboard->pos.x, pBillboard->pos.y, pBillboard->pos.z);
@@ -193,12 +210,16 @@ void DrawBillboard(void)
 
 	// ライトを有効に戻す
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+	// Zバッファの値を元に戻す
+	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);		// 新規深度値 <= Zバッファ深度値 (初期設定)
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
 }
 
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -215,6 +236,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, LPDIRECT3DTEXTUR
 
 		pBillboard->pos = pos;
 		pBillboard->pTexture = *pTexture;
+		pBillboard->bYRot = bYRot;
 		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -283,6 +305,7 @@ void LoadBillboard(HWND hWnd)
 		for (int i = 0; i < nUseText; i++)
 		{//テクスチャの番号・幅・高さ・位置の読み込み
 			fscanf(pFile, "%d", &pText[i].nIdxTex);
+			fscanf(pFile, "%d", &pText[i].nYRot);
 			fscanf(pFile, "%f", &pText[i].fWidth);
 			fscanf(pFile, "%f", &pText[i].fHeight);
 			fscanf(pFile, "%f", &pText[i].pos.x);
@@ -327,9 +350,21 @@ void LoadBillboard(HWND hWnd)
 	{
 		pText[i].pTexture = s_pTexture[pText[i].nIdxTex];
 
+		bool bYRot = true;
+
+		if (pText[i].nYRot == DO_NOT_ROT_Y)
+		{// Y軸回転をしない数値の時
+			bYRot = false;
+		}
+
 		// 設定
-		SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, &pText[i].pTexture);
+		SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
 	}
 
+	//メモリのクリア
+	memset(pText, NULL, sizeof(pText));
+
 	delete[](pText);
+
+	pText = NULL;
 }
