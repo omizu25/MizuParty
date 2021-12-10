@@ -11,6 +11,7 @@
 #include "billboard.h"
 #include "main.h"
 #include "setup.h"
+#include "wall.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -19,12 +20,12 @@
 // マクロ定義
 //--------------------------------------------------
 #define FILE_NAME		"data\\TXT\\billboard.txt"		// ファイルの名前
-#define MAX_WALL				(256)					// ビルボードの最大数
+#define MAX_BILLBOARD			(256)					// ビルボードの最大数
 #define MAX_TEXTURE				(256)					// テクスチャの最大数
 #define DO_NOT_ROT_Y			(0)						// Y軸回転をしない数値
 
 //--------------------------------------------------
-// 構造体を定義
+// 構造体
 //--------------------------------------------------
 
 /*↓ ビルボード ↓*/
@@ -33,8 +34,11 @@ typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
+	float					fWidth;			// 幅
+	float					fHeight;		// 高さ
 	bool					bUse;			// 使用しているかどうか
 	bool					bYRot;			// Y軸回転をするかどうか
+	bool					bZBuffer;		// Zバッファが必ず成功するかどうか
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
@@ -53,10 +57,10 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			*s_pTexture;				// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
-static Billboard					s_billboard[MAX_WALL];		// ビルボードの情報
-static int							s_nUseTex;					// テクスチャの使用数
+static LPDIRECT3DTEXTURE9			*s_pTexture;					// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
+static Billboard					s_billboard[MAX_BILLBOARD];		// ビルボードの情報
+static int							s_nUseTex;						// テクスチャの使用数
 
 //--------------------------------------------------
 // 初期化
@@ -68,7 +72,7 @@ void InitBillboard(void)
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_3D) * 4 * MAX_WALL,
+		sizeof(VERTEX_3D) * 4 * MAX_BILLBOARD,
 		D3DUSAGE_WRITEONLY,
 		FVF_VERTEX_3D,
 		D3DPOOL_MANAGED,
@@ -83,7 +87,7 @@ void InitBillboard(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	for (int i = 0; i < MAX_WALL; i++)
+	for (int i = 0; i < MAX_BILLBOARD; i++)
 	{
 		//全ての初期化処理
 		InitAll3D(pVtx);
@@ -127,13 +131,54 @@ void UninitBillboard(void)
 //--------------------------------------------------
 void UpdateBillboard(void)
 {
-	
+	for (int i = 0; i < MAX_BILLBOARD; i++)
+	{
+		Billboard *pBillboard = &s_billboard[i];
+
+		if (!pBillboard->bUse)
+		{//使用されていない
+			continue;
+		}
+
+		/*↓ 使用されている ↓*/
+
+		Wall *pWall = GetWall();
+
+		for (int j = 0; j < MAX_WALL; j++, pWall++)
+		{
+			if (!pWall->bUse)
+			{//使用されていない
+				continue;
+			}
+
+			/*↓ 使用されている ↓*/
+
+			/*↓ ビルボード ↓*/
+			float fRightBillboard = pBillboard->pos.x + pBillboard->fWidth;
+			float fLeftBillboard = pBillboard->pos.x - pBillboard->fWidth;
+			float fTopBillboard = pBillboard->pos.y + pBillboard->fHeight;
+			float fBottomBillboard = pBillboard->pos.y - pBillboard->fHeight;
+
+			/*↓ 壁 ↓*/
+			float fRightWall = pWall->pos.x + cosf(pWall->rot.y) * pWall->fWidth;
+			float fLeftWall = pWall->pos.x - cosf(pWall->rot.y) * pWall->fWidth;
+			float fTopWall = pWall->pos.y + pWall->fHeight;
+			float fBottomWall = pWall->pos.y - pWall->fHeight;
+
+			if (fRightBillboard >= fLeftWall && fLeftBillboard <= fRightWall &&
+				fTopBillboard >= fBottomWall && fBottomBillboard <= fTopWall &&
+				fRightBillboard >= pWall->pos.z && fLeftBillboard <= pWall->pos.z)
+			{
+				pBillboard->bZBuffer = true;
+			}
+		}
+	}
 }
 
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawBillboard(void)
+void DrawBillboard(bool bZBuffer)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -148,20 +193,27 @@ void DrawBillboard(void)
 	// ライトを無効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
-	// Zバッファの値を変更する
-	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
-	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+	// αテストを有効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
 
-	for (int i = 0; i < MAX_WALL; i++)
+	for (int i = 0; i < MAX_BILLBOARD; i++)
 	{
 		Billboard *pBillboard = &s_billboard[i];
 
-		if (!pBillboard->bUse)
+		if (!pBillboard->bUse || pBillboard->bZBuffer != bZBuffer)
 		{//使用されていない
 			continue;
 		}
 
 		/*↓ 使用されている ↓*/
+
+		if (pBillboard->bZBuffer)
+		{// Zバッファの値を変更する
+			pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
+			pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+		}
 
 		// ワールドマトリックスの初期化
 		D3DXMatrixIdentity(&pBillboard->mtxWorld);
@@ -214,6 +266,9 @@ void DrawBillboard(void)
 	// Zバッファの値を元に戻す
 	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);		// 新規深度値 <= Zバッファ深度値 (初期設定)
 	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+	// αテストを無効に戻す
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
 
 //--------------------------------------------------
@@ -223,7 +278,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDI
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
-	for (int i = 0; i < MAX_WALL; i++)
+	for (int i = 0; i < MAX_BILLBOARD; i++)
 	{
 		Billboard *pBillboard = &s_billboard[i];
 
@@ -235,8 +290,11 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDI
 		/*↓ 使用されていない ↓*/
 
 		pBillboard->pos = pos;
+		pBillboard->fWidth = fWidth;
+		pBillboard->fHeight = fHeight;
 		pBillboard->pTexture = *pTexture;
 		pBillboard->bYRot = bYRot;
+		pBillboard->bZBuffer = false;
 		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得

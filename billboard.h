@@ -18,7 +18,7 @@
 void InitBillboard(void);
 void UninitBillboard(void);
 void UpdateBillboard(void);
-void DrawBillboard(void);
+void DrawBillboard(bool bZBuffer);
 void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture);
 void LoadBillboard(HWND hWnd);
 

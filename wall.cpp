@@ -16,21 +16,9 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WALL		(64)			// 壁の最大数
 #define MAX_WIDTH		(150.0f)		// 幅の最大値
 #define MAX_HEIGHT		(0.0f)			// 高さの最大値
 #define MAX_DEPTH		(150.0f)		// 奥行きの最大値
-
-//--------------------------------------------------
-// 構造体を定義
-//--------------------------------------------------
-typedef struct
-{
-	D3DXVECTOR3		pos;			// 位置
-	D3DXVECTOR3		rot;			// 向き
-	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
-	bool			bUse;			// 使用しているかどうか
-}Wall;
 
 //--------------------------------------------------
 // スタティック変数
@@ -182,6 +170,8 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, floa
 
 		pWall->pos = pos;
 		pWall->rot = rot;
+		pWall->fWidth = fWidth;
+		pWall->fHeight = fHeight;
 		pWall->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -240,6 +230,14 @@ void InstallationWall(void)
 	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, false);
 	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, false);
 	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, false);
+}
+
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
+Wall *GetWall(void)
+{
+	return &s_wall[0];
 }
 
 //--------------------------------------------------

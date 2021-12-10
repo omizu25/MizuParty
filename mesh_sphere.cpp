@@ -235,11 +235,10 @@ void SetMeshSphere(void)
 			// 頂点カラーの設定
 			pVtx[x + (y * nXLine)].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-			float fUTex = (float)((x + (y * nXLine)) % nXLine);
 			float fVTex = (1.0f / s_Number.nVertical) * y;
 
 			// テクスチャ座標の設定
-			pVtx[x + (y * nXLine)].tex = D3DXVECTOR2(fUTex, fVTex);
+			pVtx[x + (y * nXLine)].tex = D3DXVECTOR2((float)x, fVTex);
 		}
 	}
 

@@ -544,16 +544,19 @@ static void Draw(void)
 		DrawShadow();
 
 		// メッシュ球の描画
-		DrawMeshSphere();
+		//DrawMeshSphere();
 
 		// メッシュ円柱の描画
-		DrawMeshCylinder();
+		//DrawMeshCylinder();
+
+		// ビルボードの描画
+		DrawBillboard(false);
 
 		// 壁の描画
 		DrawWall();
 
 		// ビルボードの描画
-		DrawBillboard();
+		DrawBillboard(true);
 
 		if (s_bDebug)
 		{
