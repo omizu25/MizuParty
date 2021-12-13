@@ -218,7 +218,7 @@ static void UpdateKeyboard(void)
 //--------------------------------------------------
 bool GetKeyboardPress(int nKey)
 {
-	return (s_aKeyState[nKey] & 0x80) ? true : false;
+	return (s_aKeyState[nKey] & 0x80) != 0;
 }
 
 //--------------------------------------------------
@@ -226,7 +226,7 @@ bool GetKeyboardPress(int nKey)
 //--------------------------------------------------
 bool GetKeyboardTrigger(int nKey)
 {
-	return (s_aKeyStateTrigger[nKey] & 0x80) ? true : false;
+	return (s_aKeyStateTrigger[nKey] & 0x80) != 0;
 }
 
 //--------------------------------------------------
@@ -340,7 +340,7 @@ static void UpdateJoypad(void)
 //--------------------------------------------------
 bool GetJoypadPress(JOYKEY Key, int nPlayer)
 {
-	return (s_JoyKeyState[nPlayer].Gamepad.wButtons & (0x01 << Key)) ? true : false;
+	return (s_JoyKeyState[nPlayer].Gamepad.wButtons & (0x01 << Key)) != 0;
 }
 
 //--------------------------------------------------
@@ -348,7 +348,7 @@ bool GetJoypadPress(JOYKEY Key, int nPlayer)
 //--------------------------------------------------
 bool GetJoypadTrigger(JOYKEY Key, int nPlayer)
 {
-	return (s_JoyKeyStateTrigger[nPlayer].Gamepad.wButtons & (0x01 << Key)) ? true : false;
+	return (s_JoyKeyStateTrigger[nPlayer].Gamepad.wButtons & (0x01 << Key)) != 0;
 }
 
 //--------------------------------------------------
@@ -481,7 +481,7 @@ static void UpdateMouse(void)
 //--------------------------------------------------
 bool GetMousePress(MOUSE mouse)
 {
-	return (s_aKeyStateMouse.rgbButtons[mouse] & 0x80) ? true : false;
+	return (s_aKeyStateMouse.rgbButtons[mouse] & 0x80) != 0;
 
 }
 
@@ -490,7 +490,7 @@ bool GetMousePress(MOUSE mouse)
 //--------------------------------------------------
 bool GetMouseTrigger(MOUSE mouse)
 {
-	return (s_aKeyStatetriggerMouse.rgbButtons[mouse] & 0x80) ? true : false;
+	return (s_aKeyStatetriggerMouse.rgbButtons[mouse] & 0x80) != 0;
 }
 
 //--------------------------------------------------
