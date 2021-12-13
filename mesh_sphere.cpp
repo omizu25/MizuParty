@@ -217,8 +217,9 @@ void SetMeshSphere(void)
 			// äpìxÇÃê≥ãKâª
 			NormalizeRot(&fRot);
 
-			float fXPos = cosf(fRot) * sinf(fYRot) * MAX_SIZE;
-			float fZPos = sinf(fRot) * sinf(fYRot) * MAX_SIZE;
+			float fXPos = cosf(fRot) * (sinf(fYRot) * MAX_SIZE);
+			float fZPos = sinf(fRot) * (sinf(fYRot) * MAX_SIZE);
+
 			D3DXVECTOR3 pos = D3DXVECTOR3(fXPos, fYPos + MAX_SIZE, fZPos);
 
 			// í∏ì_ç¿ïWÇÃê›íË

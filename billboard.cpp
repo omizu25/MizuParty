@@ -9,6 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "billboard.h"
+#include "effect.h"
 #include "main.h"
 #include "setup.h"
 #include "wall.h"
@@ -33,6 +34,7 @@
 typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
+	D3DXVECTOR3				move;			// 移動量
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
 	float					fWidth;			// 幅
 	float					fHeight;		// 高さ
@@ -142,6 +144,8 @@ void UpdateBillboard(void)
 
 		/*↓ 使用されている ↓*/
 
+		pBillboard->pos += pBillboard->move;
+
 		Wall *pWall = GetWall();
 
 		for (int j = 0; j < MAX_WALL; j++, pWall++)
@@ -168,10 +172,13 @@ void UpdateBillboard(void)
 			if (fRightBillboard >= fLeftWall && fLeftBillboard <= fRightWall &&
 				fTopBillboard >= fBottomWall && fBottomBillboard <= fTopWall &&
 				fRightBillboard >= pWall->pos.z && fLeftBillboard <= pWall->pos.z)
-			{
+			{//	当たってる
 				pBillboard->bZBuffer = true;
 			}
 		}
+
+		// エフェクトの設定
+		SetEffect(pBillboard->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f), pBillboard->fWidth, pBillboard->fHeight, 25, true);
 	}
 }
 
@@ -274,7 +281,7 @@ void DrawBillboard(bool bZBuffer)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -290,6 +297,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, LPDI
 		/*↓ 使用されていない ↓*/
 
 		pBillboard->pos = pos;
+		pBillboard->move = move;
 		pBillboard->fWidth = fWidth;
 		pBillboard->fHeight = fHeight;
 		pBillboard->pTexture = *pTexture;
@@ -416,7 +424,7 @@ void LoadBillboard(HWND hWnd)
 		}
 
 		// 設定
-		SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
+		SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
 	}
 
 	//メモリのクリア

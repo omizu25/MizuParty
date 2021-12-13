@@ -155,6 +155,7 @@
   <ItemGroup>
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="effect.cpp" />
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="main.cpp" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="billboard.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="effect.h" />
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="main.h" />

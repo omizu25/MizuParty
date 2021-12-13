@@ -42,4 +42,4 @@ void SetMeshSky(void);
 MeshSky *GetMeshSky(void);
 MeshSkyNumber *GetMeshSkyNumber(void);
 
-#endif // !_MESH_SKY_H
+#endif // !_MESH_SKY_H_

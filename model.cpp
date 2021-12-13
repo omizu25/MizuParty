@@ -8,6 +8,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "billboard.h"
 #include "camera.h"
 #include "input.h"
 #include "main.h"
@@ -27,6 +28,7 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
+static LPDIRECT3DTEXTURE9		s_pTextureTest = NULL;		// テクスチャへのポインタ
 static LPD3DXMESH				s_pMesh = NULL;			// メッシュ情報へのポインタ
 static LPD3DXBUFFER				s_pBuffMat = NULL;		// マテリアル情報へのポインタ
 static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;		// テクスチャへのポインタ
@@ -46,6 +48,12 @@ void InitModel(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data\\TEXTURE\\InuiToko000.jpg",
+		&s_pTextureTest);
 
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
@@ -120,6 +128,12 @@ void UninitModel(void)
 		s_pBuffMat->Release();
 		s_pBuffMat = NULL;
 	}
+
+	if (s_pTextureTest != NULL)
+	{// テクスチャの解放
+		s_pTextureTest->Release();
+		s_pTextureTest = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -146,6 +160,12 @@ void UpdateModel(void)
 
 	// 影の位置の設定
 	SetPosShadow(s_model.nIdxShadow, s_model.pos);
+
+	if (GetKeyboardTrigger(DIK_SPACE))
+	{// スペースキーが押された
+		// ビルボードの設定
+		SetBillboard(s_model.pos, D3DXVECTOR3(7.0f, 0.0f, 0.0f), 20.0f, 20.0f, false, &s_pTextureTest);
+	}
 }
 
 //--------------------------------------------------

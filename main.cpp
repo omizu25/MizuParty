@@ -10,6 +10,7 @@
 //--------------------------------------------------
 #include "billboard.h"
 #include "camera.h"
+#include "effect.h"
 #include "input.h"
 #include "light.h"
 #include "main.h"
@@ -51,6 +52,7 @@ static int						s_nCountFPS = 0;			// FPSカウンタ
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
 static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
 static bool						s_bWireframe = false;		// ワイヤーフレーム表示をするか [表示  : true 非表示  : false]
+static bool						s_bPause = false;			// ポーズするか [する  : true しない  : false]
 
 //--------------------------------------------------
 // main関数
@@ -339,6 +341,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ビルボードの読み込み
 	LoadBillboard(hWnd);
 
+	// エフェクトの初期化
+	InitEffect();
+
 	// 影の初期化
 	InitShadow();
 
@@ -387,6 +392,9 @@ static void Uninit(void)
 	// ビルボードの終了
 	UninitBillboard();
 
+	// エフェクトの終了
+	UninitEffect();
+
 	// 影の終了
 	UninitShadow();
 
@@ -430,38 +438,44 @@ static void Update(void)
 	// 入力処理の更新
 	UpdateInput();
 
-	// ポリゴンの更新
-	//UpdatePolygon();
+	if (!s_bPause)
+	{
+		// ポリゴンの更新
+		//UpdatePolygon();
 
-	// メッシュフィールドの更新
-	UpdateMeshField();
+		// メッシュフィールドの更新
+		UpdateMeshField();
 
-	// メッシュ円柱の更新
-	UpdateMeshCylinder();
+		// メッシュ円柱の更新
+		UpdateMeshCylinder();
 
-	// メッシュ球の更新
-	UpdateMeshSphere();
+		// メッシュ球の更新
+		UpdateMeshSphere();
 
-	// メッシュ空の更新
-	UpdateMeshSky();
+		// メッシュ空の更新
+		UpdateMeshSky();
 
-	// 壁の更新
-	UpdateWall();
+		// 壁の更新
+		UpdateWall();
 
-	// ビルボードの更新
-	UpdateBillboard();
+		// ビルボードの更新
+		UpdateBillboard();
 
-	// モデルの更新
-	UpdateModel();
+		// エフェクトの更新
+		UpdateEffect();
 
-	// 影の更新
-	UpdateShadow();
+		// モデルの更新
+		UpdateModel();
 
-	// カメラの更新
-	UpdateCamera();
+		// 影の更新
+		UpdateShadow();
 
-	// ライトの更新
-	UpdateLight();
+		// カメラの更新
+		UpdateCamera();
+
+		// ライトの更新
+		UpdateLight();
+	}
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
@@ -489,6 +503,11 @@ static void Update(void)
 
 	if (GetKeyboardTrigger(DIK_F4))
 	{// F4キーが押された
+		s_bPause = !s_bPause;
+	}
+
+	if (GetKeyboardTrigger(DIK_F5))
+	{// F5キーが押された
 		s_bWireframe = !s_bWireframe;
 	}
 }
@@ -555,6 +574,9 @@ static void Draw(void)
 		// 壁の描画
 		DrawWall();
 
+		// エフェクトの描画
+		//DrawEffect();
+
 		// ビルボードの描画
 		DrawBillboard(true);
 
@@ -609,13 +631,23 @@ static void DrawDebug(void)
 	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
 	nLength = (int)strlen(&aStr[0]);
 
-	if (s_bWireframe)
+	if (s_bPause)
 	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 ON 】\n");
+		sprintf(&aStr[nLength], "ポーズ  [ F4 ]            :【 ON 】\n");
 	}
 	else
 	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F4 ]  :【 OFF 】\n");
+		sprintf(&aStr[nLength], "ポーズ  [ F4 ]            :【 OFF 】\n");
+	}
+	nLength = (int)strlen(&aStr[0]);
+
+	if (s_bWireframe)
+	{
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F5 ]  :【 ON 】\n");
+	}
+	else
+	{
+		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F5 ]  :【 OFF 】\n");
 	}
 	nLength = (int)strlen(&aStr[0]);
 
