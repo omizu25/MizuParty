@@ -336,7 +336,7 @@ void SetMeshSky(void)
 		pVtx[i + 1].nor = vec;
 
 		// 頂点カラーの設定
-		pVtx[i + 1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+		pVtx[i + 1].col = D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f);
 
 		// テクスチャ座標の設定
 		pVtx[i + 1].tex = D3DXVECTOR2(0.0f, 0.0f);

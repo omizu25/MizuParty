@@ -19,6 +19,7 @@
 #include "mesh_sky.h"
 #include "mesh_sphere.h"
 #include "model.h"
+#include "particle.h"
 #include "polygon.h"
 #include "shadow.h"
 #include "wall.h"
@@ -341,6 +342,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// ビルボードの読み込み
 	LoadBillboard(hWnd);
 
+	// パーティクルの初期化
+	InitParticle();
+
 	// エフェクトの初期化
 	InitEffect();
 
@@ -461,6 +465,9 @@ static void Update(void)
 		// ビルボードの更新
 		UpdateBillboard();
 
+		// パーティクルの更新
+		UpdateParticle();
+
 		// エフェクトの更新
 		UpdateEffect();
 
@@ -575,7 +582,7 @@ static void Draw(void)
 		DrawWall();
 
 		// エフェクトの描画
-		//DrawEffect();
+		DrawEffect();
 
 		// ビルボードの描画
 		DrawBillboard(true);

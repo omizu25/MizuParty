@@ -11,6 +11,7 @@
 #include "billboard.h"
 #include "effect.h"
 #include "main.h"
+#include "particle.h"
 #include "setup.h"
 #include "wall.h"
 
@@ -51,7 +52,7 @@ typedef struct
 	D3DXVECTOR3				pos;			// 位置
 	float					fWidth;			// 幅
 	float					fHeight;		// 高さ
-	int						nIdxTex;		// テクスチャ番号
+	int						nTexIdx;		// テクスチャ番号
 	int						nYRot;			// Y軸回転をするかどうか
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Text;
@@ -174,11 +175,18 @@ void UpdateBillboard(void)
 				fRightBillboard >= pWall->pos.z && fLeftBillboard <= pWall->pos.z)
 			{//	当たってる
 				pBillboard->bZBuffer = true;
+				pBillboard->bUse = false;
+
+				// パーティクルの設定
+				SetParticle(pBillboard->pos, pBillboard->move, pBillboard->fWidth, pBillboard->fHeight, 25, true);
 			}
 		}
 
-		// エフェクトの設定
-		SetEffect(pBillboard->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f), pBillboard->fWidth, pBillboard->fHeight, 25, true);
+		if (pBillboard->move.x != 0.0f || pBillboard->move.z != 0.0f)
+		{// 動いてる
+			// エフェクトの設定
+			SetEffect(pBillboard->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f), pBillboard->fWidth, pBillboard->fHeight, 25, true);
+		}
 	}
 }
 
@@ -331,52 +339,92 @@ void LoadBillboard(HWND hWnd)
 	FILE *pFile;			// ファイルポインタを宣言
 	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
-	// ファイルを開く
-	pFile = fopen(FILE_NAME, "r");
-
-	if (pFile != NULL)
-	{// ファイルが開いた場合
-		// 使用数の読み込み
-		fscanf(pFile, "%d", &s_nUseTex);
-		fscanf(pFile, "%d", &nUseText);
-
-		// ファイルを閉じる
-		fclose(pFile);
-	}
-	else
-	{// ファイルが開かない場合
-		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
-		assert(false);
-	}
-
-	// txtに書いてる最大数分の読み込み用の配列を用意する
-	Text *pText = new Text[nUseText];
-
+	Text *pText;
 	char aTexture[MAX_TEXTURE][1024];
 
+	//メモリのクリア
+	memset(&pText, NULL, sizeof(pText));
+
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		// 使用数の読み込み
-		fscanf(pFile, "%d", &s_nUseTex);
-		fscanf(pFile, "%d", &nUseText);
+		char aRead[256] = {};
+		int nTex = 0, nText = 0;
 
-		for (int i = 0; i < s_nUseTex; i++)
-		{//テクスチャ名の読み込み
-			fscanf(pFile, "%s", aTexture[i]);
+		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		{// 始まりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
 		}
 
-		for (int i = 0; i < nUseText; i++)
-		{//テクスチャの番号・幅・高さ・位置の読み込み
-			fscanf(pFile, "%d", &pText[i].nIdxTex);
-			fscanf(pFile, "%d", &pText[i].nYRot);
-			fscanf(pFile, "%f", &pText[i].fWidth);
-			fscanf(pFile, "%f", &pText[i].fHeight);
-			fscanf(pFile, "%f", &pText[i].pos.x);
-			fscanf(pFile, "%f", &pText[i].pos.y);
-			fscanf(pFile, "%f", &pText[i].pos.z);
+		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+		{// 終わりが来るまで繰り返す
+ 			fscanf(pFile, "%s", &aRead);
+
+			if (strncmp(&aRead[0], "#-", 2) == 0)
+			{// コメント
+				continue;
+			}
+			else if (strncmp(&aRead[0], "#", 1) == 0)
+			{// コメント
+				fscanf(pFile, "%s", &aRead);
+				continue;
+			}
+
+			if (strcmp(&aRead[0], "NUM_TEXTURE") == 0)
+			{// テクスチャの使用数
+				fscanf(pFile, "%d", &s_nUseTex);
+			}
+			else if (strcmp(&aRead[0], "TEXTURE_FILENAME") == 0)
+			{// テクスチャの情報
+				fscanf(pFile, "%s", aTexture[nTex]);
+				nTex++;
+			}
+			else if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+			{// ビルボードの使用数
+				fscanf(pFile, "%d", &nUseText);
+
+				// txtに書いてる最大数分の読み込み用の配列を用意する
+				pText = new Text[nUseText];
+			}
+			else if (strcmp(&aRead[0], "BILLBOARD_SET") == 0)
+			{// ビルボードの情報
+				while (strcmp(&aRead[0], "END_BILLBOARD_SET") != 0)
+				{// 終わりが来るまで繰り返す
+					fscanf(pFile, "%s", &aRead);
+
+					if (strncmp(&aRead[0], "#", 1) == 0)
+					{// コメント
+						fscanf(pFile, "%s", &aRead);
+						continue;
+					}
+
+					if (strcmp(&aRead[0], "TEXIDX") == 0)
+					{// テクスチャ番号
+						fscanf(pFile, "%d", &pText[nText].nTexIdx);
+					}
+					else if (strcmp(&aRead[0], "YROT") == 0)
+					{// Y回転をするかどうか
+						fscanf(pFile, "%d", &pText[nText].nYRot);
+					}
+					else if (strcmp(&aRead[0], "WIDTH") == 0)
+					{// 幅
+						fscanf(pFile, "%f", &pText[nText].fWidth);
+					}
+					else if (strcmp(&aRead[0], "HEIGHT") == 0)
+					{// 高さ
+						fscanf(pFile, "%f", &pText[nText].fHeight);
+					}
+					else if (strcmp(&aRead[0], "POS") == 0)
+					{// 位置
+						fscanf(pFile, "%f", &pText[nText].pos.x);
+						fscanf(pFile, "%f", &pText[nText].pos.y);
+						fscanf(pFile, "%f", &pText[nText].pos.z);
+					}
+				}
+				nText++;
+			}
 		}
 
 		// ファイルを閉じる
@@ -390,7 +438,7 @@ void LoadBillboard(HWND hWnd)
 
 	for (int i = 0; i < nUseText; i++)
 	{
-		if (pText[i].nIdxTex >= s_nUseTex)
+		if (pText[i].nTexIdx >= s_nUseTex)
 		{// 該当しないテクスチャ番号
 			MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 			assert(false);
@@ -414,7 +462,7 @@ void LoadBillboard(HWND hWnd)
 
 	for (int i = 0; i < nUseText; i++)
 	{
-		pText[i].pTexture = s_pTexture[pText[i].nIdxTex];
+		pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
 
 		bool bYRot = true;
 
