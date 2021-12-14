@@ -9,6 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "billboard.h"
+#include "bullet.h"
 #include "camera.h"
 #include "effect.h"
 #include "input.h"
@@ -19,6 +20,7 @@
 #include "mesh_sky.h"
 #include "mesh_sphere.h"
 #include "model.h"
+#include "player.h"
 #include "particle.h"
 #include "polygon.h"
 #include "shadow.h"
@@ -354,6 +356,12 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// モデルの初期化
 	InitModel();
 
+	// プレイヤーの初期化
+	InitPlayer();
+
+	// 弾の初期化
+	InitBullet();
+
 	// カメラの初期化
 	InitCamera();
 
@@ -404,6 +412,12 @@ static void Uninit(void)
 
 	// モデルの終了
 	UninitModel();
+
+	// プレイヤーの終了
+	UninitPlayer();
+
+	// 弾の終了
+	UninitBullet();
 
 	// カメラの終了
 	UninitCamera();
@@ -473,6 +487,12 @@ static void Update(void)
 
 		// モデルの更新
 		UpdateModel();
+
+		// プレイヤーの更新
+		UpdatePlayer();
+
+		// 弾の更新
+		UpdateBullet();
 
 		// 影の更新
 		UpdateShadow();
@@ -565,6 +585,9 @@ static void Draw(void)
 
 		// モデルの描画
 		DrawModel();
+
+		// プレイヤーの描画
+		DrawPlayer();
 
 		// 影の描画
 		DrawShadow();

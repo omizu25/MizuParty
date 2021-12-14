@@ -8,7 +8,6 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
-#include "billboard.h"
 #include "camera.h"
 #include "input.h"
 #include "main.h"
@@ -28,18 +27,11 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9		s_pTextureTest = NULL;		// テクスチャへのポインタ
 static LPD3DXMESH				s_pMesh = NULL;			// メッシュ情報へのポインタ
 static LPD3DXBUFFER				s_pBuffMat = NULL;		// マテリアル情報へのポインタ
 static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;		// テクスチャへのポインタ
 static DWORD					s_nNumMat = 0;			// マテリアル情報の数
 static Model					s_model;				// モデルの情報
-
-//--------------------------------------------------
-// プロトタイプ宣言
-//--------------------------------------------------
-static void Move(void);
-static void Rot(void);
 
 //--------------------------------------------------
 // 初期化
@@ -49,15 +41,9 @@ void InitModel(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data\\TEXTURE\\InuiToko000.jpg",
-		&s_pTextureTest);
-
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
-		"data\\MODEL\\てるてる４期生.x",
+		"data\\MODEL\\リムル.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -89,7 +75,7 @@ void InitModel(void)
 		}
 	}
 
-	s_model.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
+	s_model.pos = D3DXVECTOR3(50.0f, 20.0f, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
@@ -128,12 +114,6 @@ void UninitModel(void)
 		s_pBuffMat->Release();
 		s_pBuffMat = NULL;
 	}
-
-	if (s_pTextureTest != NULL)
-	{// テクスチャの解放
-		s_pTextureTest->Release();
-		s_pTextureTest = NULL;
-	}
 }
 
 //--------------------------------------------------
@@ -141,31 +121,7 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-	// 移動
-	Move();
 
-	// 回転
-	Rot();
-
-	float fAngle = s_model.rotDest.y - s_model.rot.y;
-
-	// 角度の正規化
-	NormalizeRot(&fAngle);
-
-	//慣性・向きを更新 (減衰させる)
-	s_model.rot.y += fAngle * MAX_ATTENUATION;
-
-	// 角度の正規化
-	NormalizeRot(&s_model.rot.y);
-
-	// 影の位置の設定
-	SetPosShadow(s_model.nIdxShadow, s_model.pos);
-
-	if (GetKeyboardTrigger(DIK_SPACE))
-	{// スペースキーが押された
-		// ビルボードの設定
-		SetBillboard(s_model.pos, D3DXVECTOR3(7.0f, 0.0f, 0.0f), 20.0f, 20.0f, false, &s_pTextureTest);
-	}
 }
 
 //--------------------------------------------------
@@ -224,120 +180,4 @@ void DrawModel(void)
 Model *GetModel(void)
 {
 	return &s_model;
-}
-
-//--------------------------------------------------
-// 移動
-//--------------------------------------------------
-static void Move(void)
-{ 
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-
-		Camera *pCamera = GetCamera();		//カメラの取得
-		float fRot = 0.0f;
-
-		/* ↓モデルの移動↓ */
-
-		if (GetKeyboardPress(DIK_LEFT))
-		{// ←キーが押された
-			if (GetKeyboardPress(DIK_UP))
-			{// ↑キーが押された
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.25f);
-
-				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.75f);
-			}
-			else if (GetKeyboardPress(DIK_DOWN))
-			{// ↓キーが押された
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.75f);
-
-				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.25f);
-			}
-			else
-			{
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.5f);
-
-				s_model.rotDest.y = pCamera->rot.y + (D3DX_PI * 0.5f);
-			}
-		}
-		else if (GetKeyboardPress(DIK_RIGHT))
-		{// →キーが押された
-			if (GetKeyboardPress(DIK_UP))
-			{// ↑キーが押された
-				fRot = pCamera->rot.y + (D3DX_PI * 0.25f);
-
-				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
-			}
-			else if (GetKeyboardPress(DIK_DOWN))
-			{// ↓キーが押された
-				fRot = pCamera->rot.y + (D3DX_PI * 0.75f);
-
-				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
-			}
-			else
-			{
-				fRot = pCamera->rot.y + (D3DX_PI * 0.5f);
-
-				s_model.rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
-			}
-		}
-		else if (GetKeyboardPress(DIK_UP))
-		{// ↑キーが押された
-			fRot = pCamera->rot.y;
-
-			s_model.rotDest.y = pCamera->rot.y + D3DX_PI;
-		}
-		else if (GetKeyboardPress(DIK_DOWN))
-		{// ↓キーが押された
-			fRot = pCamera->rot.y + D3DX_PI;
-
-			s_model.rotDest.y = pCamera->rot.y;
-		}
-
-		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
-		{// ←, →, ↑, ↓キーが押された
-			s_model.pos.x += sinf(fRot) * MAX_MOVE;
-			s_model.pos.z += cosf(fRot) * MAX_MOVE;
-		}
-
-		if (GetKeyboardPress(DIK_I))
-		{// Iキーが押された
-			s_model.pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_K))
-		{// Kキーが押された
-			s_model.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
-		}
-
-		if (s_model.pos.y <= MIN_HEIGHT)
-		{// 指定の値以下
-			s_model.pos.y = MIN_HEIGHT;
-		}
-		else if (s_model.pos.y >= MAX_HEIGHT)
-		{// 指定の値以上
-			s_model.pos.y = MAX_HEIGHT;
-		}
-	}
-}
-
-//--------------------------------------------------
-// 回転
-//--------------------------------------------------
-static void Rot(void)
-{
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-	
-		/* ↓モデルの回転↓ */
-
-		if (GetKeyboardPress(DIK_LSHIFT))
-		{// 左シフトキーが押された
-			s_model.rotDest.y += -MAX_ROTATION;
-		}
-		else if (GetKeyboardPress(DIK_RSHIFT))
-		{// 右シフトキーが押された
-			s_model.rotDest.y += MAX_ROTATION;
-		}
-	}
 }
