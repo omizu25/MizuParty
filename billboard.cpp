@@ -178,7 +178,7 @@ void UpdateBillboard(void)
 				pBillboard->bUse = false;
 
 				// パーティクルの設定
-				SetParticle(pBillboard->pos, pBillboard->move, pBillboard->fWidth, pBillboard->fHeight, 25, true);
+				SetParticle(pBillboard->pos, pBillboard->fWidth, true);
 			}
 		}
 

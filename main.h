@@ -39,7 +39,7 @@
 typedef enum
 {
 	DEBUG_CAMERA = 0,		// カメラ
-	DEBUG_MODEL,			// モデル
+	DEBUG_PLAYER,			// プレイヤー
 	DEBUG_MESH,				// メッシュ
 	DEBUG_MAX
 }DEBUG;

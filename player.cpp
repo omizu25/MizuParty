@@ -37,6 +37,7 @@ static Player					s_player;					// モデルの情報
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void FollowMove(void);
 static void Move(void);
 static void Rot(void);
 
@@ -83,8 +84,9 @@ void InitPlayer(void)
 	}
 
 	s_player.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
-	s_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	s_player.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_player.rot = D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f);
+	s_player.rotDest = s_player.rot;
+	s_player.nStopTime = 0;
 
 	// 影の設定
 	s_player.nIdxShadow = SetShadow(s_player.pos, s_player.rot);
@@ -128,11 +130,23 @@ void UninitPlayer(void)
 //--------------------------------------------------
 void UpdatePlayer(void)
 {
-	// 移動
-	Move();
+	s_player.nStopTime++;
 
-	// 回転
-	Rot();
+	Camera *pCamera = GetCamera();
+
+	if (pCamera->bFollow)
+	{// 追従する
+		// 追従の移動
+		FollowMove();
+	}
+	else
+	{// 追従しない
+		// 移動
+		Move();
+
+		// 回転
+		Rot();
+	}
 
 	float fAngle = s_player.rotDest.y - s_player.rot.y;
 
@@ -160,7 +174,7 @@ void DrawPlayer(void)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-										// ワールドマトリックスの初期化
+	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&s_player.mtxWorld);
 
 	// 向きを反映
@@ -205,6 +219,99 @@ void DrawPlayer(void)
 Player *GetPlayer(void)
 {
 	return &s_player;
+}
+
+//--------------------------------------------------
+// 追従の移動
+//--------------------------------------------------
+static void FollowMove(void)
+{
+	if (GetDebug() != DEBUG_MESH)
+	{// デバッグ表示がメッシュではない時
+		float fRot = 0.0f;
+
+		/* ↓モデルの移動↓ */
+
+		if (GetKeyboardPress(DIK_LEFT))
+		{// ←キーが押された
+			if (GetKeyboardPress(DIK_UP))
+			{// ↑キーが押された
+				fRot = -D3DX_PI * 0.25f;
+
+				s_player.rotDest.y = D3DX_PI * 0.75f;
+			}
+			else if (GetKeyboardPress(DIK_DOWN))
+			{// ↓キーが押された
+				fRot = -D3DX_PI * 0.75f;
+
+				s_player.rotDest.y = D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = -D3DX_PI * 0.5f;
+
+				s_player.rotDest.y = D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetKeyboardPress(DIK_RIGHT))
+		{// →キーが押された
+			if (GetKeyboardPress(DIK_UP))
+			{// ↑キーが押された
+				fRot = D3DX_PI * 0.25f;
+
+				s_player.rotDest.y = -D3DX_PI * 0.75f;
+			}
+			else if (GetKeyboardPress(DIK_DOWN))
+			{// ↓キーが押された
+				fRot = D3DX_PI * 0.75f;
+
+				s_player.rotDest.y = -D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = D3DX_PI * 0.5f;
+
+				s_player.rotDest.y = -D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetKeyboardPress(DIK_UP))
+		{// ↑キーが押された
+			fRot = 0.0f;
+
+			s_player.rotDest.y = D3DX_PI;
+		}
+		else if (GetKeyboardPress(DIK_DOWN))
+		{// ↓キーが押された
+			fRot = D3DX_PI;
+
+			s_player.rotDest.y = 0.0f;
+		}
+
+		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+		{// ←, →, ↑, ↓キーが押された
+			s_player.pos.x += sinf(fRot) * MAX_MOVE;
+			s_player.pos.z += cosf(fRot) * MAX_MOVE;
+
+			s_player.nStopTime = 0;
+		}
+
+		if (GetKeyboardPress(DIK_I))
+		{// Iキーが押された
+			s_player.pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
+
+			s_player.nStopTime = 0;
+		}
+		else if (GetKeyboardPress(DIK_K))
+		{// Kキーが押された
+			s_player.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
+
+			s_player.nStopTime = 0;
+		}
+
+		// 指定の値以上・以下
+		Specified(&s_player.pos.y, MAX_HEIGHT, MIN_HEIGHT);
+	}
 }
 
 //--------------------------------------------------
@@ -291,14 +398,8 @@ static void Move(void)
 			s_player.pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
 		}
 
-		if (s_player.pos.y <= MIN_HEIGHT)
-		{// 指定の値以下
-			s_player.pos.y = MIN_HEIGHT;
-		}
-		else if (s_player.pos.y >= MAX_HEIGHT)
-		{// 指定の値以上
-			s_player.pos.y = MAX_HEIGHT;
-		}
+		// 指定の値以上・以下
+		Specified(&s_player.pos.y, MAX_HEIGHT, MIN_HEIGHT);
 	}
 }
 
@@ -310,7 +411,7 @@ static void Rot(void)
 	if (GetDebug() != DEBUG_MESH)
 	{// デバッグ表示がメッシュではない時
 
-	 /* ↓モデルの回転↓ */
+		/* ↓モデルの回転↓ */
 
 		if (GetKeyboardPress(DIK_LSHIFT))
 		{// 左シフトキーが押された

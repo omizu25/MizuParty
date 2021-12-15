@@ -663,11 +663,11 @@ static void DrawDebug(void)
 
 	if (s_bPause)
 	{
-		sprintf(&aStr[nLength], "ポーズ  [ F4 ]            :【 ON 】\n");
+		sprintf(&aStr[nLength], "ポーズ            [ F4 ]  :【 ON 】\n");
 	}
 	else
 	{
-		sprintf(&aStr[nLength], "ポーズ  [ F4 ]            :【 OFF 】\n");
+		sprintf(&aStr[nLength], "ポーズ            [ F4 ]  :【 OFF 】\n");
 	}
 	nLength = (int)strlen(&aStr[0]);
 
@@ -681,13 +681,27 @@ static void DrawDebug(void)
 	}
 	nLength = (int)strlen(&aStr[0]);
 
-	sprintf(&aStr[nLength], "F2, F3キー                : 表示項目の変更\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "\n( カメラ ⇔ モデル ⇔ メッシュ )\n");
+	Camera *pCamera = GetCamera();		//カメラの取得
+
+	if (pCamera->bFollow)
+	{
+		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 ON 】\n");
+	}
+	else
+	{
+		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 OFF 】\n");
+	}
 	nLength = (int)strlen(&aStr[0]);
 
-	Camera *pCamera = GetCamera();										//カメラの取得
-	Model *pModel = GetModel();											//モデルの取得
+	sprintf(&aStr[nLength], "F2, F3キー                : 表示項目の変更\n");
+	nLength = (int)strlen(&aStr[0]);
+	sprintf(&aStr[nLength], "\n");
+	nLength = (int)strlen(&aStr[0]);
+
+	sprintf(&aStr[nLength], "( カメラ ⇔ モデル ⇔ メッシュ )\n");
+	nLength = (int)strlen(&aStr[0]);
+
+	Player *pPlayer = GetPlayer();										//プレイヤーの取得
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();					//メッシュフィールドの数系の取得
 	MeshCylinderNumber *pCylinderNumber = GetMeshCylinderNumber();		//メッシュ円柱の数系の取得
 	MeshSphereNumber *pSphereNumber = GetMeshSphereNumber();			//メッシュ球の数系の取得
@@ -697,10 +711,16 @@ static void DrawDebug(void)
 	{
 	case DEBUG_CAMERA:		// カメラ
 
-		sprintf(&aStr[nLength], "    ↑\n");
+		sprintf(&aStr[nLength], "    ↑\n\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n\n<< カメラ操作 >>\n\n");
+		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
+
+		sprintf(&aStr[nLength], "<< カメラ操作 >>\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "\n");
+		nLength = (int)strlen(&aStr[0]);
+
 		sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "Z, Cキー                  : 視点の旋回\n");
@@ -713,54 +733,77 @@ static void DrawDebug(void)
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "U, Jキー                  : 視点～注視点間の距離変更\n");
 		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "1, 2キー                  : 注視点～プレイヤー間の距離変更\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "\n");
+		nLength = (int)strlen(&aStr[0]);
 
 		sprintf(&aStr[nLength], "視点の座標                : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "注視点の座標              : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "注視点と視点の角度( y )   : %.3f\n", pCamera->rot.y);
+		sprintf(&aStr[nLength], "視点と注視点の角度( y )   : %.3f\n", pCamera->rot.y);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "注視点と視点の角度( x )   : %.3f\n", pCamera->rot.x);
+		sprintf(&aStr[nLength], "視点と注視点の角度( x )   : %.3f\n", pCamera->rot.x);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "注視点と視点の距離        : %.3f\n", pCamera->fDistance);
+		sprintf(&aStr[nLength], "視点～注視点の距離        : %.3f\n", pCamera->fDistance);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "注視点～プレイヤーの距離  : %.3f\n", pCamera->fDisPlayer);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;
 
-	case DEBUG_MODEL:		// モデル
+	case DEBUG_PLAYER:		// プレイヤー
 
-		sprintf(&aStr[nLength], "              ↑\n");
+		sprintf(&aStr[nLength], "              ↑\n\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n\n<< モデル操作 >>\n\n");
+		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "↑, ↓, ←, →キー        : 移動 (%.3f, %.3f, %.3f)\n", pModel->pos.x, pModel->pos.y, pModel->pos.z);
+
+		sprintf(&aStr[nLength], "<< モデル操作 >>\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "左Shift, 右Shiftキー      : Y軸回転 (%.3f, %.3f, %.3f)\n", pModel->rot.x, pModel->rot.y, pModel->rot.z);
+		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "I, Kキー                  : 上下移動\n");
+
+		sprintf(&aStr[nLength], "↑, ↓, ←, →キー    : 移動 (%.3f, %.3f, %.3f)\n", pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "左Shift, 右Shiftキー  : Y軸回転 (%.3f, %.3f, %.3f)\n", pPlayer->rot.x, pPlayer->rot.y, pPlayer->rot.z);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "I, Kキー              : 上下移動\n");
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "止まっている時間      : %d\n", pPlayer->nStopTime);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;
 
 	case DEBUG_MESH:		//メッシュ
 
-		sprintf(&aStr[nLength], "                         ↑\n");
+		sprintf(&aStr[nLength], "                         ↑\n\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n\n<< 地面 円柱 球のメッシュ操作 >>\n\n");
+		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "A , D , W , S キー [地面]     : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
+
+		sprintf(&aStr[nLength], "<< 地面 円柱 球のメッシュ操作 >>\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "←, →, ↑, ↓キー [円柱]     : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
+		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "Q , E , Z , C キー [球]       : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
+
+		sprintf(&aStr[nLength], "A , D , W , S キー [地面]  : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "V , B , N , M キー [空]       : 横 * 縦 増減 [ %d * %d ]\n", pSkyNumber->nHorizontal, pSkyNumber->nVertical);
+		sprintf(&aStr[nLength], "←, →, ↑, ↓キー [円柱]  : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "頂点数                    : %2d  %3d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx, pSkyNumber->nVtx);
+		sprintf(&aStr[nLength], "Q , E , Z , C キー [球]    : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "インデックス数            : %2d  %3d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx, pSkyNumber->nIdx);
+		sprintf(&aStr[nLength], "V , B , N , M キー [空]    : 横 * 縦 増減 [ %d * %d ]\n", pSkyNumber->nHorizontal, pSkyNumber->nVertical);
 		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "ポリゴン数                : %2d  %3d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon, pSkyNumber->nPolygon);
+		sprintf(&aStr[nLength], "\n");
+		nLength = (int)strlen(&aStr[0]);
+		
+		sprintf(&aStr[nLength], "頂点数                     : %2d  %3d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx, pSkyNumber->nVtx);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "インデックス数             : %2d  %3d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx, pSkyNumber->nIdx);
+		nLength = (int)strlen(&aStr[0]);
+		sprintf(&aStr[nLength], "ポリゴン数                 : %2d  %3d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon, pSkyNumber->nPolygon);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;

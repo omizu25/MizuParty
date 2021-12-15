@@ -54,47 +54,13 @@ void InitParticle(void)
 //--------------------------------------------------
 void UpdateParticle(void)
 {
-	for (int i = 0; i < MAX_PARTICLE; i++)
-	{
-		Particle *pParticle = &s_aParticle[i];
-
-		if (!pParticle->bUse)
-		{// 使用されていない
-			continue;
-		}
-
-		/*↓ 使用されている ↓*/
-
-		//for (int j = 0; j < MAX_STAR; j++)
-		//{
-		//	pParticle->pos.x = (float)((rand() % 1601) - 800) / 30.0f + pParticle->pos.x;
-		//	pParticle->pos.y = (float)((rand() % 1601) - 800) / 30.0f + pParticle->pos.y;
-		//	pParticle->pos.z = 0.0f;
-
-		//	pParticle->move.x = ((j % 2) * -1.0f) * pParticle->move.x;
-		//	pParticle->move.y = (float)(((rand() % 160) - 80) / 30.0f) + pParticle->move.y;
-		//	pParticle->move.z = pParticle->move.z;
-
-		//	pParticle->col.r = (float)(rand() % 101) / 100.0f;
-		//	pParticle->col.g = (float)(rand() % 101) / 100.0f;
-		//	pParticle->col.b = (float)(rand() % 101) / 100.0f;
-		//	pParticle->col.a = 1.0f;
-
-		//	pParticle->fWidth = (float)(rand() % 51) / 100.0f + 15.0f;
-		//	pParticle->fHeight = pParticle->fWidth;
-
-		//	pParticle->nLife = (rand() % 11) + 10;
-
-		//	//エフェクトの設定
-		//	SetEffect(pParticle->pos, pParticle->move, pParticle->col, pParticle->fWidth, pParticle->fHeight, pParticle->nLife, true);
-		//}
-	}
+	
 }
 
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetParticle(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, int nLife, bool bAdd)
+void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd)
 {
 	for (int i = 0; i < MAX_PARTICLE; i++)
 	{
@@ -111,24 +77,24 @@ void SetParticle(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight,
 		{
 			pParticle->pos.x = (float)((rand() % 1601) - 800) / 30.0f + pos.x;
 			pParticle->pos.y = (float)((rand() % 1601) - 800) / 30.0f + pos.y;
-			pParticle->pos.z = 0.0f;
+			pParticle->pos.z = (float)((rand() % 1601) - 800) / 30.0f + pos.z;
 
 			pParticle->move.x = (float)((rand() % 161) - 80) / 10.0f;
 			pParticle->move.y = (float)((rand() % 161) - 80) / 10.0f;
-			pParticle->move.z = move.z;
+			pParticle->move.z = (float)((rand() % 161) - 80) / 10.0f;
 
 			pParticle->col.r = (float)(rand() % 101) / 100.0f;
 			pParticle->col.g = (float)(rand() % 101) / 100.0f;
 			pParticle->col.b = (float)(rand() % 101) / 100.0f;
 			pParticle->col.a = 1.0f;
 
-			pParticle->fWidth = (float)(rand() % 51) / 100.0f + 15.0f;
-			pParticle->fHeight = fWidth;
+			pParticle->fWidth = (float)(rand() % 51) / 100.0f + fSize;
+			pParticle->fHeight = pParticle->fWidth;
 
 			pParticle->nLife = (rand() % 11) + 10;
 
 			//エフェクトの設定
-			SetEffect(pParticle->pos, pParticle->move, pParticle->col, pParticle->fWidth, pParticle->fHeight, pParticle->nLife, true);
+			SetEffect(pParticle->pos, pParticle->move, pParticle->col, pParticle->fWidth, pParticle->fHeight, pParticle->nLife, bAdd);
 		}
 
 		break;		// ここでfor文を抜ける

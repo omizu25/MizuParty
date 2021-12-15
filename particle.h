@@ -16,6 +16,6 @@ void InitParticle(void);
 void UninitParticle(void);
 void UpdateParticle(void);
 void DrawParticle(void);
-void SetParticle(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, int nLife, bool bAdd);
+void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd);
 
 #endif // !_PARTICLE_H_
