@@ -13,10 +13,13 @@
 typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
+	D3DXVECTOR3		vtxMin;			// 最小値
+	D3DXVECTOR3		vtxMax;			// 最大値
 	D3DXVECTOR3		rot;			// 向き
 	D3DXVECTOR3		rotDest;		// 目的の向き
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
 	int				nIdxShadow;		// 使用している影の番号
+	int				nIdxModel;		// 使用しているモデルの番号
 	int				nStopTime;		// 止まっている時間
 }Player;
 
@@ -28,5 +31,6 @@ void UninitPlayer(void);
 void UpdatePlayer(void);
 void DrawPlayer(void);
 Player *GetPlayer(void);
+void LoadPlayer(HWND hWnd);
 
 #endif // !_PLAYER_H_

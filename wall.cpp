@@ -185,12 +185,12 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, floa
 		if (bCulling)
 		{
 			// 頂点カラーの設定
-			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 1.0f);
+			Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else
 		{
 			// 頂点カラーの設定
-			Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, 0.5f);
+			Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
 		}
 
 		// テクスチャの設定

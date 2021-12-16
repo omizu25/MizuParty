@@ -8,6 +8,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "setup.h"
 
 //--------------------------------------------------
@@ -130,12 +131,12 @@ void Setnor3D(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
 //--------------------------------------------------
 // 頂点カラーの設定 [3D]
 //--------------------------------------------------
-void Setcol3D(VERTEX_3D *pVtx, float fRed, float fGreen, float fBlue, float fAlpha)
+void Setcol3D(VERTEX_3D *pVtx, D3DXCOLOR col)
 {
-	pVtx[0].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[1].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[2].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[3].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[0].col = col;
+	pVtx[1].col = col;
+	pVtx[2].col = col;
+	pVtx[3].col = col;
 }
 
 //--------------------------------------------------
@@ -209,6 +210,54 @@ void InitAll3D(VERTEX_3D *pVtx)
 
 	// テクスチャの初期化 [3D]
 	Inittex3D(pVtx);
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [線]
+//--------------------------------------------------
+void SetposLine(VERTEX_LINE *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 start, D3DXVECTOR3 end)
+{
+	pVtx[0].pos = pos + start;
+	pVtx[1].pos = pos + end;
+}
+
+//--------------------------------------------------
+// 頂点カラーの設定 [線]
+//--------------------------------------------------
+void SetcolLine(VERTEX_LINE *pVtx, D3DXCOLOR col)
+{
+	pVtx[0].col = col;
+	pVtx[1].col = col;
+}
+
+//--------------------------------------------------
+// 頂点座標の初期化 [線]
+//--------------------------------------------------
+void InitposLine(VERTEX_LINE *pVtx)
+{
+	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+}
+
+//--------------------------------------------------
+// 頂点カラーの初期化 [線]
+//--------------------------------------------------
+void InitcolLine(VERTEX_LINE *pVtx)
+{
+	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+//--------------------------------------------------
+// 全ての初期化 [線]
+//--------------------------------------------------
+void InitAllLine(VERTEX_LINE *pVtx)
+{
+	// 頂点座標の初期化 [線]
+	InitposLine(pVtx);
+
+	// 頂点カラーの初期化 [線]
+	InitcolLine(pVtx);
 }
 
 //--------------------------------------------------

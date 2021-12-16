@@ -8,13 +8,14 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "billboard.h"
 #include "bullet.h"
 #include "camera.h"
 #include "effect.h"
 #include "input.h"
 #include "light.h"
-#include "main.h"
+#include "line.h"
 #include "mesh_cylinder.h"
 #include "mesh_field.h"
 #include "mesh_sky.h"
@@ -353,8 +354,14 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// 影の初期化
 	InitShadow();
 
+	// 線の初期化
+	InitLine();
+
 	// モデルの初期化
 	InitModel();
+
+	// プレイヤーの読み込み
+	LoadPlayer(hWnd);
 
 	// プレイヤーの初期化
 	InitPlayer();
@@ -409,6 +416,9 @@ static void Uninit(void)
 
 	// 影の終了
 	UninitShadow();
+
+	// 線の終了
+	UninitLine();
 
 	// モデルの終了
 	UninitModel();
@@ -490,6 +500,9 @@ static void Update(void)
 
 		// プレイヤーの更新
 		UpdatePlayer();
+
+		// 線の更新
+		UpdateLine();
 
 		// 弾の更新
 		UpdateBullet();
@@ -588,6 +601,9 @@ static void Draw(void)
 
 		// プレイヤーの描画
 		DrawPlayer();
+
+		// 線の描画
+		DrawLine();
 
 		// 影の描画
 		DrawShadow();

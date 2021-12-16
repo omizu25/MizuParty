@@ -272,7 +272,7 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, f
 		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
 
 		// 頂点カラーの設定
-		Setcol3D(pVtx, col.r, col.g, col.b, col.a);
+		Setcol3D(pVtx, col);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();

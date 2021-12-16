@@ -8,8 +8,8 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
-#include "input.h"
 #include "main.h"
+#include "input.h"
 #include "mesh_sphere.h"
 #include "setup.h"
 #include "wall.h"

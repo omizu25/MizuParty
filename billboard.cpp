@@ -8,9 +8,9 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "billboard.h"
 #include "effect.h"
-#include "main.h"
 #include "particle.h"
 #include "setup.h"
 #include "wall.h"
@@ -476,9 +476,9 @@ void LoadBillboard(HWND hWnd)
 	}
 
 	//メモリのクリア
-	memset(pText, NULL, sizeof(pText));
+	memset(&pText[0], NULL, sizeof(pText));
 
 	delete[](pText);
 
-	pText = NULL;
+    pText = NULL;
 }

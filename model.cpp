@@ -8,9 +8,9 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "camera.h"
 #include "input.h"
-#include "main.h"
 #include "model.h"
 #include "setup.h"
 #include "shadow.h"
@@ -43,7 +43,7 @@ void InitModel(void)
 
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
-		"data\\MODEL\\リムル.x",
+		"data\\MODEL\\プリン.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,

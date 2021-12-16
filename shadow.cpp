@@ -212,7 +212,7 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 		float Alpha = 1.0f - (pos.y * 0.005f);
 
 		// 頂点カラーの設定
-		Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
+		Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -251,7 +251,7 @@ void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
 	float Alpha = 1.0f - (pos.y * 0.005f);
 
 	// 頂点カラーの設定
-	Setcol3D(pVtx, 1.0f, 1.0f, 1.0f, Alpha);
+	Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();

@@ -8,22 +8,27 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "billboard.h"
 #include "camera.h"
 #include "input.h"
-#include "main.h"
+#include "line.h"
 #include "player.h"
 #include "setup.h"
 #include "shadow.h"
 
+#include <stdio.h>
+#include <assert.h>
+
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_MOVE			(1.0f)			//移動量の最大値
-#define MAX_ROTATION		(0.035f)		//回転の最大値
-#define MAX_ATTENUATION		(0.1f)			//減衰係数の最大値
-#define MAX_HEIGHT			(80.0f)			//高さの最大値
-#define MIN_HEIGHT			(10.0f)			//高さの最小値
+#define FILE_NAME		"data\\TXT\\model.txt"		// ファイルの名前
+#define MAX_MOVE				(1.0f)				//移動量の最大値
+#define MAX_ROTATION			(0.035f)			//回転の最大値
+#define MAX_ATTENUATION			(0.1f)				//減衰係数の最大値
+#define MAX_HEIGHT				(80.0f)				//高さの最大値
+#define MIN_HEIGHT				(0.0f)				//高さの最小値
 
 //--------------------------------------------------
 // スタティック変数
@@ -33,10 +38,12 @@ static LPD3DXBUFFER				s_pBuffMat = NULL;			// マテリアル情報へのポインタ
 static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;			// テクスチャへのポインタ
 static DWORD					s_nNumMat = 0;				// マテリアル情報の数
 static Player					s_player;					// モデルの情報
+static int						s_nUsePlayer;				// 使用するプレイヤーの数
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void VtxSmallBig(float *pfMin, float *pfMax, float fPos);
 static void FollowMove(void);
 static void Move(void);
 static void Rot(void);
@@ -49,9 +56,13 @@ void InitPlayer(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	int nNumVtx;		// 頂点数
+	DWORD SizeFVF;		// 頂点フォーマットのサイズ
+	BYTE *pVexBuff;		// 頂点バッファへのポインタ
+
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
-		"data\\MODEL\\てるてる４期生.x",
+		"data/MODEL/てるてる４期生.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -59,6 +70,39 @@ void InitPlayer(void)
 		NULL,
 		&s_nNumMat,
 		&s_pMesh);
+
+	s_player.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+	s_player.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	// 頂点数を取得
+	nNumVtx = s_pMesh->GetNumVertices();
+
+	// フォーマットのサイズを取得
+	SizeFVF = D3DXGetFVFVertexSize(s_pMesh->GetFVF());
+
+	// 頂点バッファのロック
+	s_pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+
+	for (int i = 0; i < nNumVtx; i++)
+	{
+		// 頂点情報の代入
+		D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
+
+		// 小さい・大きい [x]
+		VtxSmallBig(&s_player.vtxMin.x, &s_player.vtxMax.x, pos.x);
+
+		// 小さい・大きい [y]
+		VtxSmallBig(&s_player.vtxMin.y, &s_player.vtxMax.y, pos.y);
+
+		// 小さい・大きい [z]
+		VtxSmallBig(&s_player.vtxMin.z, &s_player.vtxMax.z, pos.z);
+
+		// 頂点フォーマットのサイズ分ポインタを進める
+		pVexBuff += SizeFVF;
+	}
+
+	// 頂点バッファのアンロック
+	s_pMesh->UnlockVertexBuffer();
 
 	// メッシュに使用されているテクスチャ用の配列を用意する
 	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
@@ -84,12 +128,90 @@ void InitPlayer(void)
 	}
 
 	s_player.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
-	s_player.rot = D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f);
+	s_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_player.rotDest = s_player.rot;
 	s_player.nStopTime = 0;
 
 	// 影の設定
 	s_player.nIdxShadow = SetShadow(s_player.pos, s_player.rot);
+
+	/*↓ Y棒 ↓*/
+
+	D3DXVECTOR3 start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
+	D3DXVECTOR3 end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
+	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	/*↓ X棒 ↓*/
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	/*↓ Z棒 ↓*/
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+
+	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
+	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
 }
 
 //--------------------------------------------------
@@ -219,6 +341,22 @@ void DrawPlayer(void)
 Player *GetPlayer(void)
 {
 	return &s_player;
+}
+
+//--------------------------------------------------
+// 小さい・大きい
+//--------------------------------------------------
+static void VtxSmallBig(float *pfMin, float *pfMax, float fPos)
+{
+	if (fPos < *pfMin)
+	{// 小さい
+		*pfMin = fPos;
+	}
+
+	if (fPos > *pfMax)
+	{// 大きい
+		*pfMax = fPos;
+	}
 }
 
 //--------------------------------------------------
@@ -422,4 +560,136 @@ static void Rot(void)
 			s_player.rotDest.y += MAX_ROTATION;
 		}
 	}
+}
+
+//--------------------------------------------------
+// 読み込み
+//--------------------------------------------------
+void LoadPlayer(HWND hWnd)
+{
+	//FILE *pFile;			// ファイルポインタを宣言
+	//int nUseText = 0;		// テキストで読み込んだビルボードの使用数
+
+	//char aTexture[MAX_MODEL][1024];
+
+	//// ファイルを開く
+	//pFile = fopen(FILE_NAME, "r");
+
+	//if (pFile != NULL)
+	//{// ファイルが開いた場合
+	//	char aRead[256] = {};
+	//	int nTex = 0, nText = 0;
+
+	//	while (strcmp(&aRead[0], "SCRIPT") != 0)
+	//	{// 始まりが来るまで繰り返す
+	//		fscanf(pFile, "%s", &aRead);
+	//	}
+
+	//	while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+	//	{// 終わりが来るまで繰り返す
+	//		fscanf(pFile, "%s", &aRead);
+
+	//		if (strncmp(&aRead[0], "#-", 2) == 0)
+	//		{// コメント
+	//			continue;
+	//		}
+	//		else if (strncmp(&aRead[0], "#", 1) == 0)
+	//		{// コメント
+	//			fscanf(pFile, "%s", &aRead);
+	//			continue;
+	//		}
+
+	//		if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+	//		{// テクスチャの使用数
+	//			fscanf(pFile, "%d", &s_nUsePlayer);
+	//		}
+	//		else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
+	//		{// テクスチャの情報
+	//			fscanf(pFile, "%s", aTexture[nTex]);
+	//			nTex++;
+	//		}
+	//		else if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+	//		{// ビルボードの使用数
+	//			fscanf(pFile, "%d", &nUseText);
+
+	//			// txtに書いてる最大数分の読み込み用の配列を用意する
+	//			//s_player = new s_player[nUseText];
+	//		}
+	//		else if (strcmp(&aRead[0], "BILLBOARD_SET") == 0)
+	//		{// ビルボードの情報
+	//			while (strcmp(&aRead[0], "END_BILLBOARD_SET") != 0)
+	//			{// 終わりが来るまで繰り返す
+	//				fscanf(pFile, "%s", &aRead);
+
+	//				if (strncmp(&aRead[0], "#", 1) == 0)
+	//				{// コメント
+	//					fscanf(pFile, "%s", &aRead);
+	//					continue;
+	//				}
+
+	//				if (strcmp(&aRead[0], "INDEX") == 0)
+	//				{// モデル番号
+	//					fscanf(pFile, "%d", &s_player[nText].nIdxModel);
+	//				}
+	//				else if (strcmp(&aRead[0], "POS") == 0)
+	//				{// 位置
+	//					fscanf(pFile, "%f", &s_player[nText].pos.x);
+	//					fscanf(pFile, "%f", &s_player[nText].pos.y);
+	//					fscanf(pFile, "%f", &s_player[nText].pos.z);
+	//				}
+	//				else if (strcmp(&aRead[0], "ROT") == 0)
+	//				{// 向き
+	//					fscanf(pFile, "%f", &s_player[nText].rot.x);
+	//					fscanf(pFile, "%f", &s_player[nText].rot.y);
+	//					fscanf(pFile, "%f", &s_player[nText].rot.z);
+	//				}
+	//			}
+	//			nText++;
+	//		}
+	//	}
+
+	//	// ファイルを閉じる
+	//	fclose(pFile);
+	//}
+	//else
+	//{// ファイルが開かない場合
+	//	MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
+	//	assert(false);
+	//}
+
+	//for (int i = 0; i < nUseText; i++)
+	//{
+	//	if (s_player[i].nIdxModel >= s_nUsePlayer)
+	//	{// 該当しないテクスチャ番号
+	//		MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
+	//		assert(false);
+	//	}
+	//}
+
+	//// デバイスへのポインタの取得
+	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	//for (int i = 0; i < s_nUsePlayer; i++)
+	//{
+	//	// テクスチャの読み込み
+	//	D3DXCreateTextureFromFile(
+	//		pDevice,
+	//		&aTexture[i][0],
+	//		&s_pTexture[i]);
+	//}
+
+	//for (int i = 0; i < nUseText; i++)
+	//{
+	//	pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
+
+	//	bool bYRot = true;
+
+	//	if (pText[i].nYRot == DO_NOT_ROT_Y)
+	//	{// Y軸回転をしない数値の時
+	//		bYRot = false;
+	//	}
+
+	//	// 設定
+	//	SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, &pText[i].pTexture);
+	//}
 }
