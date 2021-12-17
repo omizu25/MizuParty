@@ -76,7 +76,7 @@ void InitEffect(void)
 	for (int i = 0; i < MAX_EFFECT; i++)
 	{
 		// 全ての初期化処理
-		InitAll3D(pVtx);
+		InitAll(pVtx);
 
 		pVtx += 4;		// 頂点データのポインタを４つ分進める
 	}
@@ -136,7 +136,7 @@ void UpdateEffect(void)
 		pVtx += (i * 4);		// 該当の位置まで進める
 
 		// 頂点座標の更新
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pEffect->fWidth, pEffect->fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pEffect->fWidth, pEffect->fHeight, 0.0f);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -187,7 +187,7 @@ void DrawEffect(void)
 
 		if (pEffect->bAdd)
 		{// 加算合成する
-			// αブレンディングを加工合成に設定
+			// αブレンディングを加算合成に設定
 			pDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 			pDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 			pDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE);				// そのまま足す
@@ -269,10 +269,10 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, f
 		pVtx += (i * 4);		// 該当の位置まで進める
 
 		// 頂点座標の更新
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
 
 		// 頂点カラーの設定
-		Setcol3D(pVtx, col);
+		Setcol(pVtx, col);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();

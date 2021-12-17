@@ -73,7 +73,7 @@ void InitShadow(void)
 	for (int i = 0; i < MAX_SHADOW; i++)
 	{
 		// 全ての初期化
-		InitAll3D(pVtx);
+		InitAll(pVtx);
 
 		pVtx += 4;
 	}
@@ -207,12 +207,12 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 		float fSize = pos.y * 0.15f;
 
 		// 頂点座標の設定
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
 
 		float Alpha = 1.0f - (pos.y * 0.005f);
 
 		// 頂点カラーの設定
-		Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
+		Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -246,12 +246,12 @@ void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
 	float fSize = pos.y * 0.15f;
 
 	// 頂点座標の設定
-	Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+	Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
 
 	float Alpha = 1.0f - (pos.y * 0.005f);
 
 	// 頂点カラーの設定
-	Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
+	Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();

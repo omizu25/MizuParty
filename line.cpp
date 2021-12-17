@@ -66,7 +66,7 @@ void InitLine(void)
 	for (int i = 0; i < MAX_LINE; i++)
 	{
 		// 全ての初期化
-		InitAllLine(pVtx);
+		InitAll(pVtx);
 
 		pVtx += 2;
 	}
@@ -103,6 +103,12 @@ void DrawLine(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
+
+	// テクスチャの解除
+	pDevice->SetTexture(0, NULL);
+
+	// ライトを無効にする
+	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 
 	for (int i = 0; i < MAX_LINE; i++)
 	{
@@ -144,6 +150,9 @@ void DrawLine(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
+
+	// ライトを有効に戻す
+	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
 //--------------------------------------------------
@@ -175,10 +184,13 @@ void SetLine(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 start, D3DXVECTOR3 en
 		pVtx += (i * 2);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		SetposLine(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), start, end);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), start, end);
 
 		// 頂点カラーの設定
-		SetcolLine(pVtx, col);
+		//SetcolLine(pVtx, col);
+
+		pVtx[0].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+		pVtx[1].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();

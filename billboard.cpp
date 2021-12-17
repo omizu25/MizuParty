@@ -93,7 +93,7 @@ void InitBillboard(void)
 	for (int i = 0; i < MAX_BILLBOARD; i++)
 	{
 		//全ての初期化処理
-		InitAll3D(pVtx);
+		InitAll(pVtx);
 
 		pVtx += 4;
 	}
@@ -319,10 +319,10 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
 
 		// 頂点の法線の設定
-		Setnor3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
+		Setnor(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
