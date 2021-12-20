@@ -104,6 +104,12 @@ void DrawLine(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
+	// テクスチャの設定
+	pDevice->SetTexture(0, NULL);
+
+	// ライトを無効にする
+	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+
 	for (int i = 0; i < MAX_LINE; i++)
 	{
 		Line *pLine = &s_Line[i];
@@ -144,6 +150,9 @@ void DrawLine(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
+
+	// ライトを有効に戻す
+	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 }
 
 //--------------------------------------------------

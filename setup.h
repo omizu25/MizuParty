@@ -48,5 +48,6 @@ void InitAllLine(VERTEX_LINE *pVtx);
 void NormalizeRot(float *pRot);
 void Specified(int *pNumber, int nMax, int nMin);
 void Specified(float *pNumber, float fMax, float fMin);
+void VtxSmallBig(float *pfMin, float *pfMax, float fPos);
 
 #endif // !_SETUP_H_

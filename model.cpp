@@ -11,6 +11,7 @@
 #include "main.h"
 #include "camera.h"
 #include "input.h"
+#include "line.h"
 #include "model.h"
 #include "setup.h"
 #include "shadow.h"
@@ -27,11 +28,7 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPD3DXMESH				s_pMesh = NULL;			// メッシュ情報へのポインタ
-static LPD3DXBUFFER				s_pBuffMat = NULL;		// マテリアル情報へのポインタ
-static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;		// テクスチャへのポインタ
-static DWORD					s_nNumMat = 0;			// マテリアル情報の数
-static Model					s_model;				// モデルの情報
+static Model		s_model;		// モデルの情報
 
 //--------------------------------------------------
 // 初期化
@@ -41,37 +38,74 @@ void InitModel(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	int nNumVtx;		// 頂点数
+	DWORD SizeFVF;		// 頂点フォーマットのサイズ
+	BYTE *pVexBuff;		// 頂点バッファへのポインタ
+
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
 		"data\\MODEL\\プリン.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
-		&s_pBuffMat,
+		&s_model.parts[0].pBuffMat,
 		NULL,
-		&s_nNumMat,
-		&s_pMesh);
+		&s_model.parts[0].nNumMat,
+		&s_model.parts[0].pMesh);
+
+	s_model.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+	s_model.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+
+	// 頂点数を取得
+	nNumVtx = s_model.parts[0].pMesh->GetNumVertices();
+
+	// フォーマットのサイズを取得
+	SizeFVF = D3DXGetFVFVertexSize(s_model.parts[0].pMesh->GetFVF());
+
+	// 頂点バッファのロック
+	s_model.parts[0].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+
+	for (int i = 0; i < nNumVtx; i++)
+	{
+		// 頂点情報の代入
+		D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
+
+		// 小さい・大きい [x]
+		VtxSmallBig(&s_model.vtxMin.x, &s_model.vtxMax.x, pos.x);
+
+		// 小さい・大きい [y]
+		VtxSmallBig(&s_model.vtxMin.y, &s_model.vtxMax.y, pos.y);
+
+		// 小さい・大きい [z]
+		VtxSmallBig(&s_model.vtxMin.z, &s_model.vtxMax.z, pos.z);
+
+		// 頂点フォーマットのサイズ分ポインタを進める
+		pVexBuff += SizeFVF;
+	}
+
+	// 頂点バッファのアンロック
+	s_model.parts[0].pMesh->UnlockVertexBuffer();
 
 	// メッシュに使用されているテクスチャ用の配列を用意する
-	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
+	s_model.parts[0].pTexture = new LPDIRECT3DTEXTURE9[s_model.parts[0].nNumMat];
 
 	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
+	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_model.parts[0].pBuffMat->GetBufferPointer();
 
 	// 各メッシュのマテリアル情報を取得する
-	for (int i = 0; i < (int)s_nNumMat; i++)
+	for (int i = 0; i < (int)s_model.parts[0].nNumMat; i++)
 	{
-		s_pTexture[i] = NULL;
+		s_model.parts[0].pTexture[i] = NULL;
 
 		if (pMat[i].pTextureFilename != NULL)
 		{// マテリアルで設定されているテクスチャ読み込み
 			D3DXCreateTextureFromFileA(pDevice,
 				pMat[i].pTextureFilename,
-				&s_pTexture[i]);
+				&s_model.parts[0].pTexture[i]);
 		}
 		else
 		{
-			s_pTexture[i] = NULL;
+			s_model.parts[0].pTexture[i] = NULL;
 		}
 	}
 
@@ -81,6 +115,86 @@ void InitModel(void)
 
 	// 影の設定
 	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot);
+
+	D3DXCOLOR col = D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f);
+
+	/*↓ Y棒 ↓*/
+
+	D3DXVECTOR3 start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
+	D3DXVECTOR3 end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
+	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	/*↓ X棒 ↓*/
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	/*↓ Z棒 ↓*/
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
+
+	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
+	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
+
+	// 線の設定
+	SetLine(s_model.pos, s_model.rot, start, end, col);
 }
 
 //--------------------------------------------------
@@ -88,31 +202,31 @@ void InitModel(void)
 //--------------------------------------------------
 void UninitModel(void)
 {
-	if (s_pTexture != NULL)
+	if (s_model.parts[0].pTexture != NULL)
 	{// テクスチャの解放
-		for (int i = 0; i < (int)s_nNumMat; i++)
+		for (int i = 0; i < (int)s_model.parts[0].nNumMat; i++)
 		{
-			if (s_pTexture[i] != NULL)
+			if (s_model.parts[0].pTexture[i] != NULL)
 			{
-				s_pTexture[i]->Release();
-				s_pTexture[i] = NULL;
+				s_model.parts[0].pTexture[i]->Release();
+				s_model.parts[0].pTexture[i] = NULL;
 			}
 		}
 
-		delete[](s_pTexture);
-		s_pTexture = NULL;
+		delete[](s_model.parts[0].pTexture);
+		s_model.parts[0].pTexture = NULL;
 	}
 
-	if (s_pMesh != NULL)
+	if (s_model.parts[0].pMesh != NULL)
 	{// メッシュの解放
-		s_pMesh->Release();
-		s_pMesh = NULL;
+		s_model.parts[0].pMesh->Release();
+		s_model.parts[0].pMesh = NULL;
 	}
 
-	if (s_pBuffMat != NULL)
+	if (s_model.parts[0].pBuffMat != NULL)
 	{// マテリアルの解放
-		s_pBuffMat->Release();
-		s_pBuffMat = NULL;
+		s_model.parts[0].pBuffMat->Release();
+		s_model.parts[0].pBuffMat = NULL;
 	}
 }
 
@@ -153,18 +267,18 @@ void DrawModel(void)
 	pDevice->GetMaterial(&matDef);
 
 	// マテリアルデータへのポインタを取得
-	pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
+	pMat = (D3DXMATERIAL*)s_model.parts[0].pBuffMat->GetBufferPointer();
 
-	for (int i = 0; i < (int)s_nNumMat; i++)
+	for (int i = 0; i < (int)s_model.parts[0].nNumMat; i++)
 	{
 		// マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture[i]);
+		pDevice->SetTexture(0, s_model.parts[0].pTexture[i]);
 
 		// モデルパーツの描画
-		s_pMesh->DrawSubset(i);
+		s_model.parts[0].pMesh->DrawSubset(i);
 	}
 
 	// 保存していたマテリアルを戻す

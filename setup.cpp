@@ -304,3 +304,19 @@ void Specified(float *pNumber, float fMax, float fMin)
 		*pNumber = fMin;
 	}
 }
+
+//--------------------------------------------------
+// バーテックスの小さい・大きい
+//--------------------------------------------------
+void VtxSmallBig(float *pfMin, float *pfMax, float fPos)
+{
+	if (fPos < *pfMin)
+	{// 小さい
+		*pfMin = fPos;
+	}
+
+	if (fPos > *pfMax)
+	{// 大きい
+		*pfMax = fPos;
+	}
+}

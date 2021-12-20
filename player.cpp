@@ -33,17 +33,12 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPD3DXMESH				s_pMesh = NULL;				// メッシュ情報へのポインタ
-static LPD3DXBUFFER				s_pBuffMat = NULL;			// マテリアル情報へのポインタ
-static LPDIRECT3DTEXTURE9		*s_pTexture = NULL;			// テクスチャへのポインタ
-static DWORD					s_nNumMat = 0;				// マテリアル情報の数
-static Player					s_player;					// モデルの情報
-static int						s_nUsePlayer;				// 使用するプレイヤーの数
+static Player		s_player;			// モデルの情報
+static int			s_nUsePlayer;		// 使用するプレイヤーの数
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-static void VtxSmallBig(float *pfMin, float *pfMax, float fPos);
 static void FollowMove(void);
 static void Move(void);
 static void Rot(void);
@@ -66,22 +61,22 @@ void InitPlayer(void)
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
-		&s_pBuffMat,
+		&s_player.pBuffMat,
 		NULL,
-		&s_nNumMat,
-		&s_pMesh);
+		&s_player.nNumMat,
+		&s_player.pMesh);
 
 	s_player.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
 	s_player.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	// 頂点数を取得
-	nNumVtx = s_pMesh->GetNumVertices();
+	nNumVtx = s_player.pMesh->GetNumVertices();
 
 	// フォーマットのサイズを取得
-	SizeFVF = D3DXGetFVFVertexSize(s_pMesh->GetFVF());
+	SizeFVF = D3DXGetFVFVertexSize(s_player.pMesh->GetFVF());
 
 	// 頂点バッファのロック
-	s_pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+	s_player.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
 
 	for (int i = 0; i < nNumVtx; i++)
 	{
@@ -102,28 +97,28 @@ void InitPlayer(void)
 	}
 
 	// 頂点バッファのアンロック
-	s_pMesh->UnlockVertexBuffer();
+	s_player.pMesh->UnlockVertexBuffer();
 
 	// メッシュに使用されているテクスチャ用の配列を用意する
-	s_pTexture = new LPDIRECT3DTEXTURE9[s_nNumMat];
+	s_player.pTexture = new LPDIRECT3DTEXTURE9[s_player.nNumMat];
 
 	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
+	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_player.pBuffMat->GetBufferPointer();
 
 	// 各メッシュのマテリアル情報を取得する
-	for (int i = 0; i < (int)s_nNumMat; i++)
+	for (int i = 0; i < (int)s_player.nNumMat; i++)
 	{
-		s_pTexture[i] = NULL;
+		s_player.pTexture[i] = NULL;
 
 		if (pMat[i].pTextureFilename != NULL)
 		{// マテリアルで設定されているテクスチャ読み込み
 			D3DXCreateTextureFromFileA(pDevice,
 				pMat[i].pTextureFilename,
-				&s_pTexture[i]);
+				&s_player.pTexture[i]);
 		}
 		else
 		{
-			s_pTexture[i] = NULL;
+			s_player.pTexture[i] = NULL;
 		}
 	}
 
@@ -135,31 +130,33 @@ void InitPlayer(void)
 	// 影の設定
 	s_player.nIdxShadow = SetShadow(s_player.pos, s_player.rot);
 
+	D3DXCOLOR col = D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f);
+
 	/*↓ Y棒 ↓*/
 
 	D3DXVECTOR3 start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
 	D3DXVECTOR3 end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
 	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	/*↓ X棒 ↓*/
 
@@ -167,25 +164,25 @@ void InitPlayer(void)
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	/*↓ Z棒 ↓*/
 
@@ -193,25 +190,25 @@ void InitPlayer(void)
 	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 
 	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
 	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
 
 	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
+	SetLine(s_player.pos, s_player.rot, start, end, col);
 }
 
 //--------------------------------------------------
@@ -219,31 +216,31 @@ void InitPlayer(void)
 //--------------------------------------------------
 void UninitPlayer(void)
 {
-	if (s_pTexture != NULL)
+	if (s_player.pTexture != NULL)
 	{// テクスチャの解放
-		for (int i = 0; i < (int)s_nNumMat; i++)
+		for (int i = 0; i < (int)s_player.nNumMat; i++)
 		{
-			if (s_pTexture[i] != NULL)
+			if (s_player.pTexture[i] != NULL)
 			{
-				s_pTexture[i]->Release();
-				s_pTexture[i] = NULL;
+				s_player.pTexture[i]->Release();
+				s_player.pTexture[i] = NULL;
 			}
 		}
 
-		delete[](s_pTexture);
-		s_pTexture = NULL;
+		delete[](s_player.pTexture);
+		s_player.pTexture = NULL;
 	}
 
-	if (s_pMesh != NULL)
+	if (s_player.pMesh != NULL)
 	{// メッシュの解放
-		s_pMesh->Release();
-		s_pMesh = NULL;
+		s_player.pMesh->Release();
+		s_player.pMesh = NULL;
 	}
 
-	if (s_pBuffMat != NULL)
+	if (s_player.pBuffMat != NULL)
 	{// マテリアルの解放
-		s_pBuffMat->Release();
-		s_pBuffMat = NULL;
+		s_player.pBuffMat->Release();
+		s_player.pBuffMat = NULL;
 	}
 }
 
@@ -314,18 +311,18 @@ void DrawPlayer(void)
 	pDevice->GetMaterial(&matDef);
 
 	// マテリアルデータへのポインタを取得
-	pMat = (D3DXMATERIAL*)s_pBuffMat->GetBufferPointer();
+	pMat = (D3DXMATERIAL*)s_player.pBuffMat->GetBufferPointer();
 
-	for (int i = 0; i < (int)s_nNumMat; i++)
+	for (int i = 0; i < (int)s_player.nNumMat; i++)
 	{
 		// マテリアルの設定
 		pDevice->SetMaterial(&pMat[i].MatD3D);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, s_pTexture[i]);
+		pDevice->SetTexture(0, s_player.pTexture[i]);
 
 		// モデルパーツの描画
-		s_pMesh->DrawSubset(i);
+		s_player.pMesh->DrawSubset(i);
 	}
 
 	// 保存していたマテリアルを戻す
@@ -343,21 +340,44 @@ Player *GetPlayer(void)
 	return &s_player;
 }
 
-//--------------------------------------------------
-// 小さい・大きい
-//--------------------------------------------------
-static void VtxSmallBig(float *pfMin, float *pfMax, float fPos)
-{
-	if (fPos < *pfMin)
-	{// 小さい
-		*pfMin = fPos;
-	}
-
-	if (fPos > *pfMax)
-	{// 大きい
-		*pfMax = fPos;
-	}
-}
+////--------------------------------------------------
+//// ブロックの当たり判定処理
+////--------------------------------------------------
+//void CollisionBlock(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 *pMove, float fWidth, float fHeight)
+//{
+//		float fLeft = pBlock->pos.x - pBlock->fWidth;
+//		float fRight = pBlock->pos.x + pBlock->fWidth;
+//		float fTop = pBlock->pos.y - pBlock->fHeight;
+//		float fBottom = pBlock->pos.y + pBlock->fHeight;
+//
+//		if ((pPos->x + fWidth > fLeft) && (pPos->x - fWidth < fRight))
+//		{// Xがブロックの範囲内
+//			if ((pPosOld->y <= fTop) && (pPos->y >= fTop))
+//			{// ブロックの下から上
+//				pPos->y = fTop;
+//			}
+//			else if ((pPosOld->y - fHeight >= fBottom) && (pPos->y - fHeight < fBottom))
+//			{// ブロックの上から下
+//				pPos->y = fBottom + fHeight;
+//				pMove->y = 0.0f;
+//			}
+//		}
+//
+//		if ((pPosOld->y > fTop) && (pPosOld->y - fHeight < fBottom))
+//		{//前回のYがブロックの範囲内
+//			if ((pPosOld->x + fWidth <= fLeft) && (pPos->x + fWidth > fLeft))
+//			{//ブロックの左端
+//				pPos->x = fLeft - fWidth;
+//				pMove->x *= 0.5f;
+//			}
+//			else if ((pPosOld->x - fWidth >= fRight) && (pPos->x - fWidth < fRight))
+//			{//ブロックの右端
+//				pPos->x = fRight + fWidth;
+//				pMove->x *= 0.5f;
+//			}
+//		}
+//	}
+//}
 
 //--------------------------------------------------
 // 追従の移動

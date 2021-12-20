@@ -91,13 +91,13 @@ void UpdateCamera(void)
 
 	if (s_camera.bFollow)
 	{// 追従する
-		if (GetKeyboardTrigger(DIK_1))
+		if (GetKeyboardPress(DIK_1))
 		{// 1キーが押された
-			s_camera.fDisPlayer += 1.0f;
-		}
-		else if (GetKeyboardTrigger(DIK_2))
-		{// 2キーが押された
 			s_camera.fDisPlayer -= 1.0f;
+		}
+		else if (GetKeyboardPress(DIK_2))
+		{// 2キーが押された
+			s_camera.fDisPlayer += 1.0f;
 		}
 
 		// 指定の値以上・以下
@@ -363,17 +363,14 @@ static void Rot(void)
 //--------------------------------------------------
 static void ResetCamera(void)
 {
-	if (!s_camera.bFollow)
-	{// 追従しない
-		Player *pPlayer = GetPlayer();		// プレイヤーの情報
+	Player *pPlayer = GetPlayer();		// プレイヤーの情報
 
-		s_camera.posV.x = pPlayer->pos.x;
-		s_camera.posV.y = pPlayer->pos.y + START_POS_Y;
-		s_camera.posV.z = pPlayer->pos.z + START_POS_Z;
-		s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
-		s_camera.posVDest = s_camera.posV;
-		s_camera.posRDest = s_camera.posR;
-		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
-		s_camera.rotDest = s_camera.rot;
-	}
+	s_camera.posV.x = pPlayer->pos.x;
+	s_camera.posV.y = pPlayer->pos.y + START_POS_Y;
+	s_camera.posV.z = pPlayer->pos.z + START_POS_Z;
+	s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
+	s_camera.posVDest = s_camera.posV;
+	s_camera.posRDest = s_camera.posR;
+	s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+	s_camera.rotDest = s_camera.rot;
 }
