@@ -9,10 +9,10 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "model.h"
 #include "billboard.h"
 #include "camera.h"
 #include "input.h"
-#include "line.h"
 #include "player.h"
 #include "setup.h"
 #include "shadow.h"
@@ -24,11 +24,11 @@
 // マクロ定義
 //--------------------------------------------------
 #define FILE_NAME		"data\\TXT\\model.txt"		// ファイルの名前
-#define MAX_MOVE				(1.0f)				//移動量の最大値
-#define MAX_ROTATION			(0.035f)			//回転の最大値
-#define MAX_ATTENUATION			(0.1f)				//減衰係数の最大値
-#define MAX_HEIGHT				(80.0f)				//高さの最大値
-#define MIN_HEIGHT				(0.0f)				//高さの最小値
+#define MAX_MOVE				(1.0f)				// 移動量の最大値
+#define MAX_ROTATION			(0.035f)			// 回転の最大値
+#define MAX_ATTENUATION			(0.1f)				// 減衰係数の最大値
+#define MAX_HEIGHT				(80.0f)				// 高さの最大値
+#define MIN_HEIGHT				(0.0f)				// 高さの最小値
 
 //--------------------------------------------------
 // スタティック変数
@@ -57,26 +57,37 @@ void InitPlayer(void)
 
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
-		"data/MODEL/てるてる４期生.x",
+		"data/MODEL/てるてる体.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
-		&s_player.pBuffMat,
+		&s_player.parts[0].pBuffMat,
 		NULL,
-		&s_player.nNumMat,
-		&s_player.pMesh);
+		&s_player.parts[0].nNumMat,
+		&s_player.parts[0].pMesh);
+
+	// Xファイルの読み込み
+	D3DXLoadMeshFromX(
+		"data/MODEL/てるてる頭.x",
+		D3DXMESH_SYSTEMMEM,
+		pDevice,
+		NULL,
+		&s_player.parts[1].pBuffMat,
+		NULL,
+		&s_player.parts[1].nNumMat,
+		&s_player.parts[1].pMesh);
 
 	s_player.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
 	s_player.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
 	// 頂点数を取得
-	nNumVtx = s_player.pMesh->GetNumVertices();
+	nNumVtx = s_player.parts[0].pMesh->GetNumVertices();
 
 	// フォーマットのサイズを取得
-	SizeFVF = D3DXGetFVFVertexSize(s_player.pMesh->GetFVF());
+	SizeFVF = D3DXGetFVFVertexSize(s_player.parts[0].pMesh->GetFVF());
 
 	// 頂点バッファのロック
-	s_player.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+	s_player.parts[0].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
 
 	for (int i = 0; i < nNumVtx; i++)
 	{
@@ -97,118 +108,41 @@ void InitPlayer(void)
 	}
 
 	// 頂点バッファのアンロック
-	s_player.pMesh->UnlockVertexBuffer();
+	s_player.parts[0].pMesh->UnlockVertexBuffer();
 
-	// メッシュに使用されているテクスチャ用の配列を用意する
-	s_player.pTexture = new LPDIRECT3DTEXTURE9[s_player.nNumMat];
-
-	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_player.pBuffMat->GetBufferPointer();
-
-	// 各メッシュのマテリアル情報を取得する
-	for (int i = 0; i < (int)s_player.nNumMat; i++)
+	for (int i = 0; i < MAX_PARTS; i++)
 	{
-		s_player.pTexture[i] = NULL;
+		// メッシュに使用されているテクスチャ用の配列を用意する
+		s_player.parts[i].pTexture = new LPDIRECT3DTEXTURE9[s_player.parts[i].nNumMat];
 
-		if (pMat[i].pTextureFilename != NULL)
-		{// マテリアルで設定されているテクスチャ読み込み
-			D3DXCreateTextureFromFileA(pDevice,
-				pMat[i].pTextureFilename,
-				&s_player.pTexture[i]);
-		}
-		else
+		// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
+		D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_player.parts[i].pBuffMat->GetBufferPointer();
+
+		// 各メッシュのマテリアル情報を取得する
+		for (int j = 0; j < (int)s_player.parts[i].nNumMat; j++)
 		{
-			s_player.pTexture[i] = NULL;
+			s_player.parts[i].pTexture[j] = NULL;
+
+			if (pMat[j].pTextureFilename != NULL)
+			{// マテリアルで設定されているテクスチャ読み込み
+				D3DXCreateTextureFromFileA(pDevice,
+					pMat[j].pTextureFilename,
+					&s_player.parts[i].pTexture[j]);
+			}
+			else
+			{
+				s_player.parts[i].pTexture[j] = NULL;
+			}
 		}
+
+		s_player.pos = D3DXVECTOR3(0.0f, 50.0f, 0.0f);
+		s_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		s_player.rotDest = s_player.rot;
+		s_player.nStopTime = 0;
+
+		// 影の設定
+		s_player.nIdxShadow = SetShadow(s_player.pos, s_player.rot);
 	}
-
-	s_player.pos = D3DXVECTOR3(0.0f, 20.0f, 0.0f);
-	s_player.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	s_player.rotDest = s_player.rot;
-	s_player.nStopTime = 0;
-
-	// 影の設定
-	s_player.nIdxShadow = SetShadow(s_player.pos, s_player.rot);
-
-	D3DXCOLOR col = D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f);
-
-	/*↓ Y棒 ↓*/
-
-	D3DXVECTOR3 start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
-	D3DXVECTOR3 end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
-	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	/*↓ X棒 ↓*/
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	/*↓ Z棒 ↓*/
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMax.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMax.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMax.x, s_player.vtxMin.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMax.z);
-	end = D3DXVECTOR3(s_player.vtxMin.x, s_player.vtxMin.y, s_player.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_player.pos, s_player.rot, start, end, col);
 }
 
 //--------------------------------------------------
@@ -216,31 +150,40 @@ void InitPlayer(void)
 //--------------------------------------------------
 void UninitPlayer(void)
 {
-	if (s_player.pTexture != NULL)
-	{// テクスチャの解放
-		for (int i = 0; i < (int)s_player.nNumMat; i++)
-		{
-			if (s_player.pTexture[i] != NULL)
+	for (int i = 0; i < MAX_PARTS; i++)
+	{
+		if (s_player.parts[i].pTexture != NULL)
+		{// テクスチャの解放
+			for (int j = 0; j < (int)s_player.parts[i].nNumMat; j++)
 			{
-				s_player.pTexture[i]->Release();
-				s_player.pTexture[i] = NULL;
+				if (s_player.parts[i].pTexture[j] != NULL)
+				{
+					s_player.parts[i].pTexture[j]->Release();
+					s_player.parts[i].pTexture[j] = NULL;
+				}
 			}
+
+			delete[](s_player.parts[i].pTexture);
+			s_player.parts[i].pTexture = NULL;
 		}
-
-		delete[](s_player.pTexture);
-		s_player.pTexture = NULL;
 	}
 
-	if (s_player.pMesh != NULL)
-	{// メッシュの解放
-		s_player.pMesh->Release();
-		s_player.pMesh = NULL;
+	for (int i = 0; i < MAX_PARTS; i++)
+	{
+		if (s_player.parts[i].pMesh != NULL)
+		{// メッシュの解放
+			s_player.parts[i].pMesh->Release();
+			s_player.parts[i].pMesh = NULL;
+		}
 	}
 
-	if (s_player.pBuffMat != NULL)
-	{// マテリアルの解放
-		s_player.pBuffMat->Release();
-		s_player.pBuffMat = NULL;
+	for (int i = 0; i < MAX_PARTS; i++)
+	{
+		if (s_player.parts[i].pBuffMat != NULL)
+		{// マテリアルの解放
+			s_player.parts[i].pBuffMat->Release();
+			s_player.parts[i].pBuffMat = NULL;
+		}
 	}
 }
 
@@ -252,6 +195,9 @@ void UpdatePlayer(void)
 	s_player.nStopTime++;
 
 	Camera *pCamera = GetCamera();
+
+	// 前回の位置を保存
+	s_player.posOld = s_player.pos;
 
 	if (pCamera->bFollow)
 	{// 追従する
@@ -278,6 +224,9 @@ void UpdatePlayer(void)
 	// 角度の正規化
 	NormalizeRot(&s_player.rot.y);
 
+	// モデルとの当たり判定
+	CollisionModel(&s_player.pos, &s_player.posOld, s_player.vtxMin.z, s_player.vtxMin.z);
+
 	// 影の位置の設定
 	SetPosShadow(s_player.nIdxShadow, s_player.pos);
 }
@@ -293,43 +242,46 @@ void DrawPlayer(void)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_player.mtxWorld);
-
-	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_player.rot.y, s_player.rot.x, s_player.rot.z);
-	D3DXMatrixMultiply(&s_player.mtxWorld, &s_player.mtxWorld, &mtxRot);
-
-	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_player.pos.x, s_player.pos.y, s_player.pos.z);
-	D3DXMatrixMultiply(&s_player.mtxWorld, &s_player.mtxWorld, &mtxTrans);
-
-	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_player.mtxWorld);
-
-	// 現在のマテリアル保持
-	pDevice->GetMaterial(&matDef);
-
-	// マテリアルデータへのポインタを取得
-	pMat = (D3DXMATERIAL*)s_player.pBuffMat->GetBufferPointer();
-
-	for (int i = 0; i < (int)s_player.nNumMat; i++)
+	for (int i = 0; i < MAX_PARTS; i++)
 	{
-		// マテリアルの設定
-		pDevice->SetMaterial(&pMat[i].MatD3D);
+		// ワールドマトリックスの初期化
+		D3DXMatrixIdentity(&s_player.mtxWorld);
+
+		// 向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_player.rot.y, s_player.rot.x, s_player.rot.z);
+		D3DXMatrixMultiply(&s_player.mtxWorld, &s_player.mtxWorld, &mtxRot);
+
+		// 位置を反映
+		D3DXMatrixTranslation(&mtxTrans, s_player.pos.x, s_player.pos.y, s_player.pos.z);
+		D3DXMatrixMultiply(&s_player.mtxWorld, &s_player.mtxWorld, &mtxTrans);
+
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, &s_player.mtxWorld);
+
+		// 現在のマテリアル保持
+		pDevice->GetMaterial(&matDef);
+
+		// マテリアルデータへのポインタを取得
+		pMat = (D3DXMATERIAL*)s_player.parts[i].pBuffMat->GetBufferPointer();
+
+		for (int j = 0; j < (int)s_player.parts[i].nNumMat; j++)
+		{
+			// マテリアルの設定
+			pDevice->SetMaterial(&pMat[j].MatD3D);
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, s_player.parts[i].pTexture[j]);
+
+			// モデルパーツの描画
+			s_player.parts[i].pMesh->DrawSubset(j);
+		}
+
+		// 保存していたマテリアルを戻す
+		pDevice->SetMaterial(&matDef);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, s_player.pTexture[i]);
-
-		// モデルパーツの描画
-		s_player.pMesh->DrawSubset(i);
+		pDevice->SetTexture(0, NULL);
 	}
-
-	// 保存していたマテリアルを戻す
-	pDevice->SetMaterial(&matDef);
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
 }
 
 //--------------------------------------------------
@@ -339,45 +291,6 @@ Player *GetPlayer(void)
 {
 	return &s_player;
 }
-
-////--------------------------------------------------
-//// ブロックの当たり判定処理
-////--------------------------------------------------
-//void CollisionBlock(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 *pMove, float fWidth, float fHeight)
-//{
-//		float fLeft = pBlock->pos.x - pBlock->fWidth;
-//		float fRight = pBlock->pos.x + pBlock->fWidth;
-//		float fTop = pBlock->pos.y - pBlock->fHeight;
-//		float fBottom = pBlock->pos.y + pBlock->fHeight;
-//
-//		if ((pPos->x + fWidth > fLeft) && (pPos->x - fWidth < fRight))
-//		{// Xがブロックの範囲内
-//			if ((pPosOld->y <= fTop) && (pPos->y >= fTop))
-//			{// ブロックの下から上
-//				pPos->y = fTop;
-//			}
-//			else if ((pPosOld->y - fHeight >= fBottom) && (pPos->y - fHeight < fBottom))
-//			{// ブロックの上から下
-//				pPos->y = fBottom + fHeight;
-//				pMove->y = 0.0f;
-//			}
-//		}
-//
-//		if ((pPosOld->y > fTop) && (pPosOld->y - fHeight < fBottom))
-//		{//前回のYがブロックの範囲内
-//			if ((pPosOld->x + fWidth <= fLeft) && (pPos->x + fWidth > fLeft))
-//			{//ブロックの左端
-//				pPos->x = fLeft - fWidth;
-//				pMove->x *= 0.5f;
-//			}
-//			else if ((pPosOld->x - fWidth >= fRight) && (pPos->x - fWidth < fRight))
-//			{//ブロックの右端
-//				pPos->x = fRight + fWidth;
-//				pMove->x *= 0.5f;
-//			}
-//		}
-//	}
-//}
 
 //--------------------------------------------------
 // 追従の移動
@@ -600,64 +513,64 @@ void LoadPlayer(HWND hWnd)
 	//	char aRead[256] = {};
 	//	int nTex = 0, nText = 0;
 
-	//	while (strcmp(&aRead[0], "SCRIPT") != 0)
+	//	while (strcmp(&aRead, "SCRIPT") != 0)
 	//	{// 始まりが来るまで繰り返す
 	//		fscanf(pFile, "%s", &aRead);
 	//	}
 
-	//	while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+	//	while (strcmp(&aRead, "END_SCRIPT") != 0)
 	//	{// 終わりが来るまで繰り返す
 	//		fscanf(pFile, "%s", &aRead);
 
-	//		if (strncmp(&aRead[0], "#-", 2) == 0)
+	//		if (strncmp(&aRead, "#-", 2) == 0)
 	//		{// コメント
 	//			continue;
 	//		}
-	//		else if (strncmp(&aRead[0], "#", 1) == 0)
+	//		else if (strncmp(&aRead, "#", 1) == 0)
 	//		{// コメント
 	//			fscanf(pFile, "%s", &aRead);
 	//			continue;
 	//		}
 
-	//		if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+	//		if (strcmp(&aRead, "NUM_MODEL") == 0)
 	//		{// テクスチャの使用数
 	//			fscanf(pFile, "%d", &s_nUsePlayer);
 	//		}
-	//		else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
+	//		else if (strcmp(&aRead, "MODEL_FILENAME") == 0)
 	//		{// テクスチャの情報
 	//			fscanf(pFile, "%s", aTexture[nTex]);
 	//			nTex++;
 	//		}
-	//		else if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+	//		else if (strcmp(&aRead, "NUM_MODEL") == 0)
 	//		{// ビルボードの使用数
 	//			fscanf(pFile, "%d", &nUseText);
 
 	//			// txtに書いてる最大数分の読み込み用の配列を用意する
 	//			//s_player = new s_player[nUseText];
 	//		}
-	//		else if (strcmp(&aRead[0], "BILLBOARD_SET") == 0)
+	//		else if (strcmp(&aRead, "BILLBOARD_SET") == 0)
 	//		{// ビルボードの情報
-	//			while (strcmp(&aRead[0], "END_BILLBOARD_SET") != 0)
+	//			while (strcmp(&aRead, "END_BILLBOARD_SET") != 0)
 	//			{// 終わりが来るまで繰り返す
 	//				fscanf(pFile, "%s", &aRead);
 
-	//				if (strncmp(&aRead[0], "#", 1) == 0)
+	//				if (strncmp(&aRead, "#", 1) == 0)
 	//				{// コメント
 	//					fscanf(pFile, "%s", &aRead);
 	//					continue;
 	//				}
 
-	//				if (strcmp(&aRead[0], "INDEX") == 0)
+	//				if (strcmp(&aRead, "INDEX") == 0)
 	//				{// モデル番号
 	//					fscanf(pFile, "%d", &s_player[nText].nIdxModel);
 	//				}
-	//				else if (strcmp(&aRead[0], "POS") == 0)
+	//				else if (strcmp(&aRead, "POS") == 0)
 	//				{// 位置
 	//					fscanf(pFile, "%f", &s_player[nText].pos.x);
 	//					fscanf(pFile, "%f", &s_player[nText].pos.y);
 	//					fscanf(pFile, "%f", &s_player[nText].pos.z);
 	//				}
-	//				else if (strcmp(&aRead[0], "ROT") == 0)
+	//				else if (strcmp(&aRead, "ROT") == 0)
 	//				{// 向き
 	//					fscanf(pFile, "%f", &s_player[nText].rot.x);
 	//					fscanf(pFile, "%f", &s_player[nText].rot.y);
@@ -694,7 +607,7 @@ void LoadPlayer(HWND hWnd)
 	//	// テクスチャの読み込み
 	//	D3DXCreateTextureFromFile(
 	//		pDevice,
-	//		&aTexture[i][0],
+	//		&aTexture[i],
 	//		&s_pTexture[i]);
 	//}
 

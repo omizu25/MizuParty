@@ -65,7 +65,7 @@ void InitCamera(void)
 	s_camera.fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
 	s_camera.fDisPlayer = START_DISTANCE;
 
-	s_camera.bFollow = true;
+	s_camera.bFollow = false;
 }
 
 //--------------------------------------------------
