@@ -61,16 +61,16 @@ void InitPolygon(void)
 	s_polygon.fDepth = MAX_DEPTH;
 
 	// 頂点座標の設定
-	Setpos3D(pVtx, s_polygon.pos, s_polygon.fWidth, s_polygon.fHeight, s_polygon.fDepth);
+	Setpos(pVtx, s_polygon.pos, s_polygon.fWidth, s_polygon.fHeight, s_polygon.fDepth);
 
 	// 各頂点の法線の設定
-	Initnor3D(pVtx);
+	Initnor(pVtx);
 
 	// 頂点カラーの設定
-	Initcol3D(pVtx);
+	Initcol(pVtx);
 
 	// テクスチャ座標の設定
-	Inittex3D(pVtx);
+	Inittex(pVtx);
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();

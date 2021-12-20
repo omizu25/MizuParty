@@ -14,7 +14,7 @@
 //--------------------------------------------------
 // 頂点座標の設定 [2D]
 //--------------------------------------------------
-void Setpos2D(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
 	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight, 0.0f);
@@ -25,18 +25,18 @@ void Setpos2D(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 //--------------------------------------------------
 // 頂点カラーの設定 [2D]
 //--------------------------------------------------
-void Setcol2D(VERTEX_2D *pVtx, float fRed, float fGreen, float fBlue, float fAlpha)
+void Setcol(VERTEX_2D *pVtx, D3DXCOLOR col)
 {
-	pVtx[0].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[1].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[2].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
-	pVtx[3].col = D3DXCOLOR(fRed, fGreen, fBlue, fAlpha);
+	pVtx[0].col = col;
+	pVtx[1].col = col;
+	pVtx[2].col = col;
+	pVtx[3].col = col;
 }
 
 //--------------------------------------------------
 // テクスチャの設定 [2D]
 //--------------------------------------------------
-void Settex2D(VERTEX_2D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
+void Settex(VERTEX_2D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
 {
 	pVtx[0].tex = D3DXVECTOR2(fULeft,  fVTop);
 	pVtx[1].tex = D3DXVECTOR2(fURight, fVTop);
@@ -47,7 +47,7 @@ void Settex2D(VERTEX_2D *pVtx, float fULeft, float fURight, float fVTop, float f
 //--------------------------------------------------
 // 頂点座標の初期化 [2D]
 //--------------------------------------------------
-void Initpos2D(VERTEX_2D *pVtx)
+void Initpos(VERTEX_2D *pVtx)
 {
 	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -58,7 +58,7 @@ void Initpos2D(VERTEX_2D *pVtx)
 //--------------------------------------------------
 // rhwの初期化 [2D]
 //--------------------------------------------------
-void Initrhw2D(VERTEX_2D *pVtx)
+void Initrhw(VERTEX_2D *pVtx)
 {
 	pVtx[0].rhw = 1.0f;
 	pVtx[1].rhw = 1.0f;
@@ -69,7 +69,7 @@ void Initrhw2D(VERTEX_2D *pVtx)
 //--------------------------------------------------
 // 頂点カラーの初期化 [2D]
 //--------------------------------------------------
-void Initcol2D(VERTEX_2D *pVtx)
+void Initcol(VERTEX_2D *pVtx)
 {
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -80,7 +80,7 @@ void Initcol2D(VERTEX_2D *pVtx)
 //--------------------------------------------------
 // テクスチャの初期化 [2D]
 //--------------------------------------------------
-void Inittex2D(VERTEX_2D *pVtx)
+void Inittex(VERTEX_2D *pVtx)
 {
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
@@ -91,25 +91,25 @@ void Inittex2D(VERTEX_2D *pVtx)
 //--------------------------------------------------
 // 全ての初期化 [2D]
 //--------------------------------------------------
-void InitAll2D(VERTEX_2D *pVtx)
+void InitAll(VERTEX_2D *pVtx)
 {
 	// 頂点座標の初期化 [2D]
-	Initpos2D(pVtx);
+	Initpos(pVtx);
 
 	// rhwの初期化 [2D]
-	Initrhw2D(pVtx);
+	Initrhw(pVtx);
 
 	// 頂点カラーの初期化 [2D]
-	Initcol2D(pVtx);
+	Initcol(pVtx);
 
 	// テクスチャの初期化 [2D]
-	Inittex2D(pVtx);
+	Inittex(pVtx);
 }
 
 //--------------------------------------------------
 // 頂点座標の設定 [3D]
 //--------------------------------------------------
-void Setpos3D(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+void Setpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth,  fHeight,  fDepth);
 	pVtx[1].pos = pos + D3DXVECTOR3( fWidth,  fHeight,  fDepth);
@@ -120,7 +120,7 @@ void Setpos3D(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, flo
 //--------------------------------------------------
 // 頂点の法線の設定 [3D]
 //--------------------------------------------------
-void Setnor3D(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
+void Setnor(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
 {
 	pVtx[0].nor = nor;
 	pVtx[1].nor = nor;
@@ -131,7 +131,7 @@ void Setnor3D(VERTEX_3D * pVtx, D3DXVECTOR3 nor)
 //--------------------------------------------------
 // 頂点カラーの設定 [3D]
 //--------------------------------------------------
-void Setcol3D(VERTEX_3D *pVtx, D3DXCOLOR col)
+void Setcol(VERTEX_3D *pVtx, D3DXCOLOR col)
 {
 	pVtx[0].col = col;
 	pVtx[1].col = col;
@@ -142,7 +142,7 @@ void Setcol3D(VERTEX_3D *pVtx, D3DXCOLOR col)
 //--------------------------------------------------
 // テクスチャの設定 [3D]
 //--------------------------------------------------
-void Settex3D(VERTEX_3D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
+void Settex(VERTEX_3D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom)
 {
 	pVtx[0].tex = D3DXVECTOR2(fULeft,  fVTop);
 	pVtx[1].tex = D3DXVECTOR2(fURight, fVTop);
@@ -153,7 +153,7 @@ void Settex3D(VERTEX_3D *pVtx, float fULeft, float fURight, float fVTop, float f
 //--------------------------------------------------
 // 頂点座標の初期化 [3D]
 //--------------------------------------------------
-void Initpos3D(VERTEX_3D *pVtx)
+void Initpos(VERTEX_3D *pVtx)
 {
 	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -164,7 +164,7 @@ void Initpos3D(VERTEX_3D *pVtx)
 //--------------------------------------------------
 // 頂点の法線の初期化 [3D]
 //--------------------------------------------------
-void Initnor3D(VERTEX_3D *pVtx)
+void Initnor(VERTEX_3D *pVtx)
 {
 	pVtx[0].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
 	pVtx[1].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -175,7 +175,7 @@ void Initnor3D(VERTEX_3D *pVtx)
 //--------------------------------------------------
 // 頂点カラーの初期化 [3D]
 //--------------------------------------------------
-void Initcol3D(VERTEX_3D *pVtx)
+void Initcol(VERTEX_3D *pVtx)
 {
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -186,7 +186,7 @@ void Initcol3D(VERTEX_3D *pVtx)
 //--------------------------------------------------
 // テクスチャの初期化 [3D]
 //--------------------------------------------------
-void Inittex3D(VERTEX_3D *pVtx)
+void Inittex(VERTEX_3D *pVtx)
 {
 	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
 	pVtx[1].tex = D3DXVECTOR2(1.0f, 0.0f);
@@ -197,25 +197,25 @@ void Inittex3D(VERTEX_3D *pVtx)
 //--------------------------------------------------
 // 全ての初期化 [3D]
 //--------------------------------------------------
-void InitAll3D(VERTEX_3D *pVtx)
+void InitAll(VERTEX_3D *pVtx)
 {
 	// 頂点座標の初期化 [3D]
-	Initpos3D(pVtx);
+	Initpos(pVtx);
 
 	// 頂点の法線の初期化[3D]
-	Initnor3D(pVtx);
+	Initnor(pVtx);
 
 	// 頂点カラーの初期化 [3D]
-	Initcol3D(pVtx);
+	Initcol(pVtx);
 
 	// テクスチャの初期化 [3D]
-	Inittex3D(pVtx);
+	Inittex(pVtx);
 }
 
 //--------------------------------------------------
 // 頂点座標の設定 [線]
 //--------------------------------------------------
-void SetposLine(VERTEX_LINE *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 start, D3DXVECTOR3 end)
+void Setpos(VERTEX_LINE *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 start, D3DXVECTOR3 end)
 {
 	pVtx[0].pos = pos + start;
 	pVtx[1].pos = pos + end;
@@ -224,7 +224,7 @@ void SetposLine(VERTEX_LINE *pVtx, D3DXVECTOR3 pos, D3DXVECTOR3 start, D3DXVECTO
 //--------------------------------------------------
 // 頂点カラーの設定 [線]
 //--------------------------------------------------
-void SetcolLine(VERTEX_LINE *pVtx, D3DXCOLOR col)
+void Setcol(VERTEX_LINE *pVtx, D3DXCOLOR col)
 {
 	pVtx[0].col = col;
 	pVtx[1].col = col;
@@ -233,7 +233,7 @@ void SetcolLine(VERTEX_LINE *pVtx, D3DXCOLOR col)
 //--------------------------------------------------
 // 頂点座標の初期化 [線]
 //--------------------------------------------------
-void InitposLine(VERTEX_LINE *pVtx)
+void Initpos(VERTEX_LINE *pVtx)
 {
 	pVtx[0].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	pVtx[1].pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -242,7 +242,7 @@ void InitposLine(VERTEX_LINE *pVtx)
 //--------------------------------------------------
 // 頂点カラーの初期化 [線]
 //--------------------------------------------------
-void InitcolLine(VERTEX_LINE *pVtx)
+void Initcol(VERTEX_LINE *pVtx)
 {
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	pVtx[1].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
@@ -251,13 +251,13 @@ void InitcolLine(VERTEX_LINE *pVtx)
 //--------------------------------------------------
 // 全ての初期化 [線]
 //--------------------------------------------------
-void InitAllLine(VERTEX_LINE *pVtx)
+void InitAll(VERTEX_LINE *pVtx)
 {
 	// 頂点座標の初期化 [線]
-	InitposLine(pVtx);
+	Initpos(pVtx);
 
 	// 頂点カラーの初期化 [線]
-	InitcolLine(pVtx);
+	Initcol(pVtx);
 }
 
 //--------------------------------------------------

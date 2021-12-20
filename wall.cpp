@@ -61,7 +61,7 @@ void InitWall(void)
 	for (int i = 0; i < MAX_WALL; i++)
 	{
 		//全ての初期化処理
-		InitAll3D(pVtx);
+		InitAll(pVtx);
 
 		pVtx += 4;
 	}
@@ -180,21 +180,21 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, floa
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos3D(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
 
 		if (bCulling)
 		{
 			// 頂点カラーの設定
-			Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+			Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 		}
 		else
 		{
 			// 頂点カラーの設定
-			Setcol3D(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
+			Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 0.5f));
 		}
 
 		// テクスチャの設定
-		Settex3D(pVtx, 0.0f, fURight, 0.0f, 1.0f);
+		Settex(pVtx, 0.0f, fURight, 0.0f, 1.0f);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();

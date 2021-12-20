@@ -65,7 +65,7 @@ void InitCamera(void)
 	s_camera.fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
 	s_camera.fDisPlayer = START_DISTANCE;
 
-	s_camera.bFollow = false;
+	s_camera.bFollow = true;
 }
 
 //--------------------------------------------------
@@ -221,7 +221,7 @@ static void FollowWrap(void)
 		// äpìxÇÃê≥ãKâª
 		NormalizeRot(&fAngle);
 
-		s_camera.rotDest.y = sinf(fAngle);
+		s_camera.rotDest.y = cosf(fAngle + (D3DX_PI * 0.5f));
 
 		s_camera.rot.y += (s_camera.rotDest.y) * MAX_ROT_FACTOR;
 	}
