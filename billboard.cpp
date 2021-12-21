@@ -340,7 +340,7 @@ void LoadBillboard(HWND hWnd)
 	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
 	Text *pText;
-	char aTexture[MAX_TEXTURE][1024];
+	char aTexture[1024];
 
 	//メモリのクリア
 	memset(&pText, NULL, sizeof(pText));
@@ -374,15 +374,31 @@ void LoadBillboard(HWND hWnd)
 
 			if (strcmp(&aRead[0], "NUM_TEXTURE") == 0)
 			{// テクスチャの使用数
+				fscanf(pFile, "%s", &aRead);
 				fscanf(pFile, "%d", &s_nUseTex);
+
+				// txtに書いてる最大数分のテクスチャの配列を用意する
+				s_pTexture = new LPDIRECT3DTEXTURE9[s_nUseTex];
 			}
 			else if (strcmp(&aRead[0], "TEXTURE_FILENAME") == 0)
 			{// テクスチャの情報
-				fscanf(pFile, "%s", aTexture[nTex]);
+				fscanf(pFile, "%s", &aRead);
+				fscanf(pFile, "%s", aTexture);
+
+				// デバイスへのポインタの取得
+				LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+				// テクスチャの読み込み
+				D3DXCreateTextureFromFile(
+					pDevice,
+					&aTexture[0],
+					&s_pTexture[nTex]);
+
 				nTex++;
 			}
 			else if (strcmp(&aRead[0], "NUM_MODEL") == 0)
 			{// ビルボードの使用数
+				fscanf(pFile, "%s", &aRead);
 				fscanf(pFile, "%d", &nUseText);
 
 				// txtに書いてる最大数分の読み込み用の配列を用意する
@@ -402,22 +418,27 @@ void LoadBillboard(HWND hWnd)
 
 					if (strcmp(&aRead[0], "TEXIDX") == 0)
 					{// テクスチャ番号
+						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%d", &pText[nText].nTexIdx);
 					}
 					else if (strcmp(&aRead[0], "YROT") == 0)
 					{// Y回転をするかどうか
+						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%d", &pText[nText].nYRot);
 					}
 					else if (strcmp(&aRead[0], "WIDTH") == 0)
 					{// 幅
+						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pText[nText].fWidth);
 					}
 					else if (strcmp(&aRead[0], "HEIGHT") == 0)
 					{// 高さ
+						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pText[nText].fHeight);
 					}
 					else if (strcmp(&aRead[0], "POS") == 0)
 					{// 位置
+						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pText[nText].pos.x);
 						fscanf(pFile, "%f", &pText[nText].pos.y);
 						fscanf(pFile, "%f", &pText[nText].pos.z);
@@ -443,21 +464,6 @@ void LoadBillboard(HWND hWnd)
 			MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 			assert(false);
 		}
-	}
-
-	// txtに書いてる最大数分のテクスチャの配列を用意する
-	s_pTexture = new LPDIRECT3DTEXTURE9[s_nUseTex];
-
-	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	for (int i = 0; i < s_nUseTex; i++)
-	{
-		// テクスチャの読み込み
-		D3DXCreateTextureFromFile(
-			pDevice,
-			&aTexture[i][0],
-			&s_pTexture[i]);
 	}
 
 	for (int i = 0; i < nUseText; i++)

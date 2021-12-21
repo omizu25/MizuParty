@@ -9,62 +9,62 @@ SCRIPT			# この行は絶対消さないこと！
 #--------------------------------------------------
 # テクスチャの使用数
 #--------------------------------------------------
-NUM_TEXTURE 4
+NUM_TEXTURE = 4
 
 #--------------------------------------------------
 # テクスチャファイル名
 #--------------------------------------------------
-TEXTURE_FILENAME data/TEXTURE/InuiToko001.jpg
-TEXTURE_FILENAME data/TEXTURE/InuiToko003.jpg
-TEXTURE_FILENAME data/TEXTURE/リムル001.jpg
-TEXTURE_FILENAME data/TEXTURE/リムル003.png
+TEXTURE_FILENAME = data/TEXTURE/InuiToko001.jpg
+TEXTURE_FILENAME = data/TEXTURE/InuiToko003.jpg
+TEXTURE_FILENAME = data/TEXTURE/リムル001.jpg
+TEXTURE_FILENAME = data/TEXTURE/リムル003.png
 
 #--------------------------------------------------
 # ビルボードの使用数
 #--------------------------------------------------
-NUM_MODEL 5
+NUM_MODEL = 5
 
 #--------------------------------------------------
 # ビルボードの情報
 #--------------------------------------------------
 BILLBOARD_SET
-	TEXIDX 0				# 使用するテクスチャ番号
-	YROT 0					# Y回転をするかどうか
-	WIDTH 10.0				# 幅
-	HEIGHT 10.0				# 高さ
-	POS -225.0 10.0 0.0		# 位置
+	TEXIDX = 0					# 使用するテクスチャ番号
+	YROT = 0					# Y回転をするかどうか
+	WIDTH = 10.0				# 幅
+	HEIGHT = 10.0				# 高さ
+	POS = -225.0 10.0 0.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX 0				# 使用するテクスチャ番号
-	YROT 0					# Y回転をするかどうか
-	WIDTH 10.0				# 幅
-	HEIGHT 10.0				# 高さ
-	POS -75.0 10.0 0.0		# 位置
+	TEXIDX = 0					# 使用するテクスチャ番号
+	YROT = 0					# Y回転をするかどうか
+	WIDTH = 10.0				# 幅
+	HEIGHT = 10.0				# 高さ
+	POS = -75.0 10.0 0.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX 1				# 使用するテクスチャ番号
-	YROT 0					# Y回転をするかどうか
-	WIDTH 10.0				# 幅
-	HEIGHT 10.0				# 高さ
-	POS -25.0 10.0 0.0		# 位置
+	TEXIDX = 1					# 使用するテクスチャ番号
+	YROT = 0					# Y回転をするかどうか
+	WIDTH = 10.0				# 幅
+	HEIGHT = 10.0				# 高さ
+	POS = -25.0 10.0 0.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX 2				# 使用するテクスチャ番号
-	YROT 1					# Y回転をするかどうか
-	WIDTH 10.0				# 幅
-	HEIGHT 10.0				# 高さ
-	POS 25.0 10.0 0.0		# 位置
+	TEXIDX = 2					# 使用するテクスチャ番号
+	YROT = 1					# Y回転をするかどうか
+	WIDTH = 10.0				# 幅
+	HEIGHT = 10.0				# 高さ
+	POS = 25.0 10.0 0.0			# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX 3				# 使用するテクスチャ番号
-	YROT 1					# Y回転をするかどうか
-	WIDTH 10.0				# 幅
-	HEIGHT 10.0				# 高さ
-	POS 75.0 10.0 0.0		# 位置
+	TEXIDX = 3					# 使用するテクスチャ番号
+	YROT = 1					# Y回転をするかどうか
+	WIDTH = 10.0				# 幅
+	HEIGHT = 10.0				# 高さ
+	POS = 75.0 10.0 0.0			# 位置
 END_BILLBOARD_SET
 
 END_SCRIPT		# この行は絶対消さないこと！

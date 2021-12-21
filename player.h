@@ -22,7 +22,6 @@ typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
 	D3DXVECTOR3				rot;			// 向き
-	D3DXVECTOR3				rotDest;		// 目的の向き
 	LPD3DXMESH				pMesh;			// メッシュ情報へのポインタ
 	LPD3DXBUFFER			pBuffMat;		// マテリアル情報へのポインタ
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
