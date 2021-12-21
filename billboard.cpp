@@ -21,10 +21,9 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define FILE_NAME		"data\\TXT\\billboard.txt"		// ファイルの名前
-#define MAX_BILLBOARD			(256)					// ビルボードの最大数
-#define MAX_TEXTURE				(256)					// テクスチャの最大数
-#define DO_NOT_ROT_Y			(0)						// Y軸回転をしない数値
+#define MAX_BILLBOARD		(256)		// ビルボードの最大数
+#define MAX_TEXTURE			(256)		// テクスチャの最大数
+#define DO_NOT_ROT_Y		(0)			// Y軸回転をしない数値
 
 //--------------------------------------------------
 // 構造体
@@ -340,6 +339,7 @@ void LoadBillboard(HWND hWnd)
 	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
 	Text *pText;
+	char aFile[1024];
 	char aTexture[1024];
 
 	//メモリのクリア
@@ -347,6 +347,48 @@ void LoadBillboard(HWND hWnd)
 
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[256] = {};
+
+		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		{// 始まりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+		}
+
+		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+		{// 終わりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+
+			if (strncmp(&aRead[0], "#-", 2) == 0)
+			{// コメント
+				continue;
+			}
+			else if (strncmp(&aRead[0], "#", 1) == 0)
+			{// コメント
+				fscanf(pFile, "%s", &aRead);
+				continue;
+			}
+
+			if (strcmp(&aRead[0], "BILLBOARD_FILENAME") == 0)
+			{// モデルの情報
+				fscanf(pFile, "%s", &aRead);
+				fscanf(pFile, "%s", aFile);
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
+	}
+
+	// ファイルを開く
+	pFile = fopen(aFile, "r");
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
