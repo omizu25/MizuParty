@@ -34,6 +34,7 @@
 #define FVF_VERTEX_3D		(D3DFVF_XYZ |  D3DFVF_NORMAL | D3DFVF_DIFFUSE | D3DFVF_TEX1)		// 頂点フォーマット[3D] 位置・法線・カラー・テクスチャ
 #define FVF_VERTEX_LINE		(D3DFVF_XYZ | D3DFVF_DIFFUSE)										// 頂点フォーマット[線] 位置・カラー
 #define FILE_NAME			"data/TEXT/system.txt"												// テキストの名前
+#define MAX_TEXT			(1024)																// テキストの最大文字数
 
 //--------------------------------------------------
 // 列挙型

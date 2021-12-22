@@ -306,27 +306,27 @@ void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, float fWidth, float
 	float fModelFront = s_model.pos.z + s_model.vtxMin.z;
 	float fModelBack = s_model.pos.z + s_model.vtxMax.z;
 
-	if ((pPosOld->x - fWidth > fModelLeft) && (pPosOld->x + fWidth < fModelRight))
+	if ((pPos->x + fWidth > fModelLeft) && (pPos->x - fWidth < fModelRight))
 	{// xが範囲内
-		if ((pPosOld->z - fDepth <= fModelFront) && (pPos->z - fDepth > fModelFront))
+		if ((pPosOld->z + fDepth <= fModelFront) && (pPos->z + fDepth > fModelFront))
 		{// 前端
-			pPos->z = fModelFront + fDepth;
+			pPos->z = fModelFront - fDepth;
 		}
-		else if ((pPosOld->z + fDepth >= fModelBack) && (pPos->z + fDepth < fModelBack))
+		else if ((pPosOld->z - fDepth >= fModelBack) && (pPos->z - fDepth < fModelBack))
 		{// 後端
-			pPos->z = fModelBack - fDepth;
+			pPos->z = fModelBack + fDepth;
 		}
 	}
 
-	if ((pPosOld->z - fDepth > fModelFront) && (pPosOld->z + fDepth < fModelBack))
+	if ((pPos->z + fDepth > fModelFront) && (pPos->z - fDepth < fModelBack))
 	{// zが範囲内
-		if ((pPosOld->x - fWidth <= fModelLeft) && (pPos->x - fWidth > fModelLeft))
+		if ((pPosOld->x + fWidth <= fModelLeft) && (pPos->x + fWidth > fModelLeft))
 		{// 左端
-			pPos->x = fModelLeft + fWidth;
+			pPos->x = fModelLeft - fWidth;
 		}
-		else if ((pPosOld->x + fWidth >= fModelRight) && (pPos->x + fWidth < fModelRight))
+		else if ((pPosOld->x - fWidth >= fModelRight) && (pPos->x - fWidth < fModelRight))
 		{// 右端
-			pPos->x = fModelRight - fWidth;
+			pPos->x = fModelRight + fWidth;
 		}
 	}
 }

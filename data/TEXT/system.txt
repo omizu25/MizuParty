@@ -12,16 +12,17 @@ SCRIPT			# この行は絶対消さないこと！
 BILLBOARD_FILENAME = data/TEXT/billboard.txt
 
 #--------------------------------------------------
-# プレイヤー数
-#--------------------------------------------------
-NUM_PLAYER = 1
-
-#--------------------------------------------------
 # プレイヤーの情報
 #--------------------------------------------------
 PLAYER_SET
-	PLAYER_FILENAME = data/TEXT/model.txt
+	PLAYER_FILENAME = data/TEXT/motion.txt
 	POS = -50.0 0.0 0.0
+	ROT = 0.0 0.0 0.0
+END_PLAYER_SET
+
+PLAYER_SET
+	PLAYER_FILENAME = data/TEXT/model.txt
+	POS = 50.0 0.0 0.0
 	ROT = 0.0 0.0 0.0
 END_PLAYER_SET
 

@@ -8,8 +8,38 @@
 #define _PLAYER_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
+// マクロ定義
+//--------------------------------------------------
+#define MAX_MOTION		(1)		// モーション数
+
+//--------------------------------------------------
 // 構造体
 //--------------------------------------------------
+
+/*↓ キー ↓*/
+
+typedef struct
+{
+	D3DXVECTOR3		pos;		// 位置
+	D3DXVECTOR3		rot;		// 向き
+}Key;
+
+/*↓ キー設定 ↓*/
+
+typedef struct
+{
+	int		nFrame;		// フレーム数
+	Key		*key;		// キー
+}KeySet;
+
+/*↓ モーション設定 ↓*/
+
+typedef struct
+{
+	bool		Loop;			// ループするかどうか
+	int			nNumKey;		// キー数
+	KeySet		*keySet;		// キー設定
+}MotionSet;
 
 /*↓ プレイヤーパーツ ↓*/
 
@@ -22,6 +52,7 @@ typedef struct
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
 	DWORD					nNumMat;		// マテリアル情報の数
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
+	int						nIdxModel;		// 使用するモデルの番号
 	int						nIdxParent;		// 親の番号
 }PlayerParts;
 
@@ -29,17 +60,18 @@ typedef struct
 
 typedef struct
 {
-	D3DXVECTOR3		pos;			// 位置
-	D3DXVECTOR3		posOld;			// 前回の位置
-	D3DXVECTOR3		vtxMin;			// 最小値
-	D3DXVECTOR3		vtxMax;			// 最大値
-	D3DXVECTOR3		rot;			// 向き
-	D3DXVECTOR3		rotDest;		// 目的の向き
-	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
-	PlayerParts		*parts;			// パーツの情報
-	int				nUseParts;		// 使用するパーツの数
-	int				nIdxShadow;		// 使用している影の番号
-	int				nStopTime;		// 止まっている時間
+	D3DXVECTOR3		pos;					// 位置
+	D3DXVECTOR3		posOld;					// 前回の位置
+	D3DXVECTOR3		rot;					// 向き
+	D3DXVECTOR3		rotDest;				// 目的の向き
+	D3DXMATRIX		mtxWorld;				// ワールドマトリックス
+	PlayerParts		*parts;					// パーツの情報
+	MotionSet		Motion[MAX_MOTION];		// モーション設定
+	int				nNumParts;				// パーツ数
+	int				nIdxShadow;				// 使用している影の番号
+	int				nStopTime;				// 止まっている時間
+	float			fSize;					// サイズ
+	char			aText[MAX_TEXT];		// テキスト名
 }Player;
 
 //--------------------------------------------------

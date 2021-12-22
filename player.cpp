@@ -31,10 +31,21 @@
 #define IDX_PARENT			(-1)			// 親の番号
 
 //--------------------------------------------------
+// 構造体
+//--------------------------------------------------
+typedef struct
+{
+	LPD3DXMESH			pMesh;					// メッシュ情報へのポインタ
+	LPD3DXBUFFER		pBuffMat;				// マテリアル情報へのポインタ
+	DWORD				nNumMat;				// マテリアル情報の数
+	char				aParts[MAX_TEXT];		// モデルファイル名
+}ModelFile;
+
+//--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Player		*s_player;				// モデルの情報
-static int			s_nUsePlayer;			// 使用するプレイヤーの数
+static int			s_nNumPlayer;			// プレイヤーの数
 static int			s_nSelectPlayer;		// 選ばれているプレイヤー
 static int			s_nSelectParts;			// 選ばれているパーツ
 
@@ -53,58 +64,11 @@ void InitPlayer(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	for (int i = 0; i < s_nUsePlayer; i++)
+	for (int i = 0; i < s_nNumPlayer; i++)
 	{
 		Player *pPlayer = &s_player[i];
 
-		pPlayer->vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
-		pPlayer->vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
-
-		int nParent = 0;		// 親の番号
-
-		for (int j = 0; j < pPlayer->nUseParts; j++)
-		{
-			if (pPlayer->parts[j].nIdxParent == IDX_PARENT)
-			{// 親
-				nParent = j;
-			}
-		}
-
-		int nNumVtx;		// 頂点数
-		DWORD SizeFVF;		// 頂点フォーマットのサイズ
-		BYTE *pVexBuff;		// 頂点バッファへのポインタ
-
-		// 頂点数を取得
-		nNumVtx = pPlayer->parts[nParent].pMesh->GetNumVertices();
-
-		// フォーマットのサイズを取得
-		SizeFVF = D3DXGetFVFVertexSize(pPlayer->parts[nParent].pMesh->GetFVF());
-
-		// 頂点バッファのロック
-		pPlayer->parts[nParent].pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
-
-		for (int j = 0; j < nNumVtx; j++)
-		{
-			// 頂点情報の代入
-			D3DXVECTOR3 vtx = *(D3DXVECTOR3*)pVexBuff;
-
-			// 小さい・大きい [x]
-			VtxSmallBig(&pPlayer->vtxMin.x, &pPlayer->vtxMax.x, vtx.x);
-
-			// 小さい・大きい [y]
-			VtxSmallBig(&pPlayer->vtxMin.y, &pPlayer->vtxMax.y, vtx.y);
-
-			// 小さい・大きい [z]
-			VtxSmallBig(&pPlayer->vtxMin.z, &pPlayer->vtxMax.z, vtx.z);
-
-			// 頂点フォーマットのサイズ分ポインタを進める
-			pVexBuff += SizeFVF;
-		}
-
-		// 頂点バッファのアンロック
-		pPlayer->parts[nParent].pMesh->UnlockVertexBuffer();
-
-		for (int j = 0; j < pPlayer->nUseParts; j++)
+		for (int j = 0; j < pPlayer->nNumParts; j++)
 		{
 			PlayerParts *pParts = &pPlayer->parts[j];
 
@@ -149,9 +113,9 @@ void InitPlayer(void)
 //--------------------------------------------------
 void UninitPlayer(void)
 {
-	for (int i = 0; i < s_nUsePlayer; i++)
+	for (int i = 0; i < s_nNumPlayer; i++)
 	{
-		for (int j = 0; j < s_player[i].nUseParts; j++)
+		for (int j = 0; j < s_player[i].nNumParts; j++)
 		{
 			PlayerParts *pParts = &s_player[i].parts[j];
 
@@ -166,15 +130,15 @@ void UninitPlayer(void)
 					}
 				}
 
-				delete[](pParts->pTexture);
+				delete[]pParts->pTexture;
 				pParts->pTexture = NULL;
 			}
 		}
 	}
 
-	for (int i = 0; i < s_nUsePlayer; i++)
+	for (int i = 0; i < s_nNumPlayer; i++)
 	{
-		for (int j = 0; j < s_player[i].nUseParts; j++)
+		for (int j = 0; j < s_player[i].nNumParts; j++)
 		{
 			PlayerParts *pParts = &s_player[i].parts[j];
 
@@ -191,6 +155,16 @@ void UninitPlayer(void)
 			}
 		}
 	}
+	
+	for (int i = 0; i < s_nNumPlayer; i++)
+	{// パーツの開放
+		delete[] s_player[i].parts;
+		s_player[i].parts = NULL;
+	}
+
+	// プレイヤーの開放
+	delete[] s_player;
+	s_player = NULL; 
 }
 
 //--------------------------------------------------
@@ -233,7 +207,7 @@ void UpdatePlayer(void)
 	NormalizeRot(&pPlayer->rot.y);
 
 	// モデルとの当たり判定
-	CollisionModel(&pPlayer->pos, &pPlayer->posOld, pPlayer->vtxMin.z, pPlayer->vtxMin.z);
+	CollisionModel(&pPlayer->pos, &pPlayer->posOld, pPlayer->fSize, pPlayer->fSize);
 
 	// 影の位置の設定
 	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
@@ -251,11 +225,11 @@ void DrawPlayer(void)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-	for (int i = 0; i < s_nUsePlayer; i++)
+	for (int i = 0; i < s_nNumPlayer; i++)
 	{
 		Player *pPlayer = &s_player[i];
 
-		for (int j = 0; j < pPlayer->nUseParts; j++)
+		for (int j = 0; j < pPlayer->nNumParts; j++)
 		{
 			PlayerParts *pParts = &pPlayer->parts[j];
 
@@ -340,7 +314,37 @@ void LoadPlayer(HWND hWnd)
 {
 	FILE *pFile;		// ファイルポインタを宣言
 
-	char aText[1024];
+	// ファイルを開く
+	pFile = fopen(FILE_NAME, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		s_nNumPlayer = 0;
+
+		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
+		{// 終わりが来るまで繰り返す
+			fgets(aRead, MAX_TEXT, pFile);
+			//fscanf(pFile, "%s", &aRead);
+
+			if (strncmp(&aRead[0], "PLAYER_SET", 10) == 0)
+			{// モデルの情報
+				s_nNumPlayer++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+
+		// txtに書いてる最大数分のプレイヤーの配列を用意する
+		s_player = new Player[s_nNumPlayer];
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
+	}
+
 	int nPlayer = 0;
 
 	// ファイルを開く
@@ -348,7 +352,8 @@ void LoadPlayer(HWND hWnd)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		char aRead[256] = {};
+		char aRead[MAX_TEXT] = {};
+		int nFileName = 0;
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
 		{// 始まりが来るまで繰り返す
@@ -365,18 +370,10 @@ void LoadPlayer(HWND hWnd)
 			}
 			else if (strncmp(&aRead[0], "#", 1) == 0)
 			{// コメント
-				fscanf(pFile, "%s", &aRead);
+				fgets(aRead, MAX_TEXT, pFile);
 				continue;
 			}
 
-			if (strcmp(&aRead[0], "NUM_PLAYER") == 0)
-			{// パーツの使用数
-				fscanf(pFile, "%s", &aRead);
-				fscanf(pFile, "%d", &s_nUsePlayer);
-
-				// txtに書いてる最大数分のプレイヤーの配列を用意する
-				s_player = new Player[s_nUsePlayer];
-			}
 			else if (strcmp(&aRead[0], "PLAYER_SET") == 0)
 			{// モデルの情報
 				while (strcmp(&aRead[0], "END_PLAYER_SET") != 0)
@@ -385,14 +382,15 @@ void LoadPlayer(HWND hWnd)
 
 					if (strncmp(&aRead[0], "#", 1) == 0)
 					{// コメント
-						fscanf(pFile, "%s", &aRead);
+						fgets(aRead, MAX_TEXT, pFile);
 						continue;
 					}
 
 					if (strcmp(&aRead[0], "PLAYER_FILENAME") == 0)
 					{// プレイヤーのファイル名
 						fscanf(pFile, "%s", &aRead);
-						fscanf(pFile, "%s", aText);
+						fscanf(pFile, "%s", s_player[nFileName].aText);
+						nFileName++;
 					}
 					else if (strcmp(&aRead[0], "POS") == 0)
 					{// 位置
@@ -427,15 +425,16 @@ void LoadPlayer(HWND hWnd)
 
 	for (int i = 0; i < nPlayer; i++)
 	{
-		// ファイルを開く
-		pFile = fopen(aText, "r");
-
 		Player *pPlayer = &s_player[i];
+
+		// ファイルを開く
+		pFile = fopen(pPlayer->aText, "r");
 
 		if (pFile != NULL)
 		{// ファイルが開いた場合
-			char aRead[256] = {};
-			int nParts = 0, nFileName = 0;
+			char aRead[MAX_TEXT] = {};
+			int nParts = 0, nFileName = 0, nNumModel = 0;
+			ModelFile *pModelFile;
 
 			while (strcmp(&aRead[0], "SCRIPT") != 0)
 			{// 始まりが来るまで繰り返す
@@ -452,92 +451,132 @@ void LoadPlayer(HWND hWnd)
 				}
 				else if (strncmp(&aRead[0], "#", 1) == 0)
 				{// コメント
-					fscanf(pFile, "%s", &aRead);
+					fgets(aRead, MAX_TEXT, pFile);
 					continue;
 				}
 
 				if (strcmp(&aRead[0], "NUM_MODEL") == 0)
-				{// パーツの使用数
+				{// モデルの使用数
 					fscanf(pFile, "%s", &aRead);
-					fscanf(pFile, "%d", &pPlayer->nUseParts);
+					fscanf(pFile, "%d", &nNumModel);
 
-					// txtに書いてる最大数分のパーツの配列を用意する
-					pPlayer->parts = new PlayerParts[pPlayer->nUseParts];
+					// txtに書いてる最大数分のモデルの配列を用意する
+					pModelFile = new ModelFile[nNumModel];
 				}
 				else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
 				{// モデルファイル名
-					char aParts[1024];
-
 					fscanf(pFile, "%s", &aRead);
-					fscanf(pFile, "%s", aParts);
-
-					// Xファイルの読み込み
-					D3DXLoadMeshFromX(
-						aParts,
-						D3DXMESH_SYSTEMMEM,
-						pDevice,
-						NULL,
-						&pPlayer->parts[nFileName].pBuffMat,
-						NULL,
-						&pPlayer->parts[nFileName].nNumMat,
-						&pPlayer->parts[nFileName].pMesh);
+					fscanf(pFile, "%s", pModelFile[nFileName].aParts);
 
 					nFileName++;
 				}
-				else if (strcmp(&aRead[0], "MODEL_SET") == 0)
-				{// モデルの情報
-					while (strcmp(&aRead[0], "END_MODEL_SET") != 0)
+				else if (strcmp(&aRead[0], "CHARACTERSET") == 0)
+				{// キャラクターの情報
+					while (strcmp(&aRead[0], "END_CHARACTERSET") != 0)
 					{// 終わりが来るまで繰り返す
 						fscanf(pFile, "%s", &aRead);
 
 						if (strncmp(&aRead[0], "#", 1) == 0)
 						{// コメント
-							fscanf(pFile, "%s", &aRead);
+							fgets(aRead, MAX_TEXT, pFile);
 							continue;
 						}
 
 						PlayerParts *pParts = &pPlayer->parts[nParts];
 
-						if (strcmp(&aRead[0], "INDEX") == 0)
-						{// 親の番号
+						if (strcmp(&aRead[0], "NUM_PARTS") == 0)
+						{// パーツの使用数
 							fscanf(pFile, "%s", &aRead);
-							fscanf(pFile, "%d", &pParts->nIdxParent);
+							fscanf(pFile, "%d", &pPlayer->nNumParts);
+
+							// txtに書いてる最大数分のパーツの配列を用意する
+							pPlayer->parts = new PlayerParts[pPlayer->nNumParts];
 						}
-						else if (strcmp(&aRead[0], "POS") == 0)
-						{// 位置
+						else if (strcmp(&aRead[0], "RADIUS") == 0)
+						{// サイズ
 							fscanf(pFile, "%s", &aRead);
-							fscanf(pFile, "%f", &pParts->pos.x);
-							fscanf(pFile, "%f", &pParts->pos.y);
-							fscanf(pFile, "%f", &pParts->pos.z);
+							fscanf(pFile, "%f", &pPlayer->fSize);
 						}
-						else if (strcmp(&aRead[0], "ROT") == 0)
-						{// 向き
-							fscanf(pFile, "%s", &aRead);
-							fscanf(pFile, "%f", &pParts->rot.x);
-							fscanf(pFile, "%f", &pParts->rot.y);
-							fscanf(pFile, "%f", &pParts->rot.z);
+
+						else if (strcmp(&aRead[0], "PARTSSET") == 0)
+						{// キャラクターの情報
+							while (strcmp(&aRead[0], "END_PARTSSET") != 0)
+							{// 終わりが来るまで繰り返す
+								fscanf(pFile, "%s", &aRead);
+
+								if (strcmp(&aRead[0], "INDEX") == 0)
+								{// 使用するモデルの番号
+									fscanf(pFile, "%s", &aRead);
+									fscanf(pFile, "%d", &pParts->nIdxModel);
+								}
+								else if (strcmp(&aRead[0], "PARENT") == 0)
+								{// 親の番号
+									fscanf(pFile, "%s", &aRead);
+									fscanf(pFile, "%d", &pParts->nIdxParent);
+								}
+								else if (strcmp(&aRead[0], "POS") == 0)
+								{// 位置
+									fscanf(pFile, "%s", &aRead);
+									fscanf(pFile, "%f", &pParts->pos.x);
+									fscanf(pFile, "%f", &pParts->pos.y);
+									fscanf(pFile, "%f", &pParts->pos.z);
+								}
+								else if (strcmp(&aRead[0], "ROT") == 0)
+								{// 向き
+									fscanf(pFile, "%s", &aRead);
+									fscanf(pFile, "%f", &pParts->rot.x);
+									fscanf(pFile, "%f", &pParts->rot.y);
+									fscanf(pFile, "%f", &pParts->rot.z);
+								}
+							}
+							nParts++;
 						}
 					}
-					nParts++;
 				}
 			}
 
 			// ファイルを閉じる
 			fclose(pFile);
 
-			if (nParts != pPlayer->nUseParts)
-			{// モデル数とモデルの情報の数が違う
-				MessageBox(hWnd, "[ モデル数 ] と [ モデルの情報 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+			for (int j = 0; j < nNumModel; j++)
+			{// Xファイルの読み込み
+				D3DXLoadMeshFromX(
+					pModelFile[j].aParts,
+					D3DXMESH_SYSTEMMEM,
+					pDevice,
+					NULL,
+					&pModelFile[j].pBuffMat,
+					NULL,
+					&pModelFile[j].nNumMat,
+					&pModelFile[j].pMesh);
 			}
 
-			if (nFileName != pPlayer->nUseParts)
+			for (int j = 0; j < pPlayer->nNumParts; j++)
+			{// 使用するモデルの情報を取得
+				PlayerParts *Parts = &pPlayer->parts[j];
+
+				Parts->pBuffMat = pModelFile[Parts->nIdxModel].pBuffMat;
+				Parts->nNumMat = pModelFile[Parts->nIdxModel].nNumMat;
+				Parts->pMesh = pModelFile[Parts->nIdxModel].pMesh;
+			}
+
+			// モデルの開放
+			delete[](pModelFile);
+			pModelFile = NULL;
+
+			if (nFileName != nNumModel)
 			{// モデル数とモデルのファイル名の数が違う
 				MessageBox(hWnd, "[ モデル数 ] と [ モデルのファイル名 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 			}
 
+			if (nParts != pPlayer->nNumParts)
+			{// モデル数とモデルの情報の数が違う
+				MessageBox(hWnd, "[ モデル数 ] と [ モデルの情報 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+			}
+
 			bool bParent = false;		// 親がいるかどうか
 
-			for (int j = 0; j < pPlayer->nUseParts; j++)
+			for (int j = 0; j < pPlayer->nNumParts; j++)
 			{
 				if (pPlayer->parts[j].nIdxParent == IDX_PARENT)
 				{// 親いる
@@ -552,9 +591,9 @@ void LoadPlayer(HWND hWnd)
 
 			bParent = true;
 
-			for (int j = 0; j < pPlayer->nUseParts; j++)
+			for (int j = 0; j < pPlayer->nNumParts; j++)
 			{
-				if (pPlayer->parts[j].nIdxParent >= pPlayer->nUseParts - 1)
+				if (pPlayer->parts[j].nIdxParent >= pPlayer->nNumParts - 1)
 				{// そんな親の番号は存在しない
 					bParent = false;
 				}

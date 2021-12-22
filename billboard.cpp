@@ -339,8 +339,8 @@ void LoadBillboard(HWND hWnd)
 	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
 	Text *pText;
-	char aFile[1024];
-	char aTexture[1024];
+	char aFile[MAX_TEXT];
+	char aTexture[MAX_TEXT];
 
 	//メモリのクリア
 	memset(&pText, NULL, sizeof(pText));
@@ -350,7 +350,7 @@ void LoadBillboard(HWND hWnd)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		char aRead[256] = {};
+		char aRead[MAX_TEXT] = {};
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
 		{// 始まりが来るまで繰り返す
@@ -367,7 +367,7 @@ void LoadBillboard(HWND hWnd)
 			}
 			else if (strncmp(&aRead[0], "#", 1) == 0)
 			{// コメント
-				fscanf(pFile, "%s", &aRead);
+				fgets(aRead, MAX_TEXT, pFile);
 				continue;
 			}
 
@@ -392,7 +392,7 @@ void LoadBillboard(HWND hWnd)
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
-		char aRead[256] = {};
+		char aRead[MAX_TEXT] = {};
 		int nTex = 0, nText = 0;
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
@@ -410,7 +410,7 @@ void LoadBillboard(HWND hWnd)
 			}
 			else if (strncmp(&aRead[0], "#", 1) == 0)
 			{// コメント
-				fscanf(pFile, "%s", &aRead);
+				fgets(aRead, MAX_TEXT, pFile);
 				continue;
 			}
 
@@ -454,7 +454,7 @@ void LoadBillboard(HWND hWnd)
 
 					if (strncmp(&aRead[0], "#", 1) == 0)
 					{// コメント
-						fscanf(pFile, "%s", &aRead);
+						fgets(aRead, MAX_TEXT, pFile);
 						continue;
 					}
 
@@ -522,9 +522,6 @@ void LoadBillboard(HWND hWnd)
 		// 設定
 		SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
 	}
-
-	//メモリのクリア
-	memset(&pText[0], NULL, sizeof(pText));
 
 	delete[](pText);
 
