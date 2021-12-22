@@ -70,7 +70,7 @@ void InitEffect(void)
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// ƒƒ‚ƒŠ‚ÌƒNƒŠƒA
-	memset(&s_aEffect, NULL, sizeof(s_aEffect));
+	memset(&s_aEffect, 0, sizeof(s_aEffect));
 
 	// ‚à‚ë‚à‚ë‚Ìİ’è
 	for (int i = 0; i < MAX_EFFECT; i++)

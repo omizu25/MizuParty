@@ -63,7 +63,7 @@ void InitShadow(void)
 		NULL);
 
 	//メモリのクリア
-	memset(s_shadow, NULL, sizeof(s_shadow));
+	memset(s_shadow, 0, sizeof(s_shadow));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 

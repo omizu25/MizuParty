@@ -57,8 +57,8 @@ void InitMeshCylinder(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshCylinder, NULL, sizeof(s_meshCylinder));
-	memset(&s_Number, NULL, sizeof(s_Number));
+	memset(&s_meshCylinder, 0, sizeof(s_meshCylinder));
+	memset(&s_Number, 0, sizeof(s_Number));
 
 	//横・縦の初期化
 	s_Number.nHorizontal = START_HORIZONTAL;
@@ -205,7 +205,7 @@ void SetMeshCylinder(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshCylinder, NULL, sizeof(s_meshCylinder));
+	memset(&s_meshCylinder, 0, sizeof(s_meshCylinder));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 

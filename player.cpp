@@ -130,7 +130,7 @@ void UninitPlayer(void)
 					}
 				}
 
-				delete[]pParts->pTexture;
+				delete[] pParts->pTexture;
 				pParts->pTexture = NULL;
 			}
 		}
@@ -434,7 +434,7 @@ void LoadPlayer(HWND hWnd)
 		{// ファイルが開いた場合
 			char aRead[MAX_TEXT] = {};
 			int nParts = 0, nFileName = 0, nNumModel = 0;
-			ModelFile *pModelFile;
+			ModelFile *pModelFile = NULL;
 
 			while (strcmp(&aRead[0], "SCRIPT") != 0)
 			{// 始まりが来るまで繰り返す
@@ -561,7 +561,7 @@ void LoadPlayer(HWND hWnd)
 			}
 
 			// モデルの開放
-			delete[](pModelFile);
+			delete[] pModelFile;
 			pModelFile = NULL;
 
 			if (nFileName != nNumModel)

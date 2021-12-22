@@ -46,7 +46,7 @@ static Particle		s_aParticle[MAX_PARTICLE];		// パーティクルの情報
 void InitParticle(void)
 {
 	// メモリのクリア
-	memset(&s_aParticle, NULL, sizeof(s_aParticle));
+	memset(&s_aParticle, 0, sizeof(s_aParticle));
 }
 
 //--------------------------------------------------

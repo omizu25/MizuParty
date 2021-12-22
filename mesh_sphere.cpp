@@ -55,8 +55,8 @@ void InitMeshSphere(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshSphere, NULL, sizeof(s_meshSphere));
-	memset(&s_Number, NULL, sizeof(s_Number));
+	memset(&s_meshSphere, 0, sizeof(s_meshSphere));
+	memset(&s_Number, 0, sizeof(s_Number));
 
 	// 横・縦の初期化
 	s_Number.nHorizontal = START_HORIZONTAL;
@@ -197,7 +197,7 @@ void SetMeshSphere(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshSphere, NULL, sizeof(s_meshSphere));
+	memset(&s_meshSphere, 0, sizeof(s_meshSphere));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 

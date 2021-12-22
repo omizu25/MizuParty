@@ -82,7 +82,7 @@ void InitBillboard(void)
 		NULL);
 
 	//メモリのクリア
-	memset(s_billboard, NULL, sizeof(s_billboard));
+	memset(s_billboard, 0, sizeof(s_billboard));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -117,7 +117,7 @@ void UninitBillboard(void)
 			}
 		}
 
-		delete[](s_pTexture);
+		delete[] s_pTexture;
 		s_pTexture = NULL;
 	}
 
@@ -343,7 +343,7 @@ void LoadBillboard(HWND hWnd)
 	char aTexture[MAX_TEXT];
 
 	//メモリのクリア
-	memset(&pText, NULL, sizeof(pText));
+	memset(&pText, 0, sizeof(pText));
 
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
@@ -523,7 +523,7 @@ void LoadBillboard(HWND hWnd)
 		SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
 	}
 
-	delete[](pText);
+	delete[] pText;
 
     pText = NULL;
 }

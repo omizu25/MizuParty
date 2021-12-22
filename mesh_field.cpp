@@ -54,8 +54,8 @@ void InitMeshField(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshField, NULL, sizeof(s_meshField));
-	memset(&s_Number, NULL, sizeof(s_Number));
+	memset(&s_meshField, 0, sizeof(s_meshField));
+	memset(&s_Number, 0, sizeof(s_Number));
 
 	// 横・縦の初期化
 	s_Number.nHorizontal = START_SIZE;
@@ -196,7 +196,7 @@ void SetMeshField(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshField, NULL, sizeof(s_meshField));
+	memset(&s_meshField, 0, sizeof(s_meshField));
 
 	// 幅・高さ・奥行きの設定
 	s_meshField.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);

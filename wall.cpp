@@ -51,7 +51,7 @@ void InitWall(void)
 		NULL);
 
 	//メモリのクリア
-	memset(s_wall, NULL, sizeof(s_wall));
+	memset(s_wall, 0, sizeof(s_wall));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -246,5 +246,5 @@ Wall *GetWall(void)
 void ResetWall(void)
 {
 	//メモリのクリア
-	memset(s_wall, NULL, sizeof(s_wall));
+	memset(s_wall, 0, sizeof(s_wall));
 }
