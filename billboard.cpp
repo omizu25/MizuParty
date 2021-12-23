@@ -65,6 +65,12 @@ static Billboard					s_billboard[MAX_BILLBOARD];		// ビルボードの情報
 static int							s_nUseTex;						// テクスチャの使用数
 
 //--------------------------------------------------
+// プロトタイプ宣言
+//--------------------------------------------------
+static void System(FILE *pFile, HWND hWnd, char *aFile);
+static void Load(FILE *pFile, HWND hWnd);
+
+//--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitBillboard(void)
@@ -336,18 +342,27 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 void LoadBillboard(HWND hWnd)
 {
 	FILE *pFile;			// ファイルポインタを宣言
-	int nUseText = 0;		// テキストで読み込んだビルボードの使用数
 
-	Text *pText;
 	char aFile[MAX_TEXT];
-	char aTexture[MAX_TEXT];
-
-	//メモリのクリア
-	memset(&pText, 0, sizeof(pText));
 
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
 
+	// システム
+	System(pFile, hWnd, aFile);
+
+	// ファイルを開く
+	pFile = fopen(aFile, "r");
+
+	// 読み込み
+	Load(pFile, hWnd);
+}
+
+//--------------------------------------------------
+// システム
+//--------------------------------------------------
+static void System(FILE *pFile, HWND hWnd, char *aFile)
+{
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
@@ -386,14 +401,22 @@ void LoadBillboard(HWND hWnd)
 		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
+}
 
-	// ファイルを開く
-	pFile = fopen(aFile, "r");
-
+//--------------------------------------------------
+// 読み込み
+//--------------------------------------------------
+static void Load(FILE *pFile, HWND hWnd)
+{
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
-		int nTex = 0, nText = 0;
+		char aTexture[MAX_TEXT];
+		int nTex = 0, nText = 0, nNumBillBoard = 0;
+		Text *pText;
+
+		//メモリのクリア
+		memset(&pText, 0, sizeof(pText));
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
 		{// 始まりが来るまで繰り返す
@@ -402,7 +425,7 @@ void LoadBillboard(HWND hWnd)
 
 		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
 		{// 終わりが来るまで繰り返す
- 			fscanf(pFile, "%s", &aRead);
+			fscanf(pFile, "%s", &aRead);
 
 			if (strncmp(&aRead[0], "#-", 2) == 0)
 			{// コメント
@@ -441,10 +464,10 @@ void LoadBillboard(HWND hWnd)
 			else if (strcmp(&aRead[0], "NUM_MODEL") == 0)
 			{// ビルボードの使用数
 				fscanf(pFile, "%s", &aRead);
-				fscanf(pFile, "%d", &nUseText);
+				fscanf(pFile, "%d", &nNumBillBoard);
 
 				// txtに書いてる最大数分の読み込み用の配列を用意する
-				pText = new Text[nUseText];
+				pText = new Text[nNumBillBoard];
 			}
 			else if (strcmp(&aRead[0], "BILLBOARD_SET") == 0)
 			{// ビルボードの情報
@@ -492,38 +515,38 @@ void LoadBillboard(HWND hWnd)
 
 		// ファイルを閉じる
 		fclose(pFile);
+
+		for (int i = 0; i < nNumBillBoard; i++)
+		{
+			if (pText[i].nTexIdx >= s_nUseTex)
+			{// 該当しないテクスチャ番号
+				MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
+				assert(false);
+			}
+		}
+
+		for (int i = 0; i < nNumBillBoard; i++)
+		{
+			pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
+
+			bool bYRot = true;
+
+			if (pText[i].nYRot == DO_NOT_ROT_Y)
+			{// Y軸回転をしない数値の時
+				bYRot = false;
+			}
+
+			// 設定
+			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, &pText[i].pTexture);
+		}
+
+		delete[] pText;
+
+		pText = NULL;
 	}
 	else
 	{// ファイルが開かない場合
 		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
-
-	for (int i = 0; i < nUseText; i++)
-	{
-		if (pText[i].nTexIdx >= s_nUseTex)
-		{// 該当しないテクスチャ番号
-			MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
-			assert(false);
-		}
-	}
-
-	for (int i = 0; i < nUseText; i++)
-	{
-		pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
-
-		bool bYRot = true;
-
-		if (pText[i].nYRot == DO_NOT_ROT_Y)
-		{// Y軸回転をしない数値の時
-			bYRot = false;
-		}
-
-		// 設定
-		SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot,&pText[i].pTexture);
-	}
-
-	delete[] pText;
-
-    pText = NULL;
 }

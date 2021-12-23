@@ -52,6 +52,8 @@ static int			s_nSelectParts;			// 選ばれているパーツ
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void System(FILE *pFile, HWND hWnd);
+static void Load(FILE *pFile, HWND hWnd, Player *pPlayer);
 static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
 static void Rot(Player *pPlayer);
@@ -317,6 +319,26 @@ void LoadPlayer(HWND hWnd)
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
 
+	// システム
+	System(pFile, hWnd);
+
+	for (int i = 0; i < s_nNumPlayer; i++)
+	{
+		Player *pPlayer = &s_player[i];
+
+		// ファイルを開く
+		pFile = fopen(pPlayer->aText, "r");
+
+		// 読み込み
+		Load(pFile, hWnd, pPlayer);
+	}
+}
+
+//--------------------------------------------------
+// システム
+//--------------------------------------------------
+static void System(FILE *pFile, HWND hWnd)
+{
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
@@ -325,7 +347,6 @@ void LoadPlayer(HWND hWnd)
 		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
 		{// 終わりが来るまで繰り返す
 			fgets(aRead, MAX_TEXT, pFile);
-			//fscanf(pFile, "%s", &aRead);
 
 			if (strncmp(&aRead[0], "PLAYER_SET", 10) == 0)
 			{// モデルの情報
@@ -345,15 +366,13 @@ void LoadPlayer(HWND hWnd)
 		assert(false);
 	}
 
-	int nPlayer = 0;
-
 	// ファイルを開く
 	pFile = fopen(FILE_NAME, "r");
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
-		int nFileName = 0;
+		int nFileName = 0, nPlayer = 0;
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
 		{// 始まりが来るまで繰り返す
@@ -419,196 +438,198 @@ void LoadPlayer(HWND hWnd)
 		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
+}
 
+//--------------------------------------------------
+// 読み込み
+//--------------------------------------------------
+static void Load(FILE *pFile, HWND hWnd, Player *pPlayer)
+{
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	for (int i = 0; i < nPlayer; i++)
-	{
-		Player *pPlayer = &s_player[i];
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		int nParts = 0, nFileName = 0, nNumModel = 0;
+		ModelFile *pModelFile = NULL;
 
-		// ファイルを開く
-		pFile = fopen(pPlayer->aText, "r");
+		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		{// 始まりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+		}
 
-		if (pFile != NULL)
-		{// ファイルが開いた場合
-			char aRead[MAX_TEXT] = {};
-			int nParts = 0, nFileName = 0, nNumModel = 0;
-			ModelFile *pModelFile = NULL;
+		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+		{// 終わりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
 
-			while (strcmp(&aRead[0], "SCRIPT") != 0)
-			{// 始まりが来るまで繰り返す
-				fscanf(pFile, "%s", &aRead);
+			if (strncmp(&aRead[0], "#-", 2) == 0)
+			{// コメント
+				continue;
+			}
+			else if (strncmp(&aRead[0], "#", 1) == 0)
+			{// コメント
+				fgets(aRead, MAX_TEXT, pFile);
+				continue;
 			}
 
-			while (strcmp(&aRead[0], "END_SCRIPT") != 0)
-			{// 終わりが来るまで繰り返す
+			if (strcmp(&aRead[0], "NUM_MODEL") == 0)
+			{// モデルの使用数
 				fscanf(pFile, "%s", &aRead);
+				fscanf(pFile, "%d", &nNumModel);
 
-				if (strncmp(&aRead[0], "#-", 2) == 0)
-				{// コメント
-					continue;
-				}
-				else if (strncmp(&aRead[0], "#", 1) == 0)
-				{// コメント
-					fgets(aRead, MAX_TEXT, pFile);
-					continue;
-				}
+				// txtに書いてる最大数分のモデルの配列を用意する
+				pModelFile = new ModelFile[nNumModel];
+			}
+			else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
+			{// モデルファイル名
+				fscanf(pFile, "%s", &aRead);
+				fscanf(pFile, "%s", pModelFile[nFileName].aParts);
 
-				if (strcmp(&aRead[0], "NUM_MODEL") == 0)
-				{// モデルの使用数
+				nFileName++;
+			}
+			else if (strcmp(&aRead[0], "CHARACTERSET") == 0)
+			{// キャラクターの情報
+				while (strcmp(&aRead[0], "END_CHARACTERSET") != 0)
+				{// 終わりが来るまで繰り返す
 					fscanf(pFile, "%s", &aRead);
-					fscanf(pFile, "%d", &nNumModel);
 
-					// txtに書いてる最大数分のモデルの配列を用意する
-					pModelFile = new ModelFile[nNumModel];
-				}
-				else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
-				{// モデルファイル名
-					fscanf(pFile, "%s", &aRead);
-					fscanf(pFile, "%s", pModelFile[nFileName].aParts);
+					if (strncmp(&aRead[0], "#", 1) == 0)
+					{// コメント
+						fgets(aRead, MAX_TEXT, pFile);
+						continue;
+					}
 
-					nFileName++;
-				}
-				else if (strcmp(&aRead[0], "CHARACTERSET") == 0)
-				{// キャラクターの情報
-					while (strcmp(&aRead[0], "END_CHARACTERSET") != 0)
-					{// 終わりが来るまで繰り返す
+					PlayerParts *pParts = &pPlayer->parts[nParts];
+
+					if (strcmp(&aRead[0], "NUM_PARTS") == 0)
+					{// パーツの使用数
 						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%d", &pPlayer->nNumParts);
 
-						if (strncmp(&aRead[0], "#", 1) == 0)
-						{// コメント
-							fgets(aRead, MAX_TEXT, pFile);
-							continue;
-						}
+						// txtに書いてる最大数分のパーツの配列を用意する
+						pPlayer->parts = new PlayerParts[pPlayer->nNumParts];
+					}
+					else if (strcmp(&aRead[0], "RADIUS") == 0)
+					{// サイズ
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%f", &pPlayer->fSize);
+					}
 
-						PlayerParts *pParts = &pPlayer->parts[nParts];
-
-						if (strcmp(&aRead[0], "NUM_PARTS") == 0)
-						{// パーツの使用数
+					else if (strcmp(&aRead[0], "PARTSSET") == 0)
+					{// キャラクターの情報
+						while (strcmp(&aRead[0], "END_PARTSSET") != 0)
+						{// 終わりが来るまで繰り返す
 							fscanf(pFile, "%s", &aRead);
-							fscanf(pFile, "%d", &pPlayer->nNumParts);
 
-							// txtに書いてる最大数分のパーツの配列を用意する
-							pPlayer->parts = new PlayerParts[pPlayer->nNumParts];
-						}
-						else if (strcmp(&aRead[0], "RADIUS") == 0)
-						{// サイズ
-							fscanf(pFile, "%s", &aRead);
-							fscanf(pFile, "%f", &pPlayer->fSize);
-						}
-
-						else if (strcmp(&aRead[0], "PARTSSET") == 0)
-						{// キャラクターの情報
-							while (strcmp(&aRead[0], "END_PARTSSET") != 0)
-							{// 終わりが来るまで繰り返す
+							if (strcmp(&aRead[0], "INDEX") == 0)
+							{// 使用するモデルの番号
 								fscanf(pFile, "%s", &aRead);
-
-								if (strcmp(&aRead[0], "INDEX") == 0)
-								{// 使用するモデルの番号
-									fscanf(pFile, "%s", &aRead);
-									fscanf(pFile, "%d", &pParts->nIdxModel);
-								}
-								else if (strcmp(&aRead[0], "PARENT") == 0)
-								{// 親の番号
-									fscanf(pFile, "%s", &aRead);
-									fscanf(pFile, "%d", &pParts->nIdxParent);
-								}
-								else if (strcmp(&aRead[0], "POS") == 0)
-								{// 位置
-									fscanf(pFile, "%s", &aRead);
-									fscanf(pFile, "%f", &pParts->pos.x);
-									fscanf(pFile, "%f", &pParts->pos.y);
-									fscanf(pFile, "%f", &pParts->pos.z);
-								}
-								else if (strcmp(&aRead[0], "ROT") == 0)
-								{// 向き
-									fscanf(pFile, "%s", &aRead);
-									fscanf(pFile, "%f", &pParts->rot.x);
-									fscanf(pFile, "%f", &pParts->rot.y);
-									fscanf(pFile, "%f", &pParts->rot.z);
-								}
+								fscanf(pFile, "%d", &pParts->nIdxModel);
 							}
-							nParts++;
+							else if (strcmp(&aRead[0], "PARENT") == 0)
+							{// 親の番号
+								fscanf(pFile, "%s", &aRead);
+								fscanf(pFile, "%d", &pParts->nIdxParent);
+							}
+							else if (strcmp(&aRead[0], "POS") == 0)
+							{// 位置
+								fscanf(pFile, "%s", &aRead);
+								fscanf(pFile, "%f", &pParts->pos.x);
+								fscanf(pFile, "%f", &pParts->pos.y);
+								fscanf(pFile, "%f", &pParts->pos.z);
+							}
+							else if (strcmp(&aRead[0], "ROT") == 0)
+							{// 向き
+								fscanf(pFile, "%s", &aRead);
+								fscanf(pFile, "%f", &pParts->rot.x);
+								fscanf(pFile, "%f", &pParts->rot.y);
+								fscanf(pFile, "%f", &pParts->rot.z);
+							}
 						}
+						nParts++;
 					}
 				}
 			}
-
-			// ファイルを閉じる
-			fclose(pFile);
-
-			for (int j = 0; j < nNumModel; j++)
-			{// Xファイルの読み込み
-				D3DXLoadMeshFromX(
-					pModelFile[j].aParts,
-					D3DXMESH_SYSTEMMEM,
-					pDevice,
-					NULL,
-					&pModelFile[j].pBuffMat,
-					NULL,
-					&pModelFile[j].nNumMat,
-					&pModelFile[j].pMesh);
-			}
-
-			for (int j = 0; j < pPlayer->nNumParts; j++)
-			{// 使用するモデルの情報を取得
-				PlayerParts *Parts = &pPlayer->parts[j];
-
-				Parts->pBuffMat = pModelFile[Parts->nIdxModel].pBuffMat;
-				Parts->nNumMat = pModelFile[Parts->nIdxModel].nNumMat;
-				Parts->pMesh = pModelFile[Parts->nIdxModel].pMesh;
-			}
-
-			// モデルの開放
-			delete[] pModelFile;
-			pModelFile = NULL;
-
-			if (nFileName != nNumModel)
-			{// モデル数とモデルのファイル名の数が違う
-				MessageBox(hWnd, "[ モデル数 ] と [ モデルのファイル名 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			}
-
-			if (nParts != pPlayer->nNumParts)
-			{// モデル数とモデルの情報の数が違う
-				MessageBox(hWnd, "[ モデル数 ] と [ モデルの情報 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			}
-
-			bool bParent = false;		// 親がいるかどうか
-
-			for (int j = 0; j < pPlayer->nNumParts; j++)
-			{
-				if (pPlayer->parts[j].nIdxParent == IDX_PARENT)
-				{// 親いる
-					bParent = true;
-				}
-			}
-
-			if (!bParent)
-			{// 親がいない
-				MessageBox(hWnd, "親がいない、[ -1 ] を書いてよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			}
-
-			bParent = true;
-
-			for (int j = 0; j < pPlayer->nNumParts; j++)
-			{
-				if (pPlayer->parts[j].nIdxParent >= pPlayer->nNumParts - 1)
-				{// そんな親の番号は存在しない
-					bParent = false;
-				}
-			}
-
-			if (!bParent)
-			{// そんな親の番号は存在しない
-				MessageBox(hWnd, "そんな親の番号は存在しない！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			}
 		}
-		else
-		{// ファイルが開かない場合
-			MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+
+		// ファイルを閉じる
+		fclose(pFile);
+
+		for (int j = 0; j < nNumModel; j++)
+		{// Xファイルの読み込み
+			D3DXLoadMeshFromX(
+				pModelFile[j].aParts,
+				D3DXMESH_SYSTEMMEM,
+				pDevice,
+				NULL,
+				&pModelFile[j].pBuffMat,
+				NULL,
+				&pModelFile[j].nNumMat,
+				&pModelFile[j].pMesh);
+		}
+
+		for (int j = 0; j < pPlayer->nNumParts; j++)
+		{// 使用するモデルの情報を取得
+			PlayerParts *Parts = &pPlayer->parts[j];
+
+			Parts->pBuffMat = pModelFile[Parts->nIdxModel].pBuffMat;
+			Parts->nNumMat = pModelFile[Parts->nIdxModel].nNumMat;
+			Parts->pMesh = pModelFile[Parts->nIdxModel].pMesh;
+		}
+
+		// モデルの開放
+		delete[] pModelFile;
+		pModelFile = NULL;
+
+		if (nFileName != nNumModel)
+		{// モデル数とモデルのファイル名の数が違う
+			MessageBox(hWnd, "[ モデル数 ] と [ モデルのファイル名 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 			assert(false);
 		}
+
+		if (nParts != pPlayer->nNumParts)
+		{// モデル数とモデルの情報の数が違う
+			MessageBox(hWnd, "[ モデル数 ] と [ モデルの情報 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+			assert(false);
+		}
+
+		bool bParent = false;		// 親がいるかどうか
+
+		for (int j = 0; j < pPlayer->nNumParts; j++)
+		{
+			if (pPlayer->parts[j].nIdxParent == IDX_PARENT)
+			{// 親いる
+				bParent = true;
+			}
+		}
+
+		if (!bParent)
+		{// 親がいない
+			MessageBox(hWnd, "親がいない、[ -1 ] を書いてよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+			assert(false);
+		}
+
+		bParent = true;
+
+		for (int j = 0; j < pPlayer->nNumParts; j++)
+		{
+			if (pPlayer->parts[j].nIdxParent >= pPlayer->nNumParts - 1)
+			{// そんな親の番号は存在しない
+				bParent = false;
+			}
+		}
+
+		if (!bParent)
+		{// そんな親の番号は存在しない
+			MessageBox(hWnd, "そんな親の番号は存在しない！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+			assert(false);
+		}
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
 	}
 }
 
