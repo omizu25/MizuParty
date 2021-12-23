@@ -46,14 +46,16 @@ typedef struct
 //--------------------------------------------------
 static Player		*s_player;				// モデルの情報
 static int			s_nNumPlayer;			// プレイヤーの数
+static int			s_nNumMotion;			// モーション数
 static int			s_nSelectPlayer;		// 選ばれているプレイヤー
 static int			s_nSelectParts;			// 選ばれているパーツ
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-static void System(FILE *pFile, HWND hWnd);
-static void Load(FILE *pFile, HWND hWnd, Player *pPlayer);
+static void System(HWND hWnd);
+static void LoadParts(HWND hWnd, Player *pPlayer);
+static void LoadMotion(HWND hWnd, Player *pPlayer);
 static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
 static void Rot(Player *pPlayer);
@@ -314,31 +316,31 @@ Player *GetPlayer(void)
 //--------------------------------------------------
 void LoadPlayer(HWND hWnd)
 {
-	FILE *pFile;		// ファイルポインタを宣言
-
-	// ファイルを開く
-	pFile = fopen(FILE_NAME, "r");
-
 	// システム
-	System(pFile, hWnd);
+	System(hWnd);
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
 		Player *pPlayer = &s_player[i];
 
-		// ファイルを開く
-		pFile = fopen(pPlayer->aText, "r");
+		// パーツの読み込み
+		LoadParts(hWnd, pPlayer);
 
-		// 読み込み
-		Load(pFile, hWnd, pPlayer);
+		// モーションの読み込み
+		LoadMotion(hWnd, pPlayer);
 	}
 }
 
 //--------------------------------------------------
 // システム
 //--------------------------------------------------
-static void System(FILE *pFile, HWND hWnd)
+static void System(HWND hWnd)
 {
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(FILE_NAME, "r");
+
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
@@ -441,12 +443,17 @@ static void System(FILE *pFile, HWND hWnd)
 }
 
 //--------------------------------------------------
-// 読み込み
+// パーツの読み込み
 //--------------------------------------------------
-static void Load(FILE *pFile, HWND hWnd, Player *pPlayer)
+static void LoadParts(HWND hWnd, Player *pPlayer)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(pPlayer->aText, "r");
 
 	if (pFile != NULL)
 	{// ファイルが開いた場合
@@ -515,12 +522,17 @@ static void Load(FILE *pFile, HWND hWnd, Player *pPlayer)
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pPlayer->fSize);
 					}
-
 					else if (strcmp(&aRead[0], "PARTSSET") == 0)
 					{// キャラクターの情報
 						while (strcmp(&aRead[0], "END_PARTSSET") != 0)
 						{// 終わりが来るまで繰り返す
 							fscanf(pFile, "%s", &aRead);
+
+							if (strncmp(&aRead[0], "#", 1) == 0)
+							{// コメント
+								fgets(aRead, MAX_TEXT, pFile);
+								continue;
+							}
 
 							if (strcmp(&aRead[0], "INDEX") == 0)
 							{// 使用するモデルの番号
@@ -625,6 +637,183 @@ static void Load(FILE *pFile, HWND hWnd, Player *pPlayer)
 			MessageBox(hWnd, "そんな親の番号は存在しない！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 			assert(false);
 		}
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
+	}
+}
+
+//--------------------------------------------------
+// モーションの読み込み
+//--------------------------------------------------
+static void LoadMotion(HWND hWnd, Player *pPlayer)
+{
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(pPlayer->aText, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		s_nNumMotion = 0;
+
+		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
+		{// 終わりが来るまで繰り返す
+			fgets(aRead, MAX_TEXT, pFile);
+
+			if (strncmp(&aRead[0], "MOTIONSET", 9) == 0)
+			{// モーションの情報
+				s_nNumMotion++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+
+		// txtに書いてる最大数分のモーションの配列を用意する
+		pPlayer->Motion = new MotionSet[s_nNumMotion];
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
+	}
+
+	// ファイルを開く
+	pFile = fopen(pPlayer->aText, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		int nNumMotion = 0;
+
+		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		{// 始まりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+		}
+
+		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+		{// 終わりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+
+			if (strncmp(&aRead[0], "#-", 2) == 0)
+			{// コメント
+				continue;
+			}
+			else if (strncmp(&aRead[0], "#", 1) == 0)
+			{// コメント
+				fgets(aRead, MAX_TEXT, pFile);
+				continue;
+			}
+
+			if (strcmp(&aRead[0], "MOTIONSET") == 0)
+			{// モーションの情報
+				int nNumKeySet = 0;
+
+				while (strcmp(&aRead[0], "END_MOTIONSET") != 0)
+				{// 終わりが来るまで繰り返す
+					fscanf(pFile, "%s", &aRead);
+
+					if (strncmp(&aRead[0], "#", 1) == 0)
+					{// コメント
+						fgets(aRead, MAX_TEXT, pFile);
+						continue;
+					}
+
+					MotionSet *pMotion = &pPlayer->Motion[nNumMotion];
+
+					if (strcmp(&aRead[0], "LOOP") == 0)
+					{// ループ
+						int nLoop = 0;
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%d", &nLoop);
+
+						if (nLoop == 0)
+						{// ループしない
+							pMotion->bLoop = false;
+						}
+						else
+						{// ループする
+							pMotion->bLoop = true;
+						}
+					}
+					else if (strcmp(&aRead[0], "NUM_KEY") == 0)
+					{// キー数
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%d", &pMotion->nNumKey);
+
+						// txtに書いてる最大数分のキー設定の配列を用意する
+						pMotion->keySet = new KeySet[pMotion->nNumKey];
+
+					}
+					else if (strcmp(&aRead[0], "KEYSET") == 0)
+					{// キー設定
+						int nNumKey = 0;
+
+						while (strcmp(&aRead[0], "END_KEYSET") != 0)
+						{// 終わりが来るまで繰り返す
+							fscanf(pFile, "%s", &aRead);
+
+							if (strncmp(&aRead[0], "#", 1) == 0)
+							{// コメント
+								fgets(aRead, MAX_TEXT, pFile);
+								continue;
+							}
+
+							KeySet *pKeySet = &pMotion->keySet[nNumKeySet];
+
+							if (strcmp(&aRead[0], "FRAME") == 0)
+							{// フレーム数
+								fscanf(pFile, "%s", &aRead);
+								fscanf(pFile, "%d", &pKeySet->nFrame);
+
+								// txtに書いてる最大数分のキーの配列を用意する
+								pKeySet->key = new Key[pPlayer->nNumParts];
+							}
+							else if (strcmp(&aRead[0], "KEY") == 0)
+							{// キー
+								while (strcmp(&aRead[0], "END_KEY") != 0)
+								{// 終わりが来るまで繰り返す
+									fscanf(pFile, "%s", &aRead);
+
+									if (strncmp(&aRead[0], "#", 1) == 0)
+									{// コメント
+										fgets(aRead, MAX_TEXT, pFile);
+										continue;
+									}
+
+									Key *pKey = &pKeySet->key[nNumKey];
+
+									if (strcmp(&aRead[0], "POS") == 0)
+									{// 位置
+										fscanf(pFile, "%s", &aRead);
+										fscanf(pFile, "%f", &pKey->pos.x);
+										fscanf(pFile, "%f", &pKey->pos.y);
+										fscanf(pFile, "%f", &pKey->pos.z);
+									}
+									else if (strcmp(&aRead[0], "ROT") == 0)
+									{// 向き
+										fscanf(pFile, "%s", &aRead);
+										fscanf(pFile, "%f", &pKey->rot.x);
+										fscanf(pFile, "%f", &pKey->rot.y);
+										fscanf(pFile, "%f", &pKey->rot.z);
+									}
+								}
+								nNumKey++;
+							}
+						}
+						nNumKeySet++;
+					}
+				}
+				nNumMotion++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
 	}
 	else
 	{// ファイルが開かない場合

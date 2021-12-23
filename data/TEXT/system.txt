@@ -20,10 +20,4 @@ PLAYER_SET
 	ROT = 0.0 0.0 0.0
 END_PLAYER_SET
 
-PLAYER_SET
-	PLAYER_FILENAME = data/TEXT/model.txt
-	POS = 50.0 0.0 0.0
-	ROT = 0.0 0.0 0.0
-END_PLAYER_SET
-
 END_SCRIPT		# Ç±ÇÃçsÇÕê‚ëŒè¡Ç≥Ç»Ç¢Ç±Ç∆ÅI

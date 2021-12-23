@@ -36,7 +36,7 @@ typedef struct
 
 typedef struct
 {
-	bool		Loop;			// ループするかどうか
+	bool		bLoop;			// ループするかどうか
 	int			nNumKey;		// キー数
 	KeySet		*keySet;		// キー設定
 }MotionSet;
@@ -66,7 +66,7 @@ typedef struct
 	D3DXVECTOR3		rotDest;				// 目的の向き
 	D3DXMATRIX		mtxWorld;				// ワールドマトリックス
 	PlayerParts		*parts;					// パーツの情報
-	MotionSet		Motion[MAX_MOTION];		// モーション設定
+	MotionSet		*Motion;				// モーションの情報
 	int				nNumParts;				// パーツ数
 	int				nIdxShadow;				// 使用している影の番号
 	int				nStopTime;				// 止まっている時間

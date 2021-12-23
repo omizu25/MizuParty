@@ -9,34 +9,91 @@ SCRIPT			# この行は絶対消さないこと！
 #--------------------------------------------------
 # モデル数
 #--------------------------------------------------
-NUM_MODEL = 2
+NUM_MODEL = 9
 
 #--------------------------------------------------
 # モデルファイル名
 #--------------------------------------------------
-MODEL_FILENAME = data/MODEL/てるてる４期生.x		# [0]てるてる４期生
-MODEL_FILENAME = data/MODEL/リムル.x				# [1]リムル
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる縄.x				# [0]縄
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる頭.x				# [1]頭
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる体.x				# [2]体
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる右耳.x			# [3]右耳
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる左耳.x			# [4]左耳
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる天使の輪.x		# [5]天使の輪
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる天使の羽.x		# [6]天使の羽
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる悪魔の羽.x		# [7]悪魔の羽
+MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる朝ココ.x			# [7]朝ココ
 
 #--------------------------------------------------
 # キャラクター情報
 #--------------------------------------------------
 CHARACTERSET
-	NUM_PARTS = 2					# パーツ数
+	NUM_PARTS = 9					# パーツ数
 	RADIUS = 10.0					# 半径
 
-	PARTSSET
-		INDEX = 0					# てるてる４期生
+	PARTSSET						# [0]縄
+		INDEX = 0
 		PARENT = -1					# (親)NULL
-		POS = 0.0 15.0 0.0
+		POS = 0.0 110.0 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET						# [1]頭
+		INDEX = 1
+		PARENT = 0					# (親)縄
+		POS = 0.0 -31.0 -9.5
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET						# [2]体
+		INDEX = 2
+		PARENT = 1					# (親)頭
+		POS = 0.0 2.20 0.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 
 	PARTSSET
-		INDEX = 1					# リムル
-		PARENT = 0					# (親)てるてる４期生
-		POS = 30.0 15.0 0.0
+		INDEX = 3					# 右耳
+		PARENT = 1					# (親)頭
+		POS = -4.0 13.0 0.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
+
+	PARTSSET
+		INDEX = 4					# 左耳
+		PARENT = 1					# (親)頭
+		POS = 4.0 13.0 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 5					# 天使の輪
+		PARENT = 1					# (親)頭
+		POS = 0.0 22.0 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 6					# 天使の羽
+		PARENT = 2					# (親)体
+		POS = -7.0 -2.5 4.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+
+	PARTSSET
+		INDEX = 7					# 悪魔の羽
+		PARENT = 2					# (親)体
+		POS = 7.0 -2.5 4.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 8					# 朝ココ
+		PARENT = 2					# (親)体
+		POS = 0.0 -25.0 10.0
+		ROT = 0.25 0.0 0.0
+	END_PARTSSET
+	
 END_CHARACTERSET
 
 #--------------------------------------------------
@@ -47,33 +104,152 @@ END_CHARACTERSET
 #--------------------------------------------------
 MOTIONSET
 	LOOP = 1		# ループするかどうか[0:ループしない / 1:ループする]
-	NUM_KEY = 2		# キー数
+	NUM_KEY = 3		# キー数
 
-	KEYSET			# --- << KEY : 0 / 2 >> ---
-		FRAME = 40
+	KEYSET			# --- << KEY : 0 / 3 >> ---
+		FRAME = 30
 		KEY	# ----- [ 0 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = 0.13 0.00 0.00
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
 		END_KEY
 
 		KEY	# ----- [ 1 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = -0.10 0.00 0.00
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 2 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 3 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.6
+		END_KEY
+
+		KEY	# ----- [ 4 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 -0.6
+		END_KEY
+
+		KEY	# ----- [ 5 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 6 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.6 0.0
+		END_KEY
+
+		KEY	# ----- [ 7 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 -0.6 0.0
+		END_KEY
+		
+		KEY	# ----- [ 8 ] -----
+			POS = 0.0 2.5 0.0
+			ROT = 0.25 0.0 0.0
 		END_KEY
 	END_KEYSET
 
-	KEYSET			# --- << KEY : 1 / 2 >> ---
-		FRAME = 40
+	KEYSET			# --- << KEY : 1 / 3 >> ---
+		FRAME = 60
 		KEY	# ----- [ 0 ] -----
-			POS = 0.00 -1.00 0.00
-			ROT = -0.09 0.00 0.00
+			POS = 0.0 0.0 0.0
+			ROT = -0.3 0.0 0.0
 		END_KEY
 
 		KEY	# ----- [ 1 ] -----
-			POS = 0.00 0.00 0.00
-			ROT = -0.06 0.00 0.00
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 2 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 3 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.6
+		END_KEY
+
+		KEY	# ----- [ 4 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 -0.6
+		END_KEY
+
+		KEY	# ----- [ 5 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 6 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.6 0.0
+		END_KEY
+
+		KEY	# ----- [ 7 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 -0.6 0.0
+		END_KEY
+		
+		KEY	# ----- [ 8 ] -----
+			POS = 0.0 2.5 0.0
+			ROT = 0.25 0.0 0.0
 		END_KEY
 	END_KEYSET
+
+	KEYSET			# --- << KEY : 2 / 3>> ---
+		FRAME = 30
+		KEY	# ----- [ 0 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.3 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 1 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 2 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 3 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.6
+		END_KEY
+
+		KEY	# ----- [ 4 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 -0.6
+		END_KEY
+
+		KEY	# ----- [ 5 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.0 0.0
+		END_KEY
+
+		KEY	# ----- [ 6 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 -0.6 0.0
+		END_KEY
+
+		KEY	# ----- [ 7 ] -----
+			POS = 0.0 0.0 0.0
+			ROT = 0.0 0.6 0.0
+		END_KEY
+		
+		KEY	# ----- [ 8 ] -----
+			POS = 0.0 2.5 0.0
+			ROT = 0.25 0.0 0.0
+		END_KEY
+	END_KEYSET
+	
 END_MOTIONSET
 
 END_SCRIPT		# この行は絶対消さないこと！
