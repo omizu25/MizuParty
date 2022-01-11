@@ -114,7 +114,7 @@ void InitModel(void)
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 影の設定
-	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot);
+	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
 
 	D3DXCOLOR col = D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f);
 
@@ -299,34 +299,51 @@ Model *GetModel(void)
 //--------------------------------------------------
 // 当たり判定
 //--------------------------------------------------
-void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, float fWidth, float fDepth)
+void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 {
-	float fModelLeft = s_model.pos.x + s_model.vtxMin.x;
-	float fModelRight = s_model.pos.x + s_model.vtxMax.x;
-	float fModelFront = s_model.pos.z + s_model.vtxMin.z;
-	float fModelBack = s_model.pos.z + s_model.vtxMax.z;
+	float fLeft = s_model.pos.x + s_model.vtxMin.x;
+	float fRight = s_model.pos.x + s_model.vtxMax.x;
+	float fBottom = s_model.pos.y + s_model.vtxMin.y;
+	float fTop = s_model.pos.y + s_model.vtxMax.y;
+	float fFront = s_model.pos.z + s_model.vtxMin.z;
+	float fBack = s_model.pos.z + s_model.vtxMax.z;
 
-	if ((pPos->x + fWidth > fModelLeft) && (pPos->x - fWidth < fModelRight))
-	{// xが範囲内
-		if ((pPosOld->z + fDepth <= fModelFront) && (pPos->z + fDepth > fModelFront))
-		{// 前端
-			pPos->z = fModelFront - fDepth;
+	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
+		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
+	{// x, yが範囲内
+		if ((pPosOld->z + size.z <= fFront) && (pPos->z + size.z > fFront))
+		{// 前
+			pPos->z = fFront - size.z;
 		}
-		else if ((pPosOld->z - fDepth >= fModelBack) && (pPos->z - fDepth < fModelBack))
-		{// 後端
-			pPos->z = fModelBack + fDepth;
+		else if ((pPosOld->z - size.z >= fBack) && (pPos->z - size.z < fBack))
+		{// 後
+			pPos->z = fBack + size.z;
 		}
 	}
 
-	if ((pPos->z + fDepth > fModelFront) && (pPos->z - fDepth < fModelBack))
-	{// zが範囲内
-		if ((pPosOld->x + fWidth <= fModelLeft) && (pPos->x + fWidth > fModelLeft))
-		{// 左端
-			pPos->x = fModelLeft - fWidth;
+	if ((pPos->z + size.z > fFront) && (pPos->z - size.z < fBack) &&
+		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
+	{// z, yが範囲内
+		if ((pPosOld->x + size.x <= fLeft) && (pPos->x + size.x > fLeft))
+		{// 左
+			pPos->x = fLeft - size.x;
 		}
-		else if ((pPosOld->x - fWidth >= fModelRight) && (pPos->x - fWidth < fModelRight))
-		{// 右端
-			pPos->x = fModelRight + fWidth;
+		else if ((pPosOld->x - size.x >= fRight) && (pPos->x - size.x < fRight))
+		{// 右
+			pPos->x = fRight + size.x;
+		}
+	}
+
+	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
+		(pPos->z + size.z > fFront) && (pPos->z - size.z < fBack))
+	{// x, zが範囲内
+		if ((pPosOld->y + size.y <= fBottom) && (pPos->y + size.y > fBottom))
+		{// 下
+			pPos->y = fBottom - size.y;
+		}
+		if ((pPosOld->y >= fTop) && (pPos->y < fTop))
+		{// 上
+			pPos->y = fTop;
 		}
 	}
 }

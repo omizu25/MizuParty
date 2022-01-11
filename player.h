@@ -70,7 +70,12 @@ typedef struct
 	int				nNumParts;				// パーツ数
 	int				nIdxShadow;				// 使用している影の番号
 	int				nStopTime;				// 止まっている時間
+	int				nFrame;					// フレーム数
+	int				nIdxMotion;				// モーション番号
+	int				nIdxKey;				// キー番号
+	float			fMove;					// 移動量
 	float			fSize;					// サイズ
+	float			fHeight;				// 高さ
 	char			aText[MAX_TEXT];		// テキスト名
 }Player;
 

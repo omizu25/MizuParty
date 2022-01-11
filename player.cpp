@@ -23,11 +23,10 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_MOVE			(1.0f)			// 移動量の最大値
 #define MAX_ROTATION		(0.035f)		// 回転の最大値
 #define MAX_ATTENUATION		(0.1f)			// 減衰係数の最大値
 #define MAX_HEIGHT			(80.0f)			// 高さの最大値
-#define MIN_HEIGHT			(0.0f)			// 高さの最小値
+#define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
 
 //--------------------------------------------------
@@ -103,9 +102,12 @@ void InitPlayer(void)
 		pPlayer->posOld = pPlayer->pos;
 		pPlayer->rotDest = pPlayer->rot;
 		pPlayer->nStopTime = 0;
+		pPlayer->nFrame = 0;
+		pPlayer->nIdxMotion = 0;
+		pPlayer->nIdxKey = 0;
 
 		// 影の設定
-		pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot);
+		pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot, pPlayer->fSize);
 	}
 
 	s_nSelectPlayer = 0;
@@ -210,8 +212,20 @@ void UpdatePlayer(void)
 	// 角度の正規化
 	NormalizeRot(&pPlayer->rot.y);
 
+	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
+
 	// モデルとの当たり判定
-	CollisionModel(&pPlayer->pos, &pPlayer->posOld, pPlayer->fSize, pPlayer->fSize);
+	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+	MotionSet *pMotion = &pPlayer->Motion[pPlayer->nIdxMotion];
+
+	pPlayer->nFrame++;
+
+	if (pPlayer->nFrame >= pMotion->keySet[pPlayer->nIdxKey].nFrame)
+	{
+		pPlayer->nFrame = 0;
+		pPlayer->nIdxKey = pPlayer->nIdxKey + 1 % pMotion->nNumKey;
+	}
 
 	// 影の位置の設定
 	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
@@ -517,10 +531,20 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 						// txtに書いてる最大数分のパーツの配列を用意する
 						pPlayer->parts = new PlayerParts[pPlayer->nNumParts];
 					}
+					else if (strcmp(&aRead[0], "MOVE") == 0)
+					{// 移動量
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%f", &pPlayer->fMove);
+					}
 					else if (strcmp(&aRead[0], "RADIUS") == 0)
 					{// サイズ
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pPlayer->fSize);
+					}
+					else if (strcmp(&aRead[0], "HEIGHT") == 0)
+					{// 高さ
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%f", &pPlayer->fHeight);
 					}
 					else if (strcmp(&aRead[0], "PARTSSET") == 0)
 					{// キャラクターの情報
@@ -891,21 +915,21 @@ static void FollowMove(Player *pPlayer)
 		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
 			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
 		{// ←, →, ↑, ↓キーが押された
-			pPlayer->pos.x += sinf(fRot) * MAX_MOVE;
-			pPlayer->pos.z += cosf(fRot) * MAX_MOVE;
+			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
+			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
 
 			pPlayer->nStopTime = 0;
 		}
 
 		if (GetKeyboardPress(DIK_I))
 		{// Iキーが押された
-			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
+			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * pPlayer->fMove;
 
 			pPlayer->nStopTime = 0;
 		}
 		else if (GetKeyboardPress(DIK_K))
 		{// Kキーが押された
-			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
+			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * pPlayer->fMove;
 
 			pPlayer->nStopTime = 0;
 		}
@@ -986,17 +1010,17 @@ static void Move(Player *pPlayer)
 		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
 			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
 		{// ←, →, ↑, ↓キーが押された
-			pPlayer->pos.x += sinf(fRot) * MAX_MOVE;
-			pPlayer->pos.z += cosf(fRot) * MAX_MOVE;
+			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
+			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
 		}
 
 		if (GetKeyboardPress(DIK_I))
 		{// Iキーが押された
-			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * MAX_MOVE;
+			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * pPlayer->fMove;
 		}
 		else if (GetKeyboardPress(DIK_K))
 		{// Kキーが押された
-			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * MAX_MOVE;
+			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * pPlayer->fMove;
 		}
 
 		// 指定の値以上・以下

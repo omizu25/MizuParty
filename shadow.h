@@ -14,7 +14,7 @@ void InitShadow(void);
 void UninitShadow(void);
 void UpdateShadow(void);
 void DrawShadow(void);
-int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot);
+int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize);
 void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos);
 
 #endif // !_SHADOW_H_

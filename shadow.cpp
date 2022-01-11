@@ -175,7 +175,7 @@ void DrawShadow(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
+int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
 {
 	int i;
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
@@ -203,8 +203,6 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 		pVtx += (i * 4);		//該当の位置まで進める
-
-		float fSize = pos.y * 0.15f;
 
 		// 頂点座標の設定
 		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);

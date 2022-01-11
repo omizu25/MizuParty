@@ -29,12 +29,14 @@ MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる朝ココ.x			# [7]朝ココ
 #--------------------------------------------------
 CHARACTERSET
 	NUM_PARTS = 9					# パーツ数
-	RADIUS = 10.0					# 半径
+	MOVE = 2.5						# 移動量
+	RADIUS = 20.0					# 半径
+	HEIGHT = 55.0					# 高さ
 
 	PARTSSET						# [0]縄
 		INDEX = 0
 		PARENT = -1					# (親)NULL
-		POS = 0.0 110.0 0.0
+		POS = 0.0 66.0 0.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 

@@ -33,6 +33,6 @@ void UninitModel(void);
 void UpdateModel(void);
 void DrawModel(void);
 Model *GetModel(void);
-void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, float fWidth, float fDepth);
+void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
 
 #endif // !_MODEL_H_
