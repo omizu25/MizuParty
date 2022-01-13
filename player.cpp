@@ -28,6 +28,7 @@
 #define MAX_HEIGHT			(80.0f)			// 高さの最大値
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
+#define MAX_BLEND			(30)			// ブレンドの最大値
 
 //--------------------------------------------------
 // 構造体
@@ -45,9 +46,13 @@ typedef struct
 //--------------------------------------------------
 static Player		*s_player;				// モデルの情報
 static int			s_nNumPlayer;			// プレイヤーの数
-static int			s_nNumMotion;			// モーション数
 static int			s_nSelectPlayer;		// 選ばれているプレイヤー
 static int			s_nSelectParts;			// 選ばれているパーツ
+static int			s_nSelectMotion;		// 選ばれているモーション
+static int			s_nFrame;				// フレーム数
+static int			s_nIdxMotion;			// モーション番号
+static int			s_nIdxKey;				// キー番号
+static bool			s_bMotionBlend;			// モーションブレンド
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -58,6 +63,8 @@ static void LoadMotion(HWND hWnd, Player *pPlayer);
 static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
 static void Rot(Player *pPlayer);
+static void Motion(Player *pPlayer);
+static void SetMotion(Player *pPlayer);
 
 //--------------------------------------------------
 // 初期化
@@ -66,6 +73,14 @@ void InitPlayer(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	s_nSelectPlayer = 0;
+	s_nSelectParts = 0;
+	s_nSelectMotion = 0;
+	s_nFrame = 0;
+	s_nIdxMotion = 0;
+	s_nIdxKey = 0;
+	s_bMotionBlend = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -97,21 +112,23 @@ void InitPlayer(void)
 					pParts->pTexture[k] = NULL;
 				}
 			}
+
+			pPlayer->parts[j].posSet = pPlayer->parts[j].pos;
+			pPlayer->parts[j].rotSet = pPlayer->parts[j].rot;
+			pPlayer->parts[j].posOld = pPlayer->parts[j].pos;
+			pPlayer->parts[j].rotOld = pPlayer->parts[j].rot;
+
+			//pParts->pos += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[j].pos;
+			//pParts->rot += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[j].rot;
 		}
 
 		pPlayer->posOld = pPlayer->pos;
 		pPlayer->rotDest = pPlayer->rot;
 		pPlayer->nStopTime = 0;
-		pPlayer->nFrame = 0;
-		pPlayer->nIdxMotion = 0;
-		pPlayer->nIdxKey = 0;
 
 		// 影の設定
 		pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot, pPlayer->fSize);
 	}
-
-	s_nSelectPlayer = 0;
-	s_nSelectParts = 0;
 }
 
 //--------------------------------------------------
@@ -162,6 +179,24 @@ void UninitPlayer(void)
 		}
 	}
 	
+	for (int i = 0; i < s_nNumPlayer; i++)
+	{// プレイヤー数
+		for (int j = 0; j < s_player[i].nNumMotion; j++)
+		{// モーション数
+			for (int k = 0; k < s_player[i].Motion[j].nNumKey; k++)
+			{// キーセット数
+				delete[] s_player[i].Motion[j].keySet[k].key;
+				s_player[i].Motion[j].keySet[k].key = NULL;
+			}
+
+			delete[] s_player[i].Motion[j].keySet;
+			s_player[i].Motion[j].keySet = NULL;
+		}
+
+		delete[] s_player[i].Motion;
+		s_player[i].Motion = NULL;
+	}
+
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{// パーツの開放
 		delete[] s_player[i].parts;
@@ -217,15 +252,8 @@ void UpdatePlayer(void)
 	// モデルとの当たり判定
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
-	MotionSet *pMotion = &pPlayer->Motion[pPlayer->nIdxMotion];
-
-	pPlayer->nFrame++;
-
-	if (pPlayer->nFrame >= pMotion->keySet[pPlayer->nIdxKey].nFrame)
-	{
-		pPlayer->nFrame = 0;
-		pPlayer->nIdxKey = pPlayer->nIdxKey + 1 % pMotion->nNumKey;
-	}
+	// モーション
+	Motion(pPlayer);
 
 	// 影の位置の設定
 	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
@@ -499,7 +527,7 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 				fscanf(pFile, "%s", &aRead);
 				fscanf(pFile, "%d", &nNumModel);
 
-				// txtに書いてる最大数分のモデルの配列を用意する
+				// txtに書いてる最大数分の配列を用意する
 				pModelFile = new ModelFile[nNumModel];
 			}
 			else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
@@ -511,6 +539,8 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 			}
 			else if (strcmp(&aRead[0], "CHARACTERSET") == 0)
 			{// キャラクターの情報
+				nParts = 0;
+
 				while (strcmp(&aRead[0], "END_CHARACTERSET") != 0)
 				{// 終わりが来るまで繰り返す
 					fscanf(pFile, "%s", &aRead);
@@ -528,7 +558,7 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%d", &pPlayer->nNumParts);
 
-						// txtに書いてる最大数分のパーツの配列を用意する
+						// txtに書いてる最大数分の配列を用意する
 						pPlayer->parts = new PlayerParts[pPlayer->nNumParts];
 					}
 					else if (strcmp(&aRead[0], "MOVE") == 0)
@@ -581,6 +611,8 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 								fscanf(pFile, "%f", &pParts->rot.x);
 								fscanf(pFile, "%f", &pParts->rot.y);
 								fscanf(pFile, "%f", &pParts->rot.z);
+
+								pParts->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 							}
 						}
 						nParts++;
@@ -682,7 +714,7 @@ static void LoadMotion(HWND hWnd, Player *pPlayer)
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
-		s_nNumMotion = 0;
+		pPlayer->nNumMotion = 0;
 
 		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
 		{// 終わりが来るまで繰り返す
@@ -690,7 +722,7 @@ static void LoadMotion(HWND hWnd, Player *pPlayer)
 
 			if (strncmp(&aRead[0], "MOTIONSET", 9) == 0)
 			{// モーションの情報
-				s_nNumMotion++;
+				pPlayer->nNumMotion++;
 			}
 		}
 
@@ -698,7 +730,7 @@ static void LoadMotion(HWND hWnd, Player *pPlayer)
 		fclose(pFile);
 
 		// txtに書いてる最大数分のモーションの配列を用意する
-		pPlayer->Motion = new MotionSet[s_nNumMotion];
+		pPlayer->Motion = new MotionSet[pPlayer->nNumMotion];
 	}
 	else
 	{// ファイルが開かない場合
@@ -714,7 +746,7 @@ static void LoadMotion(HWND hWnd, Player *pPlayer)
 		char aRead[MAX_TEXT] = {};
 		int nNumMotion = 0;
 
-		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		while (strcmp(&aRead[0], "END_CHARACTERSET") != 0)
 		{// 始まりが来るまで繰り返す
 			fscanf(pFile, "%s", &aRead);
 		}
@@ -1047,4 +1079,150 @@ static void Rot(Player *pPlayer)
 			pPlayer->rotDest.y += MAX_ROTATION;
 		}
 	}
+}
+
+//--------------------------------------------------
+// モーション
+//--------------------------------------------------
+static void Motion(Player * pPlayer)
+{
+	s_nFrame++;
+
+	if (s_bMotionBlend)
+	{
+		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
+
+		for (int i = 0; i < pPlayer->nNumParts; i++)
+		{
+			D3DXVECTOR3 posNew = pPlayer->parts[i].posSet + pMotion->keySet[s_nIdxKey].key[i].pos;
+			D3DXVECTOR3 rotNew = pPlayer->parts[i].rotSet + pMotion->keySet[s_nIdxKey].key[i].rot;
+
+			D3DXVECTOR3 pos = posNew - pPlayer->parts[i].posOld;
+			D3DXVECTOR3 rot = rotNew - pPlayer->parts[i].rotOld;
+
+			pos.x /= MAX_BLEND;
+			pos.y /= MAX_BLEND;
+			pos.z /= MAX_BLEND;
+
+			rot.x /= MAX_BLEND;
+			rot.y /= MAX_BLEND;
+			rot.z /= MAX_BLEND;
+
+			pPlayer->parts[i].pos += pos;
+			pPlayer->parts[i].rot += rot;
+		}
+
+		if (s_nFrame >= MAX_BLEND)
+		{
+			s_bMotionBlend = false;
+			s_nFrame = 0;
+		}
+	}
+	else
+	{
+		if (s_nIdxMotion == 0)
+		{
+			if (GetKeyboardTrigger(DIK_RETURN))
+			{// ENTERが押された
+				s_nFrame = 0;
+				s_nIdxKey = 0;
+
+				// モーションセット
+				SetMotion(pPlayer);
+				
+				s_nIdxMotion = 2;
+			}
+
+			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
+				GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+			{// ←, →, ↑, ↓キーが押された
+				s_nFrame = 0;
+				s_nIdxKey = 0;
+
+				// モーションセット
+				SetMotion(pPlayer);
+				
+				s_nIdxMotion = 1;
+			}
+		}
+
+		if (s_nIdxMotion == 1)
+		{
+			s_nIdxMotion = 0;
+		}
+
+		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+		{// ←, →, ↑, ↓キーが押された
+			s_nIdxMotion = 1;
+		}
+
+		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
+
+		if (s_nFrame >= pMotion->keySet[s_nIdxKey].nFrame)
+		{// フレーム数が超えた
+			s_nIdxKey++;
+
+			if (pMotion->bLoop)
+			{// ループする
+				s_nIdxKey %= pMotion->nNumKey;
+			}
+			else
+			{// ループしない
+				if (s_nIdxKey >= pMotion->nNumKey)
+				{
+					s_nIdxKey = 0;
+
+					// モーションセット
+					SetMotion(pPlayer);
+					
+					s_nIdxMotion = 0;
+				}
+			}
+
+			s_nFrame = 0;
+		}
+
+		for (int i = 0; i < pPlayer->nNumParts; i++)
+		{
+			int nNext = (s_nIdxKey + 1) % pMotion->nNumKey;
+
+			D3DXVECTOR3 pos = pMotion->keySet[nNext].key[i].pos - pMotion->keySet[s_nIdxKey].key[i].pos;
+			D3DXVECTOR3 rot = pMotion->keySet[nNext].key[i].rot - pMotion->keySet[s_nIdxKey].key[i].rot;
+
+			pos.x /= pMotion->keySet[s_nIdxKey].nFrame;
+			pos.y /= pMotion->keySet[s_nIdxKey].nFrame;
+			pos.z /= pMotion->keySet[s_nIdxKey].nFrame;
+
+			rot.x /= pMotion->keySet[s_nIdxKey].nFrame;
+			rot.y /= pMotion->keySet[s_nIdxKey].nFrame;
+			rot.z /= pMotion->keySet[s_nIdxKey].nFrame;
+
+			pPlayer->parts[i].pos += pos;
+			pPlayer->parts[i].rot += rot;
+		}
+	}
+}
+
+//--------------------------------------------------
+// モーションセット
+//--------------------------------------------------
+static void SetMotion(Player * pPlayer)
+{
+	//for (int i = 0; i < pPlayer->nNumParts; i++)
+	//{
+	//	pPlayer->parts[i].pos = pPlayer->parts[i].posSet;
+	//	pPlayer->parts[i].rot = pPlayer->parts[i].rotSet;
+
+	//	pPlayer->parts[i].pos += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[i].pos;
+	//	pPlayer->parts[i].rot += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[i].rot;
+	//}
+
+	for (int i = 0; i < pPlayer->nNumParts; i++)
+	{
+		pPlayer->parts[i].posOld = pPlayer->parts[i].pos;
+		pPlayer->parts[i].rotOld = pPlayer->parts[i].rot;
+	}
+	
+	s_bMotionBlend = true;
 }

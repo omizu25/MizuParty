@@ -31,6 +31,7 @@ static LPDIRECTINPUT8			s_pInput = NULL;						// DirectInputオブジェクトへのポイ
 static LPDIRECTINPUTDEVICE8		s_pDevKeyboard = NULL;					// 入力デバイス(キーボード)へのポインタ
 static BYTE						s_aKeyState[NUM_KEY_MAX];				// キーボードのプレス情報
 static BYTE						s_aKeyStateTrigger[NUM_KEY_MAX];		// キーボードのトリガー情報
+static BYTE						s_aKeyStateReturn[NUM_KEY_MAX];			// キーボードのリターン情報
 
 /*↓ ジョイパッド ↓*/
 
@@ -203,6 +204,7 @@ static void UpdateKeyboard(void)
 		for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
 		{
 			s_aKeyStateTrigger[nCntKey] = ~s_aKeyState[nCntKey] & aKeyState[nCntKey];		// キーボードのトリガー情報を保存
+			s_aKeyStateReturn[nCntKey] = s_aKeyState[nCntKey] & ~aKeyState[nCntKey];		// キーボードのリターン情報を保存
 			s_aKeyState[nCntKey] = aKeyState[nCntKey];										// キーボードのプレス情報を保存
 		}
 	}
@@ -227,6 +229,14 @@ bool GetKeyboardPress(int nKey)
 bool GetKeyboardTrigger(int nKey)
 {
 	return (s_aKeyStateTrigger[nKey] & 0x80) != 0;
+}
+
+//--------------------------------------------------
+// キーボードのリターン情報を取得
+//--------------------------------------------------
+bool GetKeyboardReturn(int nKey)
+{
+	return (s_aKeyStateReturn[nKey] & 0x80) != 0;
 }
 
 //--------------------------------------------------

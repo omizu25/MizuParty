@@ -8,11 +8,6 @@
 #define _PLAYER_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
-// マクロ定義
-//--------------------------------------------------
-#define MAX_MOTION		(1)		// モーション数
-
-//--------------------------------------------------
 // 構造体
 //--------------------------------------------------
 
@@ -46,7 +41,11 @@ typedef struct
 typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
+	D3DXVECTOR3				posOld;			// 前回の位置
+	D3DXVECTOR3				posSet;			// 設定の位置
 	D3DXVECTOR3				rot;			// 向き
+	D3DXVECTOR3				rotOld;			// 前回の向き
+	D3DXVECTOR3				rotSet;			// 設定の向き
 	LPD3DXMESH				pMesh;			// メッシュ情報へのポインタ
 	LPD3DXBUFFER			pBuffMat;		// マテリアル情報へのポインタ
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
@@ -67,12 +66,10 @@ typedef struct
 	D3DXMATRIX		mtxWorld;				// ワールドマトリックス
 	PlayerParts		*parts;					// パーツの情報
 	MotionSet		*Motion;				// モーションの情報
+	int				nNumMotion;				// モーション数
 	int				nNumParts;				// パーツ数
 	int				nIdxShadow;				// 使用している影の番号
 	int				nStopTime;				// 止まっている時間
-	int				nFrame;					// フレーム数
-	int				nIdxMotion;				// モーション番号
-	int				nIdxKey;				// キー番号
 	float			fMove;					// 移動量
 	float			fSize;					// サイズ
 	float			fHeight;				// 高さ

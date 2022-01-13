@@ -80,6 +80,7 @@ void UpdateInput(void);												// 入力処理全部の更新処理
 
 bool GetKeyboardPress(int nKey);									// キーボードのプレス処理
 bool GetKeyboardTrigger(int nKey);									// キーボードのトリガー処理
+bool GetKeyboardReturn(int nKey);									// キーボードのリターン処理
 bool GetKeyboardAllPress(void);										// キーボードの全キープレス処理
 bool GetKeyboardAllTrigger(void);									// キーボードの全キートリガー処理
 
