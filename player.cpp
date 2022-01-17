@@ -59,6 +59,7 @@ static bool			s_bMotionLoop;			// モーションループ
 // プロトタイプ宣言
 //--------------------------------------------------
 static void System(HWND hWnd);
+static void LoadNew(HWND hWnd, Player *pPlayer);
 static void LoadParts(HWND hWnd, Player *pPlayer);
 static void LoadMotion(HWND hWnd, Player *pPlayer);
 static void FollowMove(Player *pPlayer);
@@ -367,6 +368,9 @@ void LoadPlayer(HWND hWnd)
 	{
 		Player *pPlayer = &s_player[i];
 
+		// new用の読み込み
+		LoadNew(hWnd, pPlayer);
+
 		// パーツの読み込み
 		LoadParts(hWnd, pPlayer);
 
@@ -439,7 +443,7 @@ static void System(HWND hWnd)
 				continue;
 			}
 
-			else if (strcmp(&aRead[0], "PLAYER_SET") == 0)
+			if (strcmp(&aRead[0], "PLAYER_SET") == 0)
 			{// モデルの情報
 				while (strcmp(&aRead[0], "END_PLAYER_SET") != 0)
 				{// 終わりが来るまで繰り返す
@@ -478,6 +482,44 @@ static void System(HWND hWnd)
 
 		// ファイルを閉じる
 		fclose(pFile);
+	}
+	else
+	{// ファイルが開かない場合
+		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
+		assert(false);
+	}
+}
+
+//--------------------------------------------------
+// new用の読み込み
+//--------------------------------------------------
+static void LoadNew(HWND hWnd, Player *pPlayer)
+{
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(pPlayer->aText, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		pPlayer->nNumMotion = 0;
+
+		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
+		{// 終わりが来るまで繰り返す
+			fgets(aRead, MAX_TEXT, pFile);
+
+			if (strncmp(&aRead[0], "MOTIONSET", 9) == 0)
+			{// モーションの情報
+				pPlayer->nNumMotion++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+
+		// txtに書いてる最大数分のモーションの配列を用意する
+		pPlayer->Motion = new MotionSet[pPlayer->nNumMotion];
 	}
 	else
 	{// ファイルが開かない場合
@@ -568,6 +610,11 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%f", &pPlayer->fMove);
 					}
+					else if (strcmp(&aRead[0], "JUMP") == 0)
+					{// ジャンプ量
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%f", &pPlayer->fJump);
+					}
 					else if (strcmp(&aRead[0], "RADIUS") == 0)
 					{// サイズ
 						fscanf(pFile, "%s", &aRead);
@@ -651,50 +698,6 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 		// モデルの開放
 		delete[] pModelFile;
 		pModelFile = NULL;
-
-		if (nFileName != nNumModel)
-		{// モデル数とモデルのファイル名の数が違う
-			MessageBox(hWnd, "[ モデル数 ] と [ モデルのファイル名 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			assert(false);
-		}
-
-		if (nParts != pPlayer->nNumParts)
-		{// モデル数とモデルの情報の数が違う
-			MessageBox(hWnd, "[ モデル数 ] と [ モデルの情報 ] の数が合ってないよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			assert(false);
-		}
-
-		bool bParent = false;		// 親がいるかどうか
-
-		for (int j = 0; j < pPlayer->nNumParts; j++)
-		{
-			if (pPlayer->parts[j].nIdxParent == IDX_PARENT)
-			{// 親いる
-				bParent = true;
-			}
-		}
-
-		if (!bParent)
-		{// 親がいない
-			MessageBox(hWnd, "親がいない、[ -1 ] を書いてよ！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			assert(false);
-		}
-
-		bParent = true;
-
-		for (int j = 0; j < pPlayer->nNumParts; j++)
-		{
-			if (pPlayer->parts[j].nIdxParent >= pPlayer->nNumParts - 1)
-			{// そんな親の番号は存在しない
-				bParent = false;
-			}
-		}
-
-		if (!bParent)
-		{// そんな親の番号は存在しない
-			MessageBox(hWnd, "そんな親の番号は存在しない！！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-			assert(false);
-		}
 	}
 	else
 	{// ファイルが開かない場合
@@ -709,36 +712,6 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 static void LoadMotion(HWND hWnd, Player *pPlayer)
 {
 	FILE *pFile;		// ファイルポインタを宣言
-
-	// ファイルを開く
-	pFile = fopen(pPlayer->aText, "r");
-
-	if (pFile != NULL)
-	{// ファイルが開いた場合
-		char aRead[MAX_TEXT] = {};
-		pPlayer->nNumMotion = 0;
-
-		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
-		{// 終わりが来るまで繰り返す
-			fgets(aRead, MAX_TEXT, pFile);
-
-			if (strncmp(&aRead[0], "MOTIONSET", 9) == 0)
-			{// モーションの情報
-				pPlayer->nNumMotion++;
-			}
-		}
-
-		// ファイルを閉じる
-		fclose(pFile);
-
-		// txtに書いてる最大数分のモーションの配列を用意する
-		pPlayer->Motion = new MotionSet[pPlayer->nNumMotion];
-	}
-	else
-	{// ファイルが開かない場合
-		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
-		assert(false);
-	}
 
 	// ファイルを開く
 	pFile = fopen(pPlayer->aText, "r");

@@ -71,6 +71,7 @@ typedef struct
 	int				nIdxShadow;				// 使用している影の番号
 	int				nStopTime;				// 止まっている時間
 	float			fMove;					// 移動量
+	float			fJump;					// ジャンプ量
 	float			fSize;					// サイズ
 	float			fHeight;				// 高さ
 	char			aText[MAX_TEXT];		// テキスト名
