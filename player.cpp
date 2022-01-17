@@ -53,6 +53,7 @@ static int			s_nFrame;				// フレーム数
 static int			s_nIdxMotion;			// モーション番号
 static int			s_nIdxKey;				// キー番号
 static bool			s_bMotionBlend;			// モーションブレンド
+static bool			s_bMotionLoop;			// モーションループ
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -81,6 +82,7 @@ void InitPlayer(void)
 	s_nIdxMotion = 0;
 	s_nIdxKey = 0;
 	s_bMotionBlend = true;
+	s_bMotionLoop = false;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -1088,8 +1090,31 @@ static void Motion(Player * pPlayer)
 {
 	s_nFrame++;
 
+	if (GetKeyboardTrigger(DIK_RETURN))
+	{// ENTERが押された
+		s_nFrame = 0;
+		s_nIdxKey = 0;
+
+		// モーションセット
+		SetMotion(pPlayer);
+		
+		s_nIdxMotion = 2;
+	}
+
+	if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
+		GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+	{// ←, →, ↑, ↓キーが押された
+		s_nFrame = 0;
+		s_nIdxKey = 0;
+
+		// モーションセット
+		SetMotion(pPlayer);
+
+		s_nIdxMotion = 1;
+	}
+
 	if (s_bMotionBlend)
-	{
+	{// モーションブレンド中
 		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
 
 		for (int i = 0; i < pPlayer->nNumParts; i++)
@@ -1100,61 +1125,45 @@ static void Motion(Player * pPlayer)
 			D3DXVECTOR3 pos = posNew - pPlayer->parts[i].posOld;
 			D3DXVECTOR3 rot = rotNew - pPlayer->parts[i].rotOld;
 
-			pos.x /= MAX_BLEND;
-			pos.y /= MAX_BLEND;
-			pos.z /= MAX_BLEND;
-
-			rot.x /= MAX_BLEND;
-			rot.y /= MAX_BLEND;
-			rot.z /= MAX_BLEND;
+			pos /= MAX_BLEND;
+			rot /= MAX_BLEND;
 
 			pPlayer->parts[i].pos += pos;
 			pPlayer->parts[i].rot += rot;
 		}
 
 		if (s_nFrame >= MAX_BLEND)
-		{
+		{// フレーム数が超えた
 			s_bMotionBlend = false;
 			s_nFrame = 0;
 		}
 	}
 	else
 	{
-		if (s_nIdxMotion == 0)
-		{
-			if (GetKeyboardTrigger(DIK_RETURN))
-			{// ENTERが押された
-				s_nFrame = 0;
-				s_nIdxKey = 0;
-
-				// モーションセット
-				SetMotion(pPlayer);
-				
-				s_nIdxMotion = 2;
-			}
-
-			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
-				GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
-			{// ←, →, ↑, ↓キーが押された
-				s_nFrame = 0;
-				s_nIdxKey = 0;
-
-				// モーションセット
-				SetMotion(pPlayer);
-				
-				s_nIdxMotion = 1;
-			}
-		}
-
 		if (s_nIdxMotion == 1)
 		{
-			s_nIdxMotion = 0;
+			s_bMotionLoop = true;
+		}
+		else if (s_nIdxMotion == 2)
+		{
+			s_bMotionLoop = false;
 		}
 
 		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
 			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
 		{// ←, →, ↑, ↓キーが押された
-			s_nIdxMotion = 1;
+			s_bMotionLoop = false;
+		}
+
+		if (s_bMotionLoop)
+		{// モーションループする
+			s_nFrame = 0;
+			s_nIdxKey = 0;
+
+			// モーションセット
+			SetMotion(pPlayer);
+
+			s_nIdxMotion = 0;
 		}
 
 		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
@@ -1170,7 +1179,7 @@ static void Motion(Player * pPlayer)
 			else
 			{// ループしない
 				if (s_nIdxKey >= pMotion->nNumKey)
-				{
+				{// キー数が超えた
 					s_nIdxKey = 0;
 
 					// モーションセット
@@ -1190,13 +1199,8 @@ static void Motion(Player * pPlayer)
 			D3DXVECTOR3 pos = pMotion->keySet[nNext].key[i].pos - pMotion->keySet[s_nIdxKey].key[i].pos;
 			D3DXVECTOR3 rot = pMotion->keySet[nNext].key[i].rot - pMotion->keySet[s_nIdxKey].key[i].rot;
 
-			pos.x /= pMotion->keySet[s_nIdxKey].nFrame;
-			pos.y /= pMotion->keySet[s_nIdxKey].nFrame;
-			pos.z /= pMotion->keySet[s_nIdxKey].nFrame;
-
-			rot.x /= pMotion->keySet[s_nIdxKey].nFrame;
-			rot.y /= pMotion->keySet[s_nIdxKey].nFrame;
-			rot.z /= pMotion->keySet[s_nIdxKey].nFrame;
+			pos /= (float)pMotion->keySet[s_nIdxKey].nFrame;
+			rot /= (float)pMotion->keySet[s_nIdxKey].nFrame;
 
 			pPlayer->parts[i].pos += pos;
 			pPlayer->parts[i].rot += rot;
@@ -1209,15 +1213,6 @@ static void Motion(Player * pPlayer)
 //--------------------------------------------------
 static void SetMotion(Player * pPlayer)
 {
-	//for (int i = 0; i < pPlayer->nNumParts; i++)
-	//{
-	//	pPlayer->parts[i].pos = pPlayer->parts[i].posSet;
-	//	pPlayer->parts[i].rot = pPlayer->parts[i].rotSet;
-
-	//	pPlayer->parts[i].pos += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[i].pos;
-	//	pPlayer->parts[i].rot += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[i].rot;
-	//}
-
 	for (int i = 0; i < pPlayer->nNumParts; i++)
 	{
 		pPlayer->parts[i].posOld = pPlayer->parts[i].pos;
