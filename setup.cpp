@@ -334,5 +334,5 @@ float Vec2Cross(D3DXVECTOR3 *v1, D3DXVECTOR3 *v2)
 //--------------------------------------------------
 float Vec2Dot(D3DXVECTOR3 *v1, D3DXVECTOR3 *v2)
 {
-	return (v1->x * v2->x) - (v1->z * v2->z);
+	return (v1->x * v2->x) + (v1->z * v2->z);
 }

@@ -327,7 +327,7 @@ void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 
 		if (fVecLine < 0.0f)
 		{// 壁に当たってる
-			// 移動量
+			// 移動量のベクトル
 			D3DXVECTOR3 vecMove = (*pPos + size) - (*pPosOld + size);
 
 			// 移動量を正規化
@@ -337,27 +337,30 @@ void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 			D3DXVECTOR3 vecPosOld = vtx[0] - *pPosOld;
 
 			// 法線
-			D3DXVECTOR3 vecNor = *D3DXVec3Cross(&vecNor, &vecWall[3], &vecWall[2]);
+			D3DXVECTOR3 nor = *D3DXVec3Cross(&nor, &vecWall[3], &vecWall[2]);
 
 			// 法線を正規化
-			D3DXVec3Normalize(&vecNor, &vecNor);
+			D3DXVec3Normalize(&nor, &nor);
+
+			// 移動量の逆向きのベクトル
+			D3DXVECTOR3 ReverseMove = vecMove * -1.0f;
 
 			// 壁に垂直なベクトル
-			D3DXVECTOR3 vecC = vecNor * Vec2Dot(&vecMove, &vecNor);
+			D3DXVECTOR3 vecNor = nor * Vec2Dot(&ReverseMove, &nor);
 
-			// 一旦、ずりずりストップ
-			vecC = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-			float fVec[2], fData;		// 計算用
+			float fVec[2], fMove;		// 計算用
 
 			// 外積計算
 			fVec[0] = Vec2Cross(&vecPosOld, &vecWall[0]);
 			fVec[1] = Vec2Cross(&vecMove, &vecWall[0]);
 
-			fData = fVec[0] / fVec[1];
+			// 移動量
+			fMove = fVec[0] / fVec[1];
 
-			pPos->x = (pPosOld->x + (vecMove.x * fData)) + vecC.x;
-			pPos->z = (pPosOld->z + (vecMove.z * fData)) + vecC.z;
+			D3DXVECTOR3 move = vecMove * fMove;
+
+			pPos->x = pPosOld->x + (move.x + vecNor.x);
+			pPos->z = pPosOld->z + (move.z + vecNor.z);
 		}
 
 		// 頂点バッファをアンロックする
