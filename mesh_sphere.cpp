@@ -92,30 +92,33 @@ void UninitMeshSphere(void)
 //--------------------------------------------------
 void UpdateMeshSphere(void)
 {
-	// 入力
-	Input();
+	if (GetDebug() == DEBUG_MESH)
+	{// デバッグ表示がメッシュの時
+		// 入力
+		Input();
 
-	if (GetKeyboardTrigger(DIK_Q) || GetKeyboardTrigger(DIK_E) ||
-		GetKeyboardTrigger(DIK_Z) || GetKeyboardTrigger(DIK_C))
-	{// Q, E, Z, Cキーが押された
+		if (GetKeyboardTrigger(DIK_Q) || GetKeyboardTrigger(DIK_E) ||
+			GetKeyboardTrigger(DIK_Z) || GetKeyboardTrigger(DIK_C))
+		{// Q, E, Z, Cキーが押された
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
+			// 指定の値以上・以下
+			Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
+			// 指定の値以上・以下
+			Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
 
-		// バッファのリセット
-		ResetBuff();
+			// バッファのリセット
+			ResetBuff();
 
-		// 設定
-		SetMeshSphere();
+			// 設定
+			SetMeshSphere();
 
-		// 壁のリセット
-		ResetWall();
+			// 壁のリセット
+			ResetWall();
 
-		// 壁の設置
-		InstallationWall();
+			// 壁の設置
+			InstallationWall();
+		}
 	}
 }
 
@@ -303,25 +306,22 @@ MeshSphereNumber *GetMeshSphereNumber(void)
 //--------------------------------------------------
 static void Input(void)
 {
-	if (GetDebug() == DEBUG_MESH)
-	{// デバッグ表示がメッシュの時
-		if (GetKeyboardTrigger(DIK_Q))
-		{// Qキーが押された
-			s_Number.nHorizontal++;
-		}
-		else if (GetKeyboardTrigger(DIK_E))
-		{// Eキーが押された
-			s_Number.nHorizontal--;
-		}
+	if (GetKeyboardTrigger(DIK_Q))
+	{// Qキーが押された
+		s_Number.nHorizontal++;
+	}
+	else if (GetKeyboardTrigger(DIK_E))
+	{// Eキーが押された
+		s_Number.nHorizontal--;
+	}
 
-		if (GetKeyboardTrigger(DIK_Z))
-		{// Zキーが押された
-			s_Number.nVertical++;
-		}
-		else if (GetKeyboardTrigger(DIK_C))
-		{// Cキーが押された
-			s_Number.nVertical--;
-		}
+	if (GetKeyboardTrigger(DIK_Z))
+	{// Zキーが押された
+		s_Number.nVertical++;
+	}
+	else if (GetKeyboardTrigger(DIK_C))
+	{// Cキーが押された
+		s_Number.nVertical--;
 	}
 }
 

@@ -91,30 +91,33 @@ void UninitMeshField(void)
 //--------------------------------------------------
 void UpdateMeshField(void)
 {
-	// 入力
-	Input();
+	if (GetDebug() == DEBUG_MESH)
+	{// デバッグ表示がメッシュの時
+		// 入力
+		Input();
 
-	if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
-		GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
-	{// A, D, W, Sキーが押された
+		if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
+			GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
+		{// A, D, W, Sキーが押された
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nHorizontal, MAX_SIZE, MIN_SIZE);
+			// 指定の値以上・以下
+			Specified(&s_Number.nHorizontal, MAX_SIZE, MIN_SIZE);
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nVertical, MAX_SIZE, MIN_SIZE);
+			// 指定の値以上・以下
+			Specified(&s_Number.nVertical, MAX_SIZE, MIN_SIZE);
 
-		// バッファのリセット
-		ResetBuff();
+			// バッファのリセット
+			ResetBuff();
 
-		// 設定
-		SetMeshField();
+			// 設定
+			SetMeshField();
 
-		// 壁のリセット
-		ResetWall();
+			// 壁のリセット
+			ResetWall();
 
-		// 壁の設置
-		InstallationWall();
+			// 壁の設置
+			InstallationWall();
+		}
 	}
 }
 
@@ -287,25 +290,22 @@ MeshFieldNumber *GetMeshFieldNumber(void)
 //--------------------------------------------------
 static void Input(void)
 {
-	if (GetDebug() == DEBUG_MESH)
-	{// デバッグ表示がメッシュの時
-		if (GetKeyboardTrigger(DIK_A))
-		{// Aキーが押された
-			s_Number.nHorizontal++;
-		}
-		else if (GetKeyboardTrigger(DIK_D))
-		{// Dキーが押された
-			s_Number.nHorizontal--;
-		}
+	if (GetKeyboardTrigger(DIK_A))
+	{// Aキーが押された
+		s_Number.nHorizontal++;
+	}
+	else if (GetKeyboardTrigger(DIK_D))
+	{// Dキーが押された
+		s_Number.nHorizontal--;
+	}
 
-		if (GetKeyboardTrigger(DIK_W))
-		{// Wキーが押された
-			s_Number.nVertical++;
-		}
-		else if (GetKeyboardTrigger(DIK_S))
-		{// Sキーが押された
-			s_Number.nVertical--;
-		}
+	if (GetKeyboardTrigger(DIK_W))
+	{// Wキーが押された
+		s_Number.nVertical++;
+	}
+	else if (GetKeyboardTrigger(DIK_S))
+	{// Sキーが押された
+		s_Number.nVertical--;
 	}
 }
 

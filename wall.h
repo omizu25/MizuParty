@@ -34,6 +34,7 @@ void UpdateWall(void);
 void DrawWall(void);
 void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, float fURight, bool bCulling);
 void InstallationWall(void);
+void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
 Wall *GetWall(void);
 void ResetWall(void);
 

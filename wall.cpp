@@ -9,6 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "input.h"
 #include "mesh_field.h"
 #include "setup.h"
 #include "wall.h"
@@ -93,7 +94,26 @@ void UninitWall(void)
 //--------------------------------------------------
 void UpdateWall(void)
 {
+	for (int i = 0; i < MAX_WALL; i++)
+	{
+		Wall *pWall = &s_wall[i];
 
+		if (!pWall->bUse)
+		{//使用されていない
+			continue;
+		}
+
+		/*↓ 使用されている ↓*/
+
+		if (GetKeyboardPress(DIK_1))
+		{// 1キーが押された
+			pWall->rot.y += 0.01f;
+		}
+		else if (GetKeyboardPress(DIK_2))
+		{// 2キーが押された
+			pWall->rot.y -= 0.01f;
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -230,6 +250,119 @@ void InstallationWall(void)
 	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, false);
 	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, -D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, false);
 	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, D3DX_PI * 0.5f, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, false);*/
+}
+
+//--------------------------------------------------
+// 当たり判定
+//--------------------------------------------------
+void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
+
+	for (int i = 0; i < MAX_WALL; i++)
+	{
+		Wall *pWall = &s_wall[i];
+
+		if (!pWall->bUse)
+		{// 使用されていない
+			continue;
+		}
+
+		/*↓ 使用されている ↓*/
+
+		// 頂点情報をロックし、頂点情報へのポインタを取得
+		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+		pVtx += (i * 4);		//該当の位置まで進める
+
+		D3DXMATRIX mtxWorld[VTX];
+		D3DXVECTOR3 vtx[VTX];
+
+		for (int j = 0; j < VTX; j++)
+		{
+			D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
+
+			// ワールドマトリックスの初期化
+			D3DXMatrixIdentity(&mtxWorld[j]);
+
+			// 位置を反映
+			D3DXMatrixTranslation(&mtxTrans, pVtx[j].pos.x, pVtx[j].pos.y, pVtx[j].pos.z);
+			D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxTrans);
+
+			// 向きを反映
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, pWall->rot.y, pWall->rot.x, pWall->rot.z);
+			D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxRot);
+
+			// 位置を反映
+			D3DXMatrixTranslation(&mtxTrans, pWall->pos.x, pWall->pos.y, pWall->pos.z);
+			D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxTrans);
+
+			// ワールド座標行列の設定
+			pDevice->SetTransform(D3DTS_WORLD, &mtxWorld[j]);
+
+			vtx[j] = D3DXVECTOR3(mtxWorld[j]._41, mtxWorld[j]._42, mtxWorld[j]._43);
+		}
+
+		D3DXVECTOR3 vecWall[VTX];
+
+		// 壁のベクトル
+		for (int j = 0, k = 0; j < VTX; j++, k++)
+		{
+			if (k == (VTX / 2))
+			{// 折り返しに来た
+				k = (k + 1) * -1;
+			}
+
+			vecWall[j] = vtx[k + 1] - vtx[j];
+		}
+		
+		// プレイヤーの位置までのベクトル
+		D3DXVECTOR3 vecPos = *pPos - vtx[0];
+
+		// 外積計算
+		float fVecLine = Vec2Cross(&vecPos, &vecWall[0]);
+
+		if (fVecLine < 0.0f)
+		{// 壁に当たってる
+			// 移動量
+			D3DXVECTOR3 vecMove = (*pPos + size) - (*pPosOld + size);
+
+			// 移動量を正規化
+			D3DXVec3Normalize(&vecMove, &vecMove);
+
+			// プレイヤーの前回の位置からのベクトル
+			D3DXVECTOR3 vecPosOld = vtx[0] - *pPosOld;
+
+			// 法線
+			D3DXVECTOR3 vecNor = *D3DXVec3Cross(&vecNor, &vecWall[3], &vecWall[2]);
+
+			// 法線を正規化
+			D3DXVec3Normalize(&vecNor, &vecNor);
+
+			// 壁に垂直なベクトル
+			D3DXVECTOR3 vecC = vecNor * Vec2Dot(&vecMove, &vecNor);
+
+			// 一旦、ずりずりストップ
+			vecC = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+			float fVec[2], fData;		// 計算用
+
+			// 外積計算
+			fVec[0] = Vec2Cross(&vecPosOld, &vecWall[0]);
+			fVec[1] = Vec2Cross(&vecMove, &vecWall[0]);
+
+			fData = fVec[0] / fVec[1];
+
+			pPos->x = (pPosOld->x + (vecMove.x * fData)) + vecC.x;
+			pPos->z = (pPosOld->z + (vecMove.z * fData)) + vecC.z;
+		}
+
+		// 頂点バッファをアンロックする
+		s_pVtxBuff->Unlock();
+	}
 }
 
 //--------------------------------------------------

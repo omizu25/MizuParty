@@ -94,30 +94,33 @@ void UninitMeshCylinder(void)
 //--------------------------------------------------
 void UpdateMeshCylinder(void)
 {
-	// 入力
-	Input();
+	if (GetDebug() == DEBUG_MESH)
+	{// デバッグ表示がメッシュの時
+		// 入力
+		Input();
 
-	if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
-		GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
-	{// ←, →, ↑, ↓キーが押された
+		if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
+			GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+		{// ←, →, ↑, ↓キーが押された
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
+			// 指定の値以上・以下
+			Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
 
-		// 指定の値以上・以下
-		Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
+			// 指定の値以上・以下
+			Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
 
-		// バッファのリセット
-		ResetBuff();
+			// バッファのリセット
+			ResetBuff();
 
-		// 設定
-		SetMeshCylinder();
+			// 設定
+			SetMeshCylinder();
 
-		// 壁のリセット
-		ResetWall();
+			// 壁のリセット
+			ResetWall();
 
-		// 壁の設置
-		InstallationWall();
+			// 壁の設置
+			InstallationWall();
+		}
 	}
 }
 
@@ -308,25 +311,22 @@ MeshCylinderNumber *GetMeshCylinderNumber(void)
 //--------------------------------------------------
 static void Input(void)
 {
-	if (GetDebug() == DEBUG_MESH)
-	{// デバッグ表示がメッシュの時
-		if (GetKeyboardTrigger(DIK_LEFT))
-		{// ←キーが押された
-			s_Number.nHorizontal++;
-		}
-		else if (GetKeyboardTrigger(DIK_RIGHT))
-		{// →キーが押された
-			s_Number.nHorizontal--;
-		}
+	if (GetKeyboardTrigger(DIK_LEFT))
+	{// ←キーが押された
+		s_Number.nHorizontal++;
+	}
+	else if (GetKeyboardTrigger(DIK_RIGHT))
+	{// →キーが押された
+		s_Number.nHorizontal--;
+	}
 
-		if (GetKeyboardTrigger(DIK_UP))
-		{// ↑キーが押された
-			s_Number.nVertical++;
-		}
-		else if (GetKeyboardTrigger(DIK_DOWN))
-		{// ↓キーが押された
-			s_Number.nVertical--;
-		}
+	if (GetKeyboardTrigger(DIK_UP))
+	{// ↑キーが押された
+		s_Number.nVertical++;
+	}
+	else if (GetKeyboardTrigger(DIK_DOWN))
+	{// ↓キーが押された
+		s_Number.nVertical--;
 	}
 }
 

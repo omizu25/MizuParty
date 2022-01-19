@@ -4,11 +4,16 @@
 // Author  : katsuki mizuki
 //
 //--------------------------------------------------
-#ifndef _SETUP_H_		//このマクロ定義がされてなかったら
-#define _SETUP_H_		//２重インクルード防止のマクロ定義
+#ifndef _SETUP_H_		// このマクロ定義がされてなかったら
+#define _SETUP_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
-//プロトタイプ宣言
+// マクロ定義
+//--------------------------------------------------
+#define		VTX		(4)		// 頂点数
+
+//--------------------------------------------------
+// プロトタイプ宣言
 //--------------------------------------------------
 
 /*↓ 頂点情報 [2D] ↓*/
@@ -51,5 +56,10 @@ void NormalizeRot(float *pRot);
 void Specified(int *pNumber, int nMax, int nMin);
 void Specified(float *pNumber, float fMax, float fMin);
 void VtxSmallBig(float *pfMin, float *pfMax, float fPos);
+
+/*↓ 外積・内積 ↓*/
+
+float Vec2Cross(D3DXVECTOR3 *v1, D3DXVECTOR3 *v2);
+float Vec2Dot(D3DXVECTOR3 *v1, D3DXVECTOR3 *v2);
 
 #endif // !_SETUP_H_

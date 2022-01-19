@@ -16,6 +16,7 @@
 #include "player.h"
 #include "setup.h"
 #include "shadow.h"
+#include "wall.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -254,6 +255,9 @@ void UpdatePlayer(void)
 
 	// ƒ‚ƒfƒ‹‚Æ‚Ì“–‚½‚è”»’è
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+	// “–‚½‚è”»’è
+	CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 
 	// ƒ‚[ƒVƒ‡ƒ“
 	Motion(pPlayer);
@@ -1137,6 +1141,7 @@ static void Motion(Player * pPlayer)
 			SetMotion(pPlayer);
 
 			s_nIdxMotion = 0;
+			s_bMotionLoop = false;
 		}
 
 		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
