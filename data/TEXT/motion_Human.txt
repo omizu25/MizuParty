@@ -37,6 +37,7 @@ CHARACTERSET
 	MOVE = 4.0						# ˆÚ“®—Ê
 	JUMP = 8.65						# ƒWƒƒƒ“ƒv—Ê
 	RADIUS = 20.0					# ”¼Œa
+	HEIGHT = 55.0					# ‚‚³
 
 	PARTSSET						# [0]‘Ì
 		INDEX = 0

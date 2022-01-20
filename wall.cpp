@@ -318,6 +318,14 @@ void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 
 			vecWall[j] = vtx[k + 1] - vtx[j];
 		}
+
+		// 移動量のベクトル
+		D3DXVECTOR3 vecMove = *pPos - *pPosOld;
+
+		// 移動量を正規化
+		D3DXVec3Normalize(&vecMove, &vecMove);
+
+		vecWall[0] -= vecMove * size.x;
 		
 		// プレイヤーの位置までのベクトル
 		D3DXVECTOR3 vecPos = *pPos - vtx[0];
@@ -325,14 +333,8 @@ void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 		// 外積計算
 		float fVecLine = Vec2Cross(&vecPos, &vecWall[0]);
 
-		if (fVecLine < 0.0f)
+		if (fVecLine <= 0.0f)
 		{// 壁に当たってる
-			// 移動量のベクトル
-			D3DXVECTOR3 vecMove = (*pPos + size) - (*pPosOld + size);
-
-			// 移動量を正規化
-			D3DXVec3Normalize(&vecMove, &vecMove);
-
 			// プレイヤーの前回の位置からのベクトル
 			D3DXVECTOR3 vecPosOld = vtx[0] - *pPosOld;
 
@@ -357,10 +359,8 @@ void CollisionWall(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 			// 移動量
 			fMove = fVec[0] / fVec[1];
 
-			D3DXVECTOR3 move = vecMove * fMove;
-
-			pPos->x = pPosOld->x + (move.x + vecNor.x);
-			pPos->z = pPosOld->z + (move.z + vecNor.z);
+			pPos->x = pPosOld->x + ((vecMove.x * fMove) + vecNor.x);
+			pPos->z = pPosOld->z + ((vecMove.z * fMove) + vecNor.z);
 		}
 
 		// 頂点バッファをアンロックする
