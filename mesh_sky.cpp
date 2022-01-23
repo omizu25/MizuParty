@@ -32,7 +32,7 @@ static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffCone = NULL;		// 円錐の頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;			// インデックスバッファへのポインタ
-static MeshSky						s_meshSky;					// メッシュ空の情報
+static MeshSky						s_mesh;						// メッシュ空の情報
 static MeshSkyNumber				s_Number;					// メッシュ空の数系の情報
 
 //--------------------------------------------------
@@ -56,7 +56,7 @@ void InitMeshSky(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshSky, 0, sizeof(s_meshSky));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 	memset(&s_Number, 0, sizeof(s_Number));
 
 	// 横・縦の初期化
@@ -139,18 +139,18 @@ void DrawMeshSky(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshSky.mtxWorld);
+	D3DXMatrixIdentity(&s_mesh.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshSky.rot.y, s_meshSky.rot.x, s_meshSky.rot.z);
-	D3DXMatrixMultiply(&s_meshSky.mtxWorld, &s_meshSky.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_mesh.rot.y, s_mesh.rot.x, s_mesh.rot.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshSky.pos.x, s_meshSky.pos.y, s_meshSky.pos.z);
-	D3DXMatrixMultiply(&s_meshSky.mtxWorld, &s_meshSky.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_mesh.pos.x, s_mesh.pos.y, s_mesh.pos.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshSky.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_mesh.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -219,7 +219,7 @@ void SetMeshSky(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshSky, 0, sizeof(s_meshSky));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -377,7 +377,7 @@ void SetMeshSky(void)
 //--------------------------------------------------
 MeshSky *GetMeshSky(void)
 {
-	return &s_meshSky;
+	return &s_mesh;
 }
 
 //--------------------------------------------------

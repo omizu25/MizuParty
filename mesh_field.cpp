@@ -30,7 +30,7 @@
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
-static MeshField					s_meshField;			// メッシュフィールドの情報
+static MeshField					s_mesh;					// メッシュフィールドの情報
 static MeshFieldNumber				s_Number;				// メッシュフィールドの数系の情報
 
 //--------------------------------------------------
@@ -54,7 +54,7 @@ void InitMeshField(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshField, 0, sizeof(s_meshField));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 	memset(&s_Number, 0, sizeof(s_Number));
 
 	// 横・縦の初期化
@@ -131,18 +131,18 @@ void DrawMeshField(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshField.mtxWorld);
+	D3DXMatrixIdentity(&s_mesh.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshField.rot.y, s_meshField.rot.x, s_meshField.rot.z);
-	D3DXMatrixMultiply(&s_meshField.mtxWorld, &s_meshField.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_mesh.rot.y, s_mesh.rot.x, s_mesh.rot.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshField.pos.x, s_meshField.pos.y, s_meshField.pos.z);
-	D3DXMatrixMultiply(&s_meshField.mtxWorld, &s_meshField.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_mesh.pos.x, s_mesh.pos.y, s_mesh.pos.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshField.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_mesh.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -199,12 +199,12 @@ void SetMeshField(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshField, 0, sizeof(s_meshField));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 
 	// 幅・高さ・奥行きの設定
-	s_meshField.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
-	s_meshField.fHeight = MAX_HEIGHT;
-	s_meshField.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
+	s_mesh.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
+	s_mesh.fHeight = MAX_HEIGHT;
+	s_mesh.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -270,11 +270,120 @@ void SetMeshField(void)
 }
 
 //--------------------------------------------------
+// 当たり判定
+//--------------------------------------------------
+void CollisionMeshField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
+{
+	//// デバイスへのポインタの取得
+	//LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	//VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
+
+	//for (int i = 0; i < MAX_WALL; i++)
+	//{
+	//	MeshField *pMesh = &s_mesh;
+
+	//	// 頂点情報をロックし、頂点情報へのポインタを取得
+	//	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	//	pVtx += (i * 4);		//該当の位置まで進める
+
+	//	D3DXMATRIX mtxWorld[VTX];
+	//	D3DXVECTOR3 vtx[VTX];
+
+	//	for (int j = 0; j < VTX; j++)
+	//	{
+	//		D3DXMATRIX mtxRot, mtxTrans;	// 計算用マトリックス
+
+	//		// ワールドマトリックスの初期化
+	//		D3DXMatrixIdentity(&mtxWorld[j]);
+
+	//		// 位置を反映
+	//		D3DXMatrixTranslation(&mtxTrans, pVtx[j].pos.x, pVtx[j].pos.y, pVtx[j].pos.z);
+	//		D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxTrans);
+
+	//		// 向きを反映
+	//		D3DXMatrixRotationYawPitchRoll(&mtxRot, pWall->rot.y, pWall->rot.x, pWall->rot.z);
+	//		D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxRot);
+
+	//		// 位置を反映
+	//		D3DXMatrixTranslation(&mtxTrans, pWall->pos.x, pWall->pos.y, pWall->pos.z);
+	//		D3DXMatrixMultiply(&mtxWorld[j], &mtxWorld[j], &mtxTrans);
+
+	//		// ワールド座標行列の設定
+	//		pDevice->SetTransform(D3DTS_WORLD, &mtxWorld[j]);
+
+	//		vtx[j] = D3DXVECTOR3(mtxWorld[j]._41, mtxWorld[j]._42, mtxWorld[j]._43);
+	//	}
+
+	//	D3DXVECTOR3 vecWall[VTX];
+
+	//	// 壁のベクトル
+	//	for (int j = 0, k = 0; j < VTX; j++, k++)
+	//	{
+	//		if (k == (VTX / 2))
+	//		{// 折り返しに来た
+	//			k = (k + 1) * -1;
+	//		}
+
+	//		vecWall[j] = vtx[k + 1] - vtx[j];
+	//	}
+
+	//	// 移動量のベクトル
+	//	D3DXVECTOR3 vecMove = *pPos - *pPosOld;
+
+	//	// 移動量を正規化
+	//	D3DXVec3Normalize(&vecMove, &vecMove);
+
+	//	vecWall[0] -= vecMove * size.x;
+
+	//	// プレイヤーの位置までのベクトル
+	//	D3DXVECTOR3 vecPos = *pPos - vtx[0];
+
+	//	// 外積計算
+	//	float fVecLine = Vec2Cross(&vecPos, &vecWall[0]);
+
+	//	if (fVecLine <= 0.0f)
+	//	{// 壁に当たってる
+	//	 // プレイヤーの前回の位置からのベクトル
+	//		D3DXVECTOR3 vecPosOld = vtx[0] - *pPosOld;
+
+	//		// 法線
+	//		D3DXVECTOR3 nor = *D3DXVec3Cross(&nor, &vecWall[3], &vecWall[2]);
+
+	//		// 法線を正規化
+	//		D3DXVec3Normalize(&nor, &nor);
+
+	//		// 移動量の逆向きのベクトル
+	//		D3DXVECTOR3 ReverseMove = vecMove * -1.0f;
+
+	//		// 壁に垂直なベクトル
+	//		D3DXVECTOR3 vecNor = nor * Vec2Dot(&ReverseMove, &nor);
+
+	//		float fVec[2], fMove;		// 計算用
+
+	//									// 外積計算
+	//		fVec[0] = Vec2Cross(&vecPosOld, &vecWall[0]);
+	//		fVec[1] = Vec2Cross(&vecMove, &vecWall[0]);
+
+	//		// 移動量
+	//		fMove = fVec[0] / fVec[1];
+
+	//		pPos->x = pPosOld->x + ((vecMove.x * fMove) + vecNor.x);
+	//		pPos->z = pPosOld->z + ((vecMove.z * fMove) + vecNor.z);
+	//	}
+
+	//	// 頂点バッファをアンロックする
+	//	s_pVtxBuff->Unlock();
+	//}
+}
+
+//--------------------------------------------------
 // 取得
 //--------------------------------------------------
 MeshField *GetMeshField(void)
 {
-	return &s_meshField;
+	return &s_mesh;
 }
 
 //--------------------------------------------------

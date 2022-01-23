@@ -31,7 +31,7 @@
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
-static MeshSphere					s_meshSphere;			// メッシュ球の情報
+static MeshSphere					s_mesh;					// メッシュ球の情報
 static MeshSphereNumber				s_Number;				// メッシュ球の数系の情報
 
 //--------------------------------------------------
@@ -55,7 +55,7 @@ void InitMeshSphere(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshSphere, 0, sizeof(s_meshSphere));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 	memset(&s_Number, 0, sizeof(s_Number));
 
 	// 横・縦の初期化
@@ -132,18 +132,18 @@ void DrawMeshSphere(void)
 	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshSphere.mtxWorld);
+	D3DXMatrixIdentity(&s_mesh.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshSphere.rot.y, s_meshSphere.rot.x, s_meshSphere.rot.z);
-	D3DXMatrixMultiply(&s_meshSphere.mtxWorld, &s_meshSphere.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_mesh.rot.y, s_mesh.rot.x, s_mesh.rot.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshSphere.pos.x, s_meshSphere.pos.y, s_meshSphere.pos.z);
-	D3DXMatrixMultiply(&s_meshSphere.mtxWorld, &s_meshSphere.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_mesh.pos.x, s_mesh.pos.y, s_mesh.pos.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshSphere.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_mesh.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -200,7 +200,7 @@ void SetMeshSphere(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshSphere, 0, sizeof(s_meshSphere));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -290,7 +290,7 @@ void SetMeshSphere(void)
 //--------------------------------------------------
 MeshSphere *GetMeshSphere(void)
 {
-	return &s_meshSphere;
+	return &s_mesh;
 }
 
 //--------------------------------------------------

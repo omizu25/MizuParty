@@ -33,7 +33,7 @@
 static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポインタ
-static MeshCylinder					s_meshCylinder;			// メッシュ円柱の情報
+static MeshCylinder					s_mesh;					// メッシュ円柱の情報
 static MeshCylinderNumber			s_Number;				// メッシュ円柱の数系の情報
 
 //--------------------------------------------------
@@ -57,7 +57,7 @@ void InitMeshCylinder(void)
 		&s_pTexture);
 
 	// メモリのクリア
-	memset(&s_meshCylinder, 0, sizeof(s_meshCylinder));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 	memset(&s_Number, 0, sizeof(s_Number));
 
 	//横・縦の初期化
@@ -137,18 +137,18 @@ void DrawMeshCylinder(void)
 	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 
 	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_meshCylinder.mtxWorld);
+	D3DXMatrixIdentity(&s_mesh.mtxWorld);
 
 	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_meshCylinder.rot.y, s_meshCylinder.rot.x, s_meshCylinder.rot.z);
-	D3DXMatrixMultiply(&s_meshCylinder.mtxWorld, &s_meshCylinder.mtxWorld, &mtxRot);
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_mesh.rot.y, s_mesh.rot.x, s_mesh.rot.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
 	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_meshCylinder.pos.x, s_meshCylinder.pos.y, s_meshCylinder.pos.z);
-	D3DXMatrixMultiply(&s_meshCylinder.mtxWorld, &s_meshCylinder.mtxWorld, &mtxTrans);
+	D3DXMatrixTranslation(&mtxTrans, s_mesh.pos.x, s_mesh.pos.y, s_mesh.pos.z);
+	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxTrans);
 
 	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_meshCylinder.mtxWorld);
+	pDevice->SetTransform(D3DTS_WORLD, &s_mesh.mtxWorld);
 
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_3D));
@@ -208,7 +208,7 @@ void SetMeshCylinder(void)
 		NULL);
 
 	// メモリのクリア
-	memset(&s_meshCylinder, 0, sizeof(s_meshCylinder));
+	memset(&s_mesh, 0, sizeof(s_mesh));
 
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -295,7 +295,7 @@ void SetMeshCylinder(void)
 //--------------------------------------------------
 MeshCylinder *GetMeshCylinder(void)
 {
-	return &s_meshCylinder;
+	return &s_mesh;
 }
 
 //--------------------------------------------------
