@@ -13,6 +13,7 @@
 #include "billboard.h"
 #include "camera.h"
 #include "input.h"
+#include "mesh_field.h"
 #include "player.h"
 #include "setup.h"
 #include "shadow.h"
@@ -121,9 +122,6 @@ void InitPlayer(void)
 			pPlayer->parts[j].rotSet = pPlayer->parts[j].rot;
 			pPlayer->parts[j].posOld = pPlayer->parts[j].pos;
 			pPlayer->parts[j].rotOld = pPlayer->parts[j].rot;
-
-			//pParts->pos += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[j].pos;
-			//pParts->rot += pPlayer->Motion[s_nIdxMotion].keySet[s_nIdxKey].key[j].rot;
 		}
 
 		pPlayer->posOld = pPlayer->pos;
@@ -256,8 +254,11 @@ void UpdatePlayer(void)
 	// モデルとの当たり判定
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
-	// 当たり判定
+	// 壁との当たり判定
 	CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
+
+	// メッシュフィールドとの当たり判定
+	//CollisionMeshField(&pPlayer->pos);
 
 	// モーション
 	Motion(pPlayer);
