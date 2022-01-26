@@ -9,23 +9,9 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
-#include "billboard.h"
-#include "bullet.h"
 #include "camera.h"
-#include "effect.h"
 #include "input.h"
-#include "light.h"
-#include "line.h"
-#include "mesh_cylinder.h"
-#include "mesh_field.h"
-#include "mesh_sky.h"
-#include "mesh_sphere.h"
-#include "model.h"
-#include "player.h"
-#include "particle.h"
-#include "polygon.h"
-#include "shadow.h"
-#include "wall.h"
+#include "game.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -55,8 +41,6 @@ static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
 static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
-static bool						s_bWireframe = false;		// ワイヤーフレーム表示をするか [表示  : true 非表示  : false]
-static bool						s_bPause = false;			// ポーズするか [する  : true しない  : false]
 
 //--------------------------------------------------
 // main関数
@@ -306,74 +290,8 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	// ポリゴンの初期化
-	//InitPolygon();
-
-	// メッシュフィールドの初期化
-	InitMeshField();
-
-	// メッシュフィールドの設定
-	SetMeshField();
-
-	// メッシュ円柱の初期化
-	InitMeshCylinder();
-
-	// メッシュ円柱の設定
-	SetMeshCylinder();
-
-	// メッシュ球の初期化
-	InitMeshSphere();
-
-	// メッシュ球の設定
-	SetMeshSphere();
-
-	// メッシュ空の初期化
-	InitMeshSky();
-
-	// メッシュ空の設定
-	SetMeshSky();
-
-	// 壁の初期化
-	InitWall();
-
-	// 壁の設置
-	InstallationWall();
-
-	// ビルボードの初期化
-	InitBillboard();
-
-	// ビルボードの読み込み
-	LoadBillboard(hWnd);
-
-	// パーティクルの初期化
-	InitParticle();
-
-	// エフェクトの初期化
-	InitEffect();
-
-	// 影の初期化
-	InitShadow();
-
-	// 線の初期化
-	InitLine();
-
-	// モデルの初期化
-	InitModel();
-
-	// プレイヤーの読み込み
-	LoadPlayer(hWnd);
-
-	// プレイヤーの初期化
-	InitPlayer();
-
-	// 弾の初期化
-	InitBullet();
-
-	// カメラの初期化
-	InitCamera();
-
-	// ライトの初期化
-	InitLight();
+	// ゲームの初期化
+	InitGame(hWnd);
 
 	return S_OK;
 }
@@ -390,50 +308,8 @@ static void Uninit(void)
 	// 入力処理の終了
 	UninitInput();
 
-	// ポリゴンの終了
-	//UninitPolygon();
-
-	// メッシュフィールドの終了
-	UninitMeshField();
-
-	// メッシュ円柱の終了
-	UninitMeshCylinder();
-
-	// メッシュ球の終了
-	UninitMeshSphere();
-
-	// メッシュ空の終了
-	UninitMeshSky();
-
-	// 壁の終了
-	UninitWall();
-
-	// ビルボードの終了
-	UninitBillboard();
-
-	// エフェクトの終了
-	UninitEffect();
-
-	// 影の終了
-	UninitShadow();
-
-	// 線の終了
-	UninitLine();
-
-	// モデルの終了
-	UninitModel();
-
-	// プレイヤーの終了
-	UninitPlayer();
-
-	// 弾の終了
-	UninitBullet();
-
-	// カメラの終了
-	UninitCamera();
-
-	// ライトの終了
-	UninitLight();
+	// ゲームの終了
+	UninitInput();
 
 	if (s_pFont != NULL)
 	{// デバッグ表示用フォントの解放
@@ -466,56 +342,8 @@ static void Update(void)
 	// 入力処理の更新
 	UpdateInput();
 
-	if (!s_bPause)
-	{
-		// ポリゴンの更新
-		//UpdatePolygon();
-
-		// メッシュフィールドの更新
-		UpdateMeshField();
-
-		// メッシュ円柱の更新
-		UpdateMeshCylinder();
-
-		// メッシュ球の更新
-		UpdateMeshSphere();
-
-		// メッシュ空の更新
-		UpdateMeshSky();
-
-		// 壁の更新
-		UpdateWall();
-
-		// ビルボードの更新
-		UpdateBillboard();
-
-		// パーティクルの更新
-		UpdateParticle();
-
-		// エフェクトの更新
-		UpdateEffect();
-
-		// モデルの更新
-		UpdateModel();
-
-		// プレイヤーの更新
-		UpdatePlayer();
-
-		// 線の更新
-		UpdateLine();
-
-		// 弾の更新
-		UpdateBullet();
-
-		// 影の更新
-		UpdateShadow();
-
-		// カメラの更新
-		UpdateCamera();
-
-		// ライトの更新
-		UpdateLight();
-	}
+	// ゲームの更新
+	UpdateGame();
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
@@ -540,16 +368,6 @@ static void Update(void)
 			s_Debug = (DEBUG)(DEBUG_MAX - 1);
 		}
 	}
-
-	if (GetKeyboardTrigger(DIK_F4))
-	{// F4キーが押された
-		s_bPause = !s_bPause;
-	}
-
-	if (GetKeyboardTrigger(DIK_F5))
-	{// F5キーが押された
-		s_bWireframe = !s_bWireframe;
-	}
 }
 
 //--------------------------------------------------
@@ -573,58 +391,8 @@ static void Draw(void)
 		// 各種オブジェクトの描画
 		//--------------------------------------------------
 
-		// カメラの設定
-		SetCamera();
-
-		if (s_bWireframe)
-		{// 表示
-			// レンダーステートの設定
-			s_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		}
-		else
-		{// 非表示
-			// レンダーステートを元に戻す
-			s_pD3DDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-		}
-
-		// ポリゴンの描画
-		//DrawPolygon();
-
-		// メッシュ空の描画
-		DrawMeshSky();
-
-		// メッシュフィールドの描画
-		DrawMeshField();
-
-		// モデルの描画
-		DrawModel();
-
-		// プレイヤーの描画
-		DrawPlayer();
-
-		// 線の描画
-		DrawLine();
-
-		// 影の描画
-		DrawShadow();
-
-		// メッシュ球の描画
-		//DrawMeshSphere();
-
-		// メッシュ円柱の描画
-		//DrawMeshCylinder();
-
-		// ビルボードの描画
-		DrawBillboard(false);
-
-		// 壁の描画
-		DrawWall();
-
-		// エフェクトの描画
-		DrawEffect();
-
-		// ビルボードの描画
-		DrawBillboard(true);
+		// ゲームの描画
+		DrawGame();
 
 		if (s_bDebug)
 		{
@@ -677,7 +445,7 @@ static void DrawDebug(void)
 	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
 	nLength = (int)strlen(&aStr[0]);
 
-	if (s_bPause)
+	if (GetGame().bPause)
 	{
 		sprintf(&aStr[nLength], "ポーズ            [ F4 ]  :【 ON 】\n");
 	}
@@ -687,7 +455,7 @@ static void DrawDebug(void)
 	}
 	nLength = (int)strlen(&aStr[0]);
 
-	if (s_bWireframe)
+	if (GetGame().bWireframe)
 	{
 		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F5 ]  :【 ON 】\n");
 	}
@@ -697,14 +465,12 @@ static void DrawDebug(void)
 	}
 	nLength = (int)strlen(&aStr[0]);
 
-	Camera *pCamera = GetCamera();		//カメラの取得
-
-	if (pCamera->bFollow)
-	{
+	if (GetCamera()->bFollow)
+	{// 追従する
 		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 ON 】\n");
 	}
 	else
-	{
+	{// 追従しない
 		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 OFF 】\n");
 	}
 	nLength = (int)strlen(&aStr[0]);
@@ -716,12 +482,6 @@ static void DrawDebug(void)
 
 	sprintf(&aStr[nLength], "( カメラ ⇔ モデル ⇔ メッシュ )\n");
 	nLength = (int)strlen(&aStr[0]);
-
-	Player *pPlayer = GetPlayer();										//プレイヤーの取得
-	MeshFieldNumber *pNumber = GetMeshFieldNumber();					//メッシュフィールドの数系の取得
-	MeshCylinderNumber *pCylinderNumber = GetMeshCylinderNumber();		//メッシュ円柱の数系の取得
-	MeshSphereNumber *pSphereNumber = GetMeshSphereNumber();			//メッシュ球の数系の取得
-	MeshSkyNumber *pSkyNumber = GetMeshSkyNumber();						//メッシュ空の数系の取得
 
 	switch (s_Debug)
 	{
@@ -737,36 +497,6 @@ static void DrawDebug(void)
 		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
 
-		sprintf(&aStr[nLength], "A, S, D, Wキー            : 視点の移動\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "Z, Cキー                  : 視点の旋回\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "Q, Eキー                  : 注視点の旋回\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "T, Gキー                  : 視点の上下移動\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "Y, Hキー                  : 注視点の上下移動\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "U, Jキー                  : 視点～注視点間の距離変更\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "1, 2キー                  : 注視点～プレイヤー間の距離変更\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "視点の座標                : (%.3f, %.3f, %.3f)\n", pCamera->posV.x, pCamera->posV.y, pCamera->posV.z);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "注視点の座標              : (%.3f, %.3f, %.3f)\n", pCamera->posR.x, pCamera->posR.y, pCamera->posR.z);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "視点と注視点の角度( y )   : %.3f\n", pCamera->rot.y);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "視点と注視点の角度( x )   : %.3f\n", pCamera->rot.x);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "視点～注視点の距離        : %.3f\n", pCamera->fDistance);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "注視点～プレイヤーの距離  : %.3f\n", pCamera->fDisPlayer);
-		nLength = (int)strlen(&aStr[0]);
-
 		break;
 
 	case DEBUG_PLAYER:		// プレイヤー
@@ -776,50 +506,23 @@ static void DrawDebug(void)
 		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
 
-		sprintf(&aStr[nLength], "<< モデル操作 >>\n");
+		sprintf(&aStr[nLength], "<< プレイヤー操作 >>\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "↑, ↓, ←, →キー    : 移動 (%.3f, %.3f, %.3f)\n", pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "左Shift, 右Shiftキー  : Y軸回転 (%.3f, %.3f, %.3f)\n", pPlayer->rot.x, pPlayer->rot.y, pPlayer->rot.z);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "I, Kキー              : 上下移動\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "止まっている時間      : %d\n", pPlayer->nStopTime);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;
 
-	case DEBUG_MESH:		//メッシュ
+	case DEBUG_MESH:		// メッシュ
 
-		sprintf(&aStr[nLength], "                         ↑\n\n");
+		sprintf(&aStr[nLength], "                        ↑\n\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "\n");
 		nLength = (int)strlen(&aStr[0]);
 
-		sprintf(&aStr[nLength], "<< 地面 円柱 球のメッシュ操作 >>\n");
+		sprintf(&aStr[nLength], "<< メッシュ操作 >>\n");
 		nLength = (int)strlen(&aStr[0]);
 		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "A , D , W , S キー [地面]  : 横 * 縦 増減 [ %d * %d ]\n", pNumber->nHorizontal, pNumber->nVertical);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "←, →, ↑, ↓キー [円柱]  : 横 * 縦 増減 [ %d * %d ]\n", pCylinderNumber->nHorizontal, pCylinderNumber->nVertical);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "Q , E , Z , C キー [球]    : 横 * 縦 増減 [ %d * %d ]\n", pSphereNumber->nHorizontal, pSphereNumber->nVertical);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "V , B , N , M キー [空]    : 横 * 縦 増減 [ %d * %d ]\n", pSkyNumber->nHorizontal, pSkyNumber->nVertical);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-		
-		sprintf(&aStr[nLength], "頂点数                     : %2d  %3d  %3d  %3d\n", pNumber->nVtx, pCylinderNumber->nVtx, pSphereNumber->nVtx, pSkyNumber->nVtx);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "インデックス数             : %2d  %3d  %3d  %3d\n", pNumber->nIdx, pCylinderNumber->nIdx, pSphereNumber->nIdx, pSkyNumber->nIdx);
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "ポリゴン数                 : %2d  %3d  %3d  %3d\n", pNumber->nPolygon, pCylinderNumber->nPolygon, pSphereNumber->nPolygon, pSkyNumber->nPolygon);
 		nLength = (int)strlen(&aStr[0]);
 
 		break;

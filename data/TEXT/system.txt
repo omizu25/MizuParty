@@ -16,7 +16,7 @@ BILLBOARD_FILENAME = data/TEXT/billboard.txt
 #--------------------------------------------------
 PLAYER_SET
 	PLAYER_FILENAME = data/TEXT/motion_Human.txt
-	POS = 0.0 00.0 0.0
+	POS = 0.0 0.0 0.0
 	ROT = 0.0 0.0 0.0
 END_PLAYER_SET
 

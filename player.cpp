@@ -258,7 +258,7 @@ void UpdatePlayer(void)
 	CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 
 	// メッシュフィールドとの当たり判定
-	//CollisionMeshField(&pPlayer->pos);
+	CollisionMeshField(&pPlayer->pos);
 
 	// モーション
 	Motion(pPlayer);

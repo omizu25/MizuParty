@@ -66,6 +66,11 @@ void InitCamera(void)
 	s_camera.fDisPlayer = START_DISTANCE;
 
 	s_camera.bFollow = false;
+
+	s_camera.viewport.X = (DWORD)0.0f;
+	s_camera.viewport.Y = (DWORD)0.0f;
+	s_camera.viewport.Width = SCREEN_WIDTH;
+	s_camera.viewport.Height = SCREEN_HEIGHT;
 }
 
 //--------------------------------------------------
@@ -132,6 +137,45 @@ void UpdateCamera(void)
 		s_camera.posR.z = s_camera.posV.z + cosf(s_camera.rot.y) * s_camera.fDistance;
 		s_camera.posR.y = s_camera.posV.y + tanf(-s_camera.rot.x + (D3DX_PI * 0.5f)) * s_camera.fDistance;
 	}
+}
+
+//--------------------------------------------------
+// 描画
+//--------------------------------------------------
+void DrawCamera(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ライトを無効にする
+	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+
+	// αテストを有効にする
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
+	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
+	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
+
+	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
+
+	// テクスチャの解除
+	pDevice->SetTexture(0, NULL);
+
+	// ライトを有効に戻す
+	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
+
+	// Zバッファの値を元に戻す
+	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);		// 新規深度値 <= Zバッファ深度値 (初期設定)
+	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
+
+	// αテストを無効に戻す
+	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
 }
 
 //--------------------------------------------------

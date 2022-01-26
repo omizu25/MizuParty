@@ -13,12 +13,25 @@
 #define		VTX		(4)		// 頂点数
 
 //--------------------------------------------------
+// 列挙型
+//--------------------------------------------------
+typedef enum
+{
+	SETPOS_MIDDLE = 0,		// 真ん中
+	SETPOS_LEFT,			// 左
+	SETPOS_RIGHT,			// 右
+	SETPOS_TOP,				// 上
+	SETPOS_BOTTOM,			// 下
+	SETPOS_MAX
+}SETPOS;
+
+//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 
 /*↓ 頂点情報 [2D] ↓*/
 
-void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, SETPOS setpos);
 void Setcol(VERTEX_2D *pVtx, D3DXCOLOR col);
 void Settex(VERTEX_2D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom);
 

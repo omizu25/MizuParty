@@ -18,11 +18,11 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_WIDTH		(150.0f)		// 幅の最大値
-#define MAX_HEIGHT		(0.0f)			// 高さの最大値
+#define MAX_HEIGHT		(150.0f)		// 高さの最大値
 #define MAX_DEPTH		(150.0f)		// 奥行きの最大値
-#define MAX_SIZE		(10)			// サイズの最大値
+#define MAX_SIZE		(50)			// サイズの最大値
 #define MIN_SIZE		(1)				// サイズの最小値
-#define START_SIZE		(3)				// サイズの最初の値
+#define START_SIZE		(30)			// サイズの最初の値
 
 //--------------------------------------------------
 // スタティック変数
@@ -225,10 +225,11 @@ void SetMeshField(void)
 			int nVtx = j + (i * nXLine);
 
 			float fXPos = (float)(j - (s_Number.nHorizontal * 0.5f));
-			float fZPos = (float)(i - (s_Number.nVertical * 0.5f)) * -1.0f;
+			float fZPos = (float)((i - (s_Number.nVertical * 0.5f)) * -1.0f);
+			float fYPos = sinf(((j * 0.1f) * (D3DX_PI * 2.0f)));
 
 			// 頂点座標の設定
-			pVtx[nVtx].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, 0.0f, MAX_DEPTH * fZPos);
+			pVtx[nVtx].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, MAX_HEIGHT * fYPos, MAX_DEPTH * fZPos);
 
 			// 各頂点の法線の設定
 			pVtx[nVtx].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -324,15 +325,14 @@ void CollisionMeshField(D3DXVECTOR3 * pos)
 			{
 				D3DXVECTOR3 N;
 				D3DXVec3Cross(&N, &vecField[0], &vecField[1]);
+
 				if (N.y < 0.0f)
 				{
 					N *= -1.0f;
 				}
+
 				D3DXVec3Normalize(&N, &N);
 
-				pVtx[s_pIdx[i + 0]].col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
-				pVtx[s_pIdx[i + 1]].col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
-				pVtx[s_pIdx[i + 2]].col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
 				pos->y = pVtx[s_pIdx[i]].pos.y - 1.0f / N.y * (N.x * (pos->x - pVtx[s_pIdx[i]].pos.x) + N.z * (pos->z - pVtx[s_pIdx[i]].pos.z));
 			}
 		}
@@ -342,15 +342,14 @@ void CollisionMeshField(D3DXVECTOR3 * pos)
 			{
 				D3DXVECTOR3 N;
 				D3DXVec3Cross(&N, &vecField[0], &vecField[1]);
+
 				if (N.y < 0.0f)
 				{
 					N *= -1.0f;
 				}
+
 				D3DXVec3Normalize(&N, &N);
 
-				pVtx[s_pIdx[i + 0]].col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
-				pVtx[s_pIdx[i + 1]].col = D3DXCOLOR(0.0f, 1.0f, 1.0f, 1.0f);
-				pVtx[s_pIdx[i + 2]].col = D3DXCOLOR(1.0f, 0.0f, 1.0f, 1.0f);
 				pos->y = pVtx[s_pIdx[i]].pos.y - 1.0f / N.y * (N.x * (pos->x - pVtx[s_pIdx[i]].pos.x) + N.z * (pos->z - pVtx[s_pIdx[i]].pos.z));
 			}
 		}

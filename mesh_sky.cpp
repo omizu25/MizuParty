@@ -17,13 +17,13 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_SIZE				(1000.0f)		// サイズの最大値
+#define MAX_SIZE				(1500.0f)		// サイズの最大値
 #define MAX_HORIZONTAL			(30)			// 横の最大値
 #define MIN_HORIZONTAL			(5)				// 横の最小値
 #define START_HORIZONTAL		(8)				// 横の最初の値
 #define MAX_VERTICAL			(30)			// 縦の最大値
 #define MIN_VERTICAL			(5)				// 縦の最小値
-#define START_VERTICAL			(10)			// 縦の最初の値
+#define START_VERTICAL			(15)			// 縦の最初の値
 
 //--------------------------------------------------
 // スタティック変数

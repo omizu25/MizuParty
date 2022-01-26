@@ -11,15 +11,118 @@
 #include "main.h"
 #include "setup.h"
 
+#include <assert.h>
+
+//--------------------------------------------------
+// プロトタイプ宣言
+//--------------------------------------------------
+static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+static void SetBottompos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+
 //--------------------------------------------------
 // 頂点座標の設定 [2D]
 //--------------------------------------------------
-void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, SETPOS setpos)
+{
+	switch (setpos)
+	{
+	case SETPOS_MIDDLE:		// 真ん中
+
+		//頂点座標の設定 [2D] (真ん中に中心)
+		SetMiddlepos(pVtx, pos, fWidth, fHeight);
+
+		break;
+
+	case SETPOS_LEFT:		// 左
+
+		//頂点座標の設定 [2D] (左に中心)
+		SetLeftpos(pVtx, pos, fWidth, fHeight);
+
+		break;
+
+	case SETPOS_RIGHT:		// 右
+
+		//頂点座標の設定 [2D] (右に中心)
+		SetRightpos(pVtx, pos, fWidth, fHeight);
+
+		break;
+
+	case SETPOS_TOP:		// 上
+
+		//頂点座標の設定 [2D] (上に中心)
+		SetToppos(pVtx, pos, fWidth, fHeight);
+
+		break;
+
+	case SETPOS_BOTTOM:		// 下
+
+		//頂点座標の設定 [2D] (下に中心)
+		SetBottompos(pVtx, pos, fWidth, fHeight);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+//頂点座標の設定 [2D] (真ん中に中心)
+//--------------------------------------------------
+static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,  fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+}
+
+//--------------------------------------------------
+//頂点座標の設定 [2D] (左に中心)
+//--------------------------------------------------
+static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(0.0f, -fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(0.0f, fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+}
+
+//--------------------------------------------------
+//頂点座標の設定 [2D] (右に中心)
+//--------------------------------------------------
+static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(0.0f, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(0.0f, fHeight, 0.0f);
+}
+
+//--------------------------------------------------
+//頂点座標の設定 [2D] (上に中心)
+//--------------------------------------------------
+static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, 0.0f, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, 0.0f, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+}
+
+//--------------------------------------------------
+//頂点座標の設定 [2D] (下に中心)
+//--------------------------------------------------
+static void SetBottompos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, 0.0f, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, 0.0f, 0.0f);
 }
 
 //--------------------------------------------------
