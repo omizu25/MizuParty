@@ -48,12 +48,12 @@ typedef struct
 //--------------------------------------------------
 static Player		*s_player;				// モデルの情報
 static File			**s_file;				// ファイルの情報
+static MOTION		s_IdxMotion;			// モーション番号
 static int			s_nNumPlayer;			// プレイヤーの数
 static int			s_nSelectPlayer;		// 選ばれているプレイヤー
 static int			s_nSelectParts;			// 選ばれているパーツ
 static int			s_nSelectMotion;		// 選ばれているモーション
 static int			s_nFrame;				// フレーム数
-static int			s_nIdxMotion;			// モーション番号
 static int			s_nIdxKey;				// キー番号
 static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
@@ -83,7 +83,7 @@ void InitPlayer(void)
 	s_nSelectParts = 0;
 	s_nSelectMotion = 0;
 	s_nFrame = 0;
-	s_nIdxMotion = 0;
+	s_IdxMotion = MOTION_NEUTRAL;
 	s_nIdxKey = 0;
 	s_bMotionBlend = true;
 	s_bMotionLoop = false;
@@ -1102,7 +1102,7 @@ static void Motion(Player * pPlayer)
 		// モーションセット
 		SetMotion(pPlayer);
 		
-		s_nIdxMotion = 2;
+		s_IdxMotion = MOTION_ATTACK;
 	}
 
 	if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
@@ -1114,12 +1114,12 @@ static void Motion(Player * pPlayer)
 		// モーションセット
 		SetMotion(pPlayer);
 
-		s_nIdxMotion = 1;
+		s_IdxMotion = MOTION_MOVE;
 	}
 
 	if (s_bMotionBlend)
 	{// モーションブレンド中
-		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
+		MotionSet *pMotion = &pPlayer->Motion[s_IdxMotion];
 
 		for (int i = 0; i < pPlayer->nNumParts; i++)
 		{
@@ -1144,11 +1144,11 @@ static void Motion(Player * pPlayer)
 	}
 	else
 	{
-		if (s_nIdxMotion == 1)
+		if (s_IdxMotion == MOTION_MOVE)
 		{
 			s_bMotionLoop = true;
 		}
-		else if (s_nIdxMotion == 2)
+		else if (s_IdxMotion == MOTION_ATTACK)
 		{
 			s_bMotionLoop = false;
 		}
@@ -1167,11 +1167,11 @@ static void Motion(Player * pPlayer)
 			// モーションセット
 			SetMotion(pPlayer);
 
-			s_nIdxMotion = 0;
+			s_IdxMotion = MOTION_NEUTRAL;
 			s_bMotionLoop = false;
 		}
 
-		MotionSet *pMotion = &pPlayer->Motion[s_nIdxMotion];
+		MotionSet *pMotion = &pPlayer->Motion[s_IdxMotion];
 
 		if (s_nFrame >= pMotion->keySet[s_nIdxKey].nFrame)
 		{// フレーム数が超えた
@@ -1190,7 +1190,7 @@ static void Motion(Player * pPlayer)
 					// モーションセット
 					SetMotion(pPlayer);
 					
-					s_nIdxMotion = 0;
+					s_IdxMotion = MOTION_NEUTRAL;
 				}
 			}
 

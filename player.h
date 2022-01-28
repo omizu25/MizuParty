@@ -8,6 +8,19 @@
 #define _PLAYER_H_		// ２重インクルード防止のマクロ定義
 
 //--------------------------------------------------
+// 列挙型
+//--------------------------------------------------
+typedef enum
+{
+	MOTION_NEUTRAL = 0,		// ニュートラル
+	MOTION_MOVE,			// 移動
+	MOTION_ATTACK,			// 攻撃
+	MOTION_JUMP,			// ジャンプ
+	MOTION_LANDING,			// 着地
+	MOTION_MAX
+}MOTION;
+
+//--------------------------------------------------
 // 構造体
 //--------------------------------------------------
 
@@ -68,6 +81,7 @@ typedef struct
 	MotionSet		*Motion;				// モーションの情報
 	int				nNumMotion;				// モーション数
 	int				nNumParts;				// パーツ数
+	int				nNumName;				// ファイルネーム数
 	int				nIdxShadow;				// 使用している影の番号
 	int				nStopTime;				// 止まっている時間
 	float			fMove;					// 移動量
@@ -75,7 +89,6 @@ typedef struct
 	float			fSize;					// サイズ
 	float			fHeight;				// 高さ
 	char			aText[MAX_TEXT];		// テキスト名
-	int				nNumName;				// ファイルネーム数
 }Player;
 
 //--------------------------------------------------
