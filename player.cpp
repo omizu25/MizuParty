@@ -41,12 +41,13 @@ typedef struct
 	LPD3DXBUFFER		pBuffMat;				// マテリアル情報へのポインタ
 	DWORD				nNumMat;				// マテリアル情報の数
 	char				aParts[MAX_TEXT];		// モデルファイル名
-}ModelFile;
+}File;
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Player		*s_player;				// モデルの情報
+static File			**s_file;				// ファイルの情報
 static int			s_nNumPlayer;			// プレイヤーの数
 static int			s_nSelectPlayer;		// 選ばれているプレイヤー
 static int			s_nSelectParts;			// 選ばれているパーツ
@@ -61,9 +62,9 @@ static bool			s_bMotionLoop;			// モーションループ
 // プロトタイプ宣言
 //--------------------------------------------------
 static void System(HWND hWnd);
-static void LoadNew(HWND hWnd, Player *pPlayer);
-static void LoadParts(HWND hWnd, Player *pPlayer);
-static void LoadMotion(HWND hWnd, Player *pPlayer);
+static void LoadNew(HWND hWnd, int nCnt);
+static void LoadParts(HWND hWnd, int nCnt);
+static void LoadMotion(HWND hWnd, int nCnt);
 static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
 static void Rot(Player *pPlayer);
@@ -169,18 +170,39 @@ void UninitPlayer(void)
 
 			if (pParts->pMesh != NULL)
 			{// メッシュの解放
-				pParts->pMesh->Release();
 				pParts->pMesh = NULL;
 			}
 
 			if (pParts->pBuffMat != NULL)
 			{// マテリアルの解放
-				pParts->pBuffMat->Release();
 				pParts->pBuffMat = NULL;
 			}
 		}
+
+		for (int j = 0; j <  s_player[i].nNumName; j++)
+		{
+			if (s_file[i][j].pMesh != NULL)
+			{// メッシュの解放
+				s_file[i][j].pMesh->Release();
+				s_file[i][j].pMesh = NULL;
+			}
+
+			if (s_file[i][j].pBuffMat != NULL)
+			{// マテリアルの解放
+				s_file[i][j].pBuffMat->Release();
+				s_file[i][j].pBuffMat = NULL;
+			}
+		}
+
+		// モデルの開放
+		delete[] s_file[i];
+		s_file[i] = NULL;
 	}
 	
+	// モデルの開放
+	delete[] s_file;
+	s_file = NULL;
+
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{// プレイヤー数
 		for (int j = 0; j < s_player[i].nNumMotion; j++)
@@ -371,16 +393,14 @@ void LoadPlayer(HWND hWnd)
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
-		Player *pPlayer = &s_player[i];
-
 		// new用の読み込み
-		LoadNew(hWnd, pPlayer);
+		LoadNew(hWnd, i);
 
 		// パーツの読み込み
-		LoadParts(hWnd, pPlayer);
+		LoadParts(hWnd, i);
 
 		// モーションの読み込み
-		LoadMotion(hWnd, pPlayer);
+		LoadMotion(hWnd, i);
 	}
 }
 
@@ -414,6 +434,7 @@ static void System(HWND hWnd)
 
 		// txtに書いてる最大数分のプレイヤーの配列を用意する
 		s_player = new Player[s_nNumPlayer];
+		s_file = new File*[s_nNumPlayer];
 	}
 	else
 	{// ファイルが開かない場合
@@ -498,9 +519,11 @@ static void System(HWND hWnd)
 //--------------------------------------------------
 // new用の読み込み
 //--------------------------------------------------
-static void LoadNew(HWND hWnd, Player *pPlayer)
+static void LoadNew(HWND hWnd, int nCnt)
 {
 	FILE *pFile;		// ファイルポインタを宣言
+
+	Player *pPlayer = &s_player[nCnt];
 
 	// ファイルを開く
 	pFile = fopen(pPlayer->aText, "r");
@@ -509,6 +532,7 @@ static void LoadNew(HWND hWnd, Player *pPlayer)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
 		pPlayer->nNumMotion = 0;
+		pPlayer->nNumName = 0;
 
 		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
 		{// 終わりが来るまで繰り返す
@@ -518,6 +542,10 @@ static void LoadNew(HWND hWnd, Player *pPlayer)
 			{// モーションの情報
 				pPlayer->nNumMotion++;
 			}
+			else if (strncmp(&aRead[0], "MODEL_FILENAME", 14) == 0)
+			{// モーションの情報
+				pPlayer->nNumName++;
+			}
 		}
 
 		// ファイルを閉じる
@@ -525,6 +553,8 @@ static void LoadNew(HWND hWnd, Player *pPlayer)
 
 		// txtに書いてる最大数分のモーションの配列を用意する
 		pPlayer->Motion = new MotionSet[pPlayer->nNumMotion];
+
+		s_file[nCnt] = new File[pPlayer->nNumName];
 	}
 	else
 	{// ファイルが開かない場合
@@ -536,12 +566,14 @@ static void LoadNew(HWND hWnd, Player *pPlayer)
 //--------------------------------------------------
 // パーツの読み込み
 //--------------------------------------------------
-static void LoadParts(HWND hWnd, Player *pPlayer)
+static void LoadParts(HWND hWnd, int nCnt)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	FILE *pFile;		// ファイルポインタを宣言
+
+	Player *pPlayer = &s_player[nCnt];
 
 	// ファイルを開く
 	pFile = fopen(pPlayer->aText, "r");
@@ -550,7 +582,6 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 	{// ファイルが開いた場合
 		char aRead[MAX_TEXT] = {};
 		int nParts = 0, nFileName = 0, nNumModel = 0;
-		ModelFile *pModelFile = NULL;
 
 		while (strcmp(&aRead[0], "SCRIPT") != 0)
 		{// 始まりが来るまで繰り返す
@@ -575,14 +606,11 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 			{// モデルの使用数
 				fscanf(pFile, "%s", &aRead);
 				fscanf(pFile, "%d", &nNumModel);
-
-				// txtに書いてる最大数分の配列を用意する
-				pModelFile = new ModelFile[nNumModel];
 			}
 			else if (strcmp(&aRead[0], "MODEL_FILENAME") == 0)
 			{// モデルファイル名
 				fscanf(pFile, "%s", &aRead);
-				fscanf(pFile, "%s", pModelFile[nFileName].aParts);
+				fscanf(pFile, "%s", &s_file[nCnt][nFileName].aParts);
 
 				nFileName++;
 			}
@@ -678,31 +706,27 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 		// ファイルを閉じる
 		fclose(pFile);
 
-		for (int j = 0; j < nNumModel; j++)
+		for (int j = 0; j < pPlayer->nNumName; j++)
 		{// Xファイルの読み込み
 			D3DXLoadMeshFromX(
-				pModelFile[j].aParts,
+				s_file[nCnt][j].aParts,
 				D3DXMESH_SYSTEMMEM,
 				pDevice,
 				NULL,
-				&pModelFile[j].pBuffMat,
+				&s_file[nCnt][j].pBuffMat,
 				NULL,
-				&pModelFile[j].nNumMat,
-				&pModelFile[j].pMesh);
+				&s_file[nCnt][j].nNumMat,
+				&s_file[nCnt][j].pMesh);
 		}
 
 		for (int j = 0; j < pPlayer->nNumParts; j++)
 		{// 使用するモデルの情報を取得
 			PlayerParts *Parts = &pPlayer->parts[j];
 
-			Parts->pBuffMat = pModelFile[Parts->nIdxModel].pBuffMat;
-			Parts->nNumMat = pModelFile[Parts->nIdxModel].nNumMat;
-			Parts->pMesh = pModelFile[Parts->nIdxModel].pMesh;
+			Parts->pBuffMat = s_file[nCnt][Parts->nIdxModel].pBuffMat;
+			Parts->nNumMat = s_file[nCnt][Parts->nIdxModel].nNumMat;
+			Parts->pMesh = s_file[nCnt][Parts->nIdxModel].pMesh;
 		}
-
-		// モデルの開放
-		delete[] pModelFile;
-		pModelFile = NULL;
 	}
 	else
 	{// ファイルが開かない場合
@@ -714,9 +738,11 @@ static void LoadParts(HWND hWnd, Player *pPlayer)
 //--------------------------------------------------
 // モーションの読み込み
 //--------------------------------------------------
-static void LoadMotion(HWND hWnd, Player *pPlayer)
+static void LoadMotion(HWND hWnd, int nCnt)
 {
 	FILE *pFile;		// ファイルポインタを宣言
+
+	Player *pPlayer = &s_player[nCnt];
 
 	// ファイルを開く
 	pFile = fopen(pPlayer->aText, "r");

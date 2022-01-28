@@ -229,7 +229,7 @@ void SetMeshField(void)
 			float fYPos = sinf(((j * 0.1f) * (D3DX_PI * 2.0f)));
 
 			// 頂点座標の設定
-			pVtx[nVtx].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, MAX_HEIGHT * fYPos, MAX_DEPTH * fZPos);
+			pVtx[nVtx].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, 0.0f, MAX_DEPTH * fZPos);
 
 			// 各頂点の法線の設定
 			pVtx[nVtx].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);

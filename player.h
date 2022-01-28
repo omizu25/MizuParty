@@ -75,6 +75,7 @@ typedef struct
 	float			fSize;					// サイズ
 	float			fHeight;				// 高さ
 	char			aText[MAX_TEXT];		// テキスト名
+	int				nNumName;				// ファイルネーム数
 }Player;
 
 //--------------------------------------------------
