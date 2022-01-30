@@ -67,8 +67,8 @@ static int							s_nUseTex;						// テクスチャの使用数
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-static void System(FILE *pFile, HWND hWnd, char *aFile);
-static void Load(FILE *pFile, HWND hWnd);
+static void System(FILE *pFile, char *aFile);
+static void Load(FILE *pFile);
 
 //--------------------------------------------------
 // 初期化
@@ -339,7 +339,7 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 //--------------------------------------------------
 // 読み込み
 //--------------------------------------------------
-void LoadBillboard(HWND hWnd)
+void LoadBillboard(void)
 {
 	FILE *pFile;			// ファイルポインタを宣言
 
@@ -349,19 +349,19 @@ void LoadBillboard(HWND hWnd)
 	pFile = fopen(FILE_NAME, "r");
 
 	// システム
-	System(pFile, hWnd, aFile);
+	System(pFile, aFile);
 
 	// ファイルを開く
 	pFile = fopen(aFile, "r");
 
 	// 読み込み
-	Load(pFile, hWnd);
+	Load(pFile);
 }
 
 //--------------------------------------------------
 // システム
 //--------------------------------------------------
-static void System(FILE *pFile, HWND hWnd, char *aFile)
+static void System(FILE *pFile, char *aFile)
 {
 	if (pFile != NULL)
 	{// ファイルが開いた場合
@@ -398,7 +398,6 @@ static void System(FILE *pFile, HWND hWnd, char *aFile)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }
@@ -406,7 +405,7 @@ static void System(FILE *pFile, HWND hWnd, char *aFile)
 //--------------------------------------------------
 // 読み込み
 //--------------------------------------------------
-static void Load(FILE *pFile, HWND hWnd)
+static void Load(FILE *pFile)
 {
 	if (pFile != NULL)
 	{// ファイルが開いた場合
@@ -518,15 +517,6 @@ static void Load(FILE *pFile, HWND hWnd)
 
 		for (int i = 0; i < nNumBillBoard; i++)
 		{
-			if (pText[i].nTexIdx >= s_nUseTex)
-			{// 該当しないテクスチャ番号
-				MessageBox(hWnd, "該当しないテクスチャ番号です！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
-				assert(false);
-			}
-		}
-
-		for (int i = 0; i < nNumBillBoard; i++)
-		{
 			pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
 
 			bool bYRot = true;
@@ -546,7 +536,6 @@ static void Load(FILE *pFile, HWND hWnd)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ ビルボード ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }

@@ -99,6 +99,6 @@ void UninitPlayer(void);
 void UpdatePlayer(void);
 void DrawPlayer(void);
 Player *GetPlayer(void);
-void LoadPlayer(HWND hWnd);
+void LoadPlayer(void);
 
 #endif // !_PLAYER_H_

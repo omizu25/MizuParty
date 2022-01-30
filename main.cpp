@@ -9,9 +9,12 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "fade.h"
 #include "camera.h"
 #include "input.h"
 #include "game.h"
+#include "result.h"
+#include "title.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -39,6 +42,7 @@ static LPDIRECT3D9				s_pD3D = NULL;				// Direct3Dオブジェクトへのポインタ
 static LPDIRECT3DDEVICE9		s_pD3DDevice = NULL;		// Direct3Dデバイスへのポインタ
 static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
+static MODE						s_mode = MODE_RESULT;		// 現在のモード
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
 static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
 
@@ -290,8 +294,8 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	// ゲームの初期化
-	InitGame(hWnd);
+	//フェードの設定
+	InitFade(s_mode);
 
 	return S_OK;
 }
@@ -308,8 +312,14 @@ static void Uninit(void)
 	// 入力処理の終了
 	UninitInput();
 
+	// タイトルの終了
+	UninitTitle();
+
 	// ゲームの終了
-	UninitInput();
+	UninitGame();
+
+	// リザルトの終了
+	UninitResult();
 
 	if (s_pFont != NULL)
 	{// デバッグ表示用フォントの解放
@@ -342,8 +352,29 @@ static void Update(void)
 	// 入力処理の更新
 	UpdateInput();
 
-	// ゲームの更新
-	UpdateGame();
+	switch (s_mode)
+	{// どのモード？
+	case MODE_TITLE:		// タイトル
+		UpdateTitle();
+		break;
+
+	case MODE_GAME:			// ゲーム
+		UpdateGame();
+		break;
+
+	case MODE_RESULT:		// リザルト
+		UpdateResult();
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	// フェードの更新
+	UpdateFade();
+
+// #ifdef  _DEBUG
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
@@ -368,6 +399,9 @@ static void Update(void)
 			s_Debug = (DEBUG)(DEBUG_MAX - 1);
 		}
 	}
+
+// #endif //  _DEBUG
+
 }
 
 //--------------------------------------------------
@@ -390,15 +424,37 @@ static void Draw(void)
 		//--------------------------------------------------
 		// 各種オブジェクトの描画
 		//--------------------------------------------------
+		switch (s_mode)
+		{// どのモード？
+		case MODE_TITLE:		// タイトル
+			DrawTitle();
+			break;
 
-		// ゲームの描画
-		DrawGame();
+		case MODE_GAME:			// ゲーム
+			DrawGame();
+			break;
+
+		case MODE_RESULT:		// リザルト
+			DrawResult();
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		// フェードの描画
+		DrawFade();
+
+// #ifdef  _DEBUG
 
 		if (s_bDebug)
-		{
+		{// 表示する？
 			// デバッグの表示
 			DrawDebug();
 		}
+
+// #endif //  _DEBUG
 
 		// 描画終了
 		s_pD3DDevice->EndScene();
@@ -534,4 +590,60 @@ static void DrawDebug(void)
 
 	// テキストの描画
 	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(0.25f, 0.75f, 1.0f, 1.0f));
+}
+
+//--------------------------------------------------
+// モードの設定
+//--------------------------------------------------
+void SetMode(MODE mode)
+{
+	// 現在の画面(モード)の終了処理
+	switch (s_mode)
+	{// どのモード？
+	case MODE_TITLE:		// タイトル
+		UninitTitle();
+		break;
+
+	case MODE_GAME:			// ゲーム
+		UninitGame();
+		break;
+
+	case MODE_RESULT:		// リザルト
+		UninitResult();
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	// 新しい画面(モード)の終了処理
+	switch (mode)
+	{// どのモード？
+	case MODE_TITLE:		// タイトル
+		InitTitle();
+		break;
+
+	case MODE_GAME:			// ゲーム
+		InitGame();
+		break;
+
+	case MODE_RESULT:		// リザルト
+		InitResult();
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	s_mode = mode;		// 現在の画面(モード)を切り替える
+}
+
+//--------------------------------------------------
+//モードの取得
+//--------------------------------------------------
+MODE GetMode(void)
+{
+	return s_mode;
 }

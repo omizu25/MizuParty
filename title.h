@@ -1,19 +1,20 @@
 //==================================================
 //
-// 3Dゲーム制作 ( particle.h )
+// 3Dゲーム制作 ( title.h )
 // Author  : katsuki mizuki
 //
 //==================================================
-#ifndef _PARTICLE_H_		// このマクロ定義がされてなかったら
-#define _PARTICLE_H_		// ２重インクルード防止のマクロ定義
+#ifndef _TITLE_H_		//このマクロ定義がされてなかったら
+#define _TITLE_H_		//２重インクルード防止のマクロ定義
 
 #include "main.h"
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-void InitParticle(void);
-void UpdateParticle(void);
-void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd);
+void InitTitle(void);
+void UninitTitle(void);
+void UpdateTitle(void);
+void DrawTitle(void);
 
-#endif // !_PARTICLE_H_
+#endif // !_TITLE_H_

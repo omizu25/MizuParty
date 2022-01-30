@@ -61,10 +61,10 @@ static bool			s_bMotionLoop;			// モーションループ
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
-static void System(HWND hWnd);
-static void LoadNew(HWND hWnd, int nCnt);
-static void LoadParts(HWND hWnd, int nCnt);
-static void LoadMotion(HWND hWnd, int nCnt);
+static void System(void);
+static void LoadNew(int nCnt);
+static void LoadParts(int nCnt);
+static void LoadMotion(int nCnt);
 static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
 static void Rot(Player *pPlayer);
@@ -386,28 +386,28 @@ Player *GetPlayer(void)
 //--------------------------------------------------
 // 読み込み
 //--------------------------------------------------
-void LoadPlayer(HWND hWnd)
+void LoadPlayer(void)
 {
 	// システム
-	System(hWnd);
+	System();
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
 		// new用の読み込み
-		LoadNew(hWnd, i);
+		LoadNew(i);
 
 		// パーツの読み込み
-		LoadParts(hWnd, i);
+		LoadParts(i);
 
 		// モーションの読み込み
-		LoadMotion(hWnd, i);
+		LoadMotion(i);
 	}
 }
 
 //--------------------------------------------------
 // システム
 //--------------------------------------------------
-static void System(HWND hWnd)
+static void System(void)
 {
 	FILE *pFile;		// ファイルポインタを宣言
 
@@ -438,7 +438,6 @@ static void System(HWND hWnd)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 
@@ -511,7 +510,6 @@ static void System(HWND hWnd)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }
@@ -519,7 +517,7 @@ static void System(HWND hWnd)
 //--------------------------------------------------
 // new用の読み込み
 //--------------------------------------------------
-static void LoadNew(HWND hWnd, int nCnt)
+static void LoadNew(int nCnt)
 {
 	FILE *pFile;		// ファイルポインタを宣言
 
@@ -558,7 +556,6 @@ static void LoadNew(HWND hWnd, int nCnt)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "システムファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }
@@ -566,7 +563,7 @@ static void LoadNew(HWND hWnd, int nCnt)
 //--------------------------------------------------
 // パーツの読み込み
 //--------------------------------------------------
-static void LoadParts(HWND hWnd, int nCnt)
+static void LoadParts(int nCnt)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -730,7 +727,6 @@ static void LoadParts(HWND hWnd, int nCnt)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }
@@ -738,7 +734,7 @@ static void LoadParts(HWND hWnd, int nCnt)
 //--------------------------------------------------
 // モーションの読み込み
 //--------------------------------------------------
-static void LoadMotion(HWND hWnd, int nCnt)
+static void LoadMotion(int nCnt)
 {
 	FILE *pFile;		// ファイルポインタを宣言
 
@@ -879,7 +875,6 @@ static void LoadMotion(HWND hWnd, int nCnt)
 	}
 	else
 	{// ファイルが開かない場合
-		MessageBox(hWnd, "テキストファイルの読み込みに失敗！\nエラー場所  : [ モデル ]", "警告！", MB_ICONWARNING);
 		assert(false);
 	}
 }

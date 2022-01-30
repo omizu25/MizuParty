@@ -31,35 +31,35 @@ void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, SETPO
 	{
 	case SETPOS_MIDDLE:		// 真ん中
 
-		//頂点座標の設定 [2D] (真ん中に中心)
+		// 頂点座標の設定 [2D] (真ん中に中心)
 		SetMiddlepos(pVtx, pos, fWidth, fHeight);
 
 		break;
 
 	case SETPOS_LEFT:		// 左
 
-		//頂点座標の設定 [2D] (左に中心)
+		// 頂点座標の設定 [2D] (左に中心)
 		SetLeftpos(pVtx, pos, fWidth, fHeight);
 
 		break;
 
 	case SETPOS_RIGHT:		// 右
 
-		//頂点座標の設定 [2D] (右に中心)
+		// 頂点座標の設定 [2D] (右に中心)
 		SetRightpos(pVtx, pos, fWidth, fHeight);
 
 		break;
 
 	case SETPOS_TOP:		// 上
 
-		//頂点座標の設定 [2D] (上に中心)
+		// 頂点座標の設定 [2D] (上に中心)
 		SetToppos(pVtx, pos, fWidth, fHeight);
 
 		break;
 
 	case SETPOS_BOTTOM:		// 下
 
-		//頂点座標の設定 [2D] (下に中心)
+		// 頂点座標の設定 [2D] (下に中心)
 		SetBottompos(pVtx, pos, fWidth, fHeight);
 
 		break;
@@ -71,7 +71,7 @@ void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, SETPO
 }
 
 //--------------------------------------------------
-//頂点座標の設定 [2D] (真ん中に中心)
+// 頂点座標の設定 [2D] (真ん中に中心)
 //--------------------------------------------------
 static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
@@ -82,7 +82,7 @@ static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float f
 }
 
 //--------------------------------------------------
-//頂点座標の設定 [2D] (左に中心)
+// 頂点座標の設定 [2D] (左に中心)
 //--------------------------------------------------
 static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
@@ -93,7 +93,7 @@ static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHe
 }
 
 //--------------------------------------------------
-//頂点座標の設定 [2D] (右に中心)
+// 頂点座標の設定 [2D] (右に中心)
 //--------------------------------------------------
 static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
@@ -104,7 +104,7 @@ static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fH
 }
 
 //--------------------------------------------------
-//頂点座標の設定 [2D] (上に中心)
+// 頂点座標の設定 [2D] (上に中心)
 //--------------------------------------------------
 static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
@@ -115,7 +115,7 @@ static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHei
 }
 
 //--------------------------------------------------
-//頂点座標の設定 [2D] (下に中心)
+// 頂点座標の設定 [2D] (下に中心)
 //--------------------------------------------------
 static void SetBottompos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {

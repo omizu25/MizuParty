@@ -40,7 +40,7 @@ static Game		s_game;		// ゲーム情報
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
-void InitGame(HWND hWnd)
+void InitGame(void)
 {
 	// ポリゴンの初期化
 	//InitPolygon();
@@ -79,7 +79,7 @@ void InitGame(HWND hWnd)
 	InitBillboard();
 
 	// ビルボードの読み込み
-	LoadBillboard(hWnd);
+	LoadBillboard();
 
 	// パーティクルの初期化
 	InitParticle();
@@ -97,7 +97,7 @@ void InitGame(HWND hWnd)
 	InitModel();
 
 	// プレイヤーの読み込み
-	LoadPlayer(hWnd);
+	LoadPlayer();
 
 	// プレイヤーの初期化
 	InitPlayer();
