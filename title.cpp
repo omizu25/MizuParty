@@ -28,18 +28,7 @@
 #define HEIGHT_INTERVAL		(125.0f)		// 高さの間隔
 
 //--------------------------------------------------
-// メニューを定義
-//--------------------------------------------------
-typedef enum
-{
-	MENU_GAME = 0,		// ゲーム
-	MENU_TUTORIAL,		// チュートリアル
-	MENU_RANKING,		// ランキング
-	MENU_MAX
-}MENU;
-
-//--------------------------------------------------
-// メニューの状態(点滅具合)を定義
+// 列挙型
 //--------------------------------------------------
 typedef enum
 {
@@ -104,7 +93,7 @@ void InitTitle(void)
 	D3DXCreateTextureFromFile(
 		pDevice,
 		"Data\\TEXTURE\\title002.png",
-		&s_pTextureMenu[MENU_GAME]);
+		&s_pTextureMenu[MENU_WALKING]);
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
@@ -118,7 +107,7 @@ void InitTitle(void)
 		"Data\\TEXTURE\\title004.png",
 		&s_pTextureMenu[MENU_RANKING]);
 
-	s_Menu = MENU_GAME;
+	s_Menu = MENU_WALKING;
 	s_state = MENUSTATE_IN;
 	s_col = D3DXCOLOR(0.0f, 0.0f, 1.0f, 1.0f);
 	s_fChange = 0.025f;
@@ -391,6 +380,14 @@ void DrawTitle(void)
 }
 
 //--------------------------------------------------
+// 取得
+//--------------------------------------------------
+MENU GetTitle(void)
+{
+	return s_Menu;
+}
+
+//--------------------------------------------------
 // メニューの入力
 //--------------------------------------------------
 static void UpdateInput(VERTEX_2D *pVtx)
@@ -438,12 +435,20 @@ static void UpdateMenu(void)
 	if (GetKeyboardTrigger(DIK_RETURN) || 
 		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
 	{// 決定キー(ENTERキー)が押されたかどうか
-		if (s_Menu == MENU_GAME)
-		{// ゲームのとき
+		switch (s_Menu)
+		{
+		case MENU_WALKING:		// ゲーム
+		case MENU_TUTORIAL:		// チュートリアル
+		case MENU_RANKING:		// ランキング
 			// フェードの設定
 			SetFade(MODE_GAME);
-		}
+			break;
 		
+		default:
+			assert(false);
+			break;
+		}
+
 		s_fChange = 1.0f;
 	}
 }

@@ -18,6 +18,7 @@
 #include "setup.h"
 #include "shadow.h"
 #include "wall.h"
+#include "title.h"
 
 #include <stdio.h>
 #include <assert.h>
@@ -65,9 +66,8 @@ static void System(void);
 static void LoadNew(int nCnt);
 static void LoadParts(int nCnt);
 static void LoadMotion(int nCnt);
-static void FollowMove(Player *pPlayer);
 static void Move(Player *pPlayer);
-static void Rot(Player *pPlayer);
+static void MoveWalking(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
 
@@ -241,23 +241,25 @@ void UpdatePlayer(void)
 
 	pPlayer->nStopTime++;
 
-	Camera *pCamera = GetCamera();
-
 	// 前回の位置を保存
 	pPlayer->posOld = pPlayer->pos;
 
-	if (pCamera->bFollow)
-	{// 追従する
-		// 追従の移動
-		FollowMove(pPlayer);
-	}
-	else
-	{// 追従しない
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+		// 移動
+		MoveWalking(pPlayer);
+		break;
+
+	case MENU_TUTORIAL:		// チュートリアル
+	case MENU_RANKING:		// ランキング
 		// 移動
 		Move(pPlayer);
+		break;
 
-		// 回転
-		Rot(pPlayer);
+	default:
+		assert(false);
+		break;
 	}
 
 	float fAngle = pPlayer->rotDest.y - pPlayer->rot.y;
@@ -880,12 +882,13 @@ static void LoadMotion(int nCnt)
 }
 
 //--------------------------------------------------
-// 追従の移動
+// 移動
 //--------------------------------------------------
-static void FollowMove(Player *pPlayer)
+static void Move(Player *pPlayer)
 {
 	if (GetDebug() != DEBUG_MESH)
 	{// デバッグ表示がメッシュではない時
+
 		float fRot = 0.0f;
 
 		/* ↓モデルの移動↓ */
@@ -950,101 +953,6 @@ static void FollowMove(Player *pPlayer)
 		{// ←, →, ↑, ↓キーが押された
 			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
 			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
-
-			pPlayer->nStopTime = 0;
-		}
-
-		if (GetKeyboardPress(DIK_I))
-		{// Iキーが押された
-			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * pPlayer->fMove;
-
-			pPlayer->nStopTime = 0;
-		}
-		else if (GetKeyboardPress(DIK_K))
-		{// Kキーが押された
-			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * pPlayer->fMove;
-
-			pPlayer->nStopTime = 0;
-		}
-
-		// 指定の値以上・以下
-		Specified(&pPlayer->pos.y, MAX_HEIGHT, MIN_HEIGHT);
-	}
-}
-
-//--------------------------------------------------
-// 移動
-//--------------------------------------------------
-static void Move(Player *pPlayer)
-{
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-
-		Camera *pCamera = GetCamera();		//カメラの取得
-		float fRot = 0.0f;
-
-		/* ↓モデルの移動↓ */
-
-		if (GetKeyboardPress(DIK_LEFT))
-		{// ←キーが押された
-			if (GetKeyboardPress(DIK_UP))
-			{// ↑キーが押された
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.25f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (D3DX_PI * 0.75f);
-			}
-			else if (GetKeyboardPress(DIK_DOWN))
-			{// ↓キーが押された
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.75f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (D3DX_PI * 0.25f);
-			}
-			else
-			{
-				fRot = pCamera->rot.y + (-D3DX_PI * 0.5f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (D3DX_PI * 0.5f);
-			}
-		}
-		else if (GetKeyboardPress(DIK_RIGHT))
-		{// →キーが押された
-			if (GetKeyboardPress(DIK_UP))
-			{// ↑キーが押された
-				fRot = pCamera->rot.y + (D3DX_PI * 0.25f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.75f);
-			}
-			else if (GetKeyboardPress(DIK_DOWN))
-			{// ↓キーが押された
-				fRot = pCamera->rot.y + (D3DX_PI * 0.75f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.25f);
-			}
-			else
-			{
-				fRot = pCamera->rot.y + (D3DX_PI * 0.5f);
-
-				pPlayer->rotDest.y = pCamera->rot.y + (-D3DX_PI * 0.5f);
-			}
-		}
-		else if (GetKeyboardPress(DIK_UP))
-		{// ↑キーが押された
-			fRot = pCamera->rot.y;
-
-			pPlayer->rotDest.y = pCamera->rot.y + D3DX_PI;
-		}
-		else if (GetKeyboardPress(DIK_DOWN))
-		{// ↓キーが押された
-			fRot = pCamera->rot.y + D3DX_PI;
-
-			pPlayer->rotDest.y = pCamera->rot.y;
-		}
-
-		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
-		{// ←, →, ↑, ↓キーが押された
-			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
-			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
 		}
 
 		if (GetKeyboardPress(DIK_I))
@@ -1062,23 +970,31 @@ static void Move(Player *pPlayer)
 }
 
 //--------------------------------------------------
-// 回転
+// 移動 (ウォーキング)
 //--------------------------------------------------
-static void Rot(Player *pPlayer)
+static void MoveWalking(Player *pPlayer)
 {
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
+	float fRot = 0.0f;
 
-		/* ↓モデルの回転↓ */
+	/* ↓モデルの移動↓ */
 
-		if (GetKeyboardPress(DIK_LSHIFT))
-		{// 左シフトキーが押された
-			pPlayer->rotDest.y += -MAX_ROTATION;
-		}
-		else if (GetKeyboardPress(DIK_RSHIFT))
-		{// 右シフトキーが押された
-			pPlayer->rotDest.y += MAX_ROTATION;
-		}
+	if (GetKeyboardPress(DIK_LEFT))
+	{// ←キーが押された
+		fRot = -D3DX_PI * 0.5f;
+
+		pPlayer->rotDest.y = D3DX_PI * 0.5f;
+	}
+	else if (GetKeyboardPress(DIK_RIGHT))
+	{// →キーが押された
+		fRot = D3DX_PI * 0.5f;
+
+		pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+	}
+
+	if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT))
+	{// ←, →, ↑, ↓キーが押された
+		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
+		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
 	}
 }
 
@@ -1100,16 +1016,43 @@ static void Motion(Player * pPlayer)
 		s_IdxMotion = MOTION_ATTACK;
 	}
 
-	if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
-		GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
-	{// ←, →, ↑, ↓キーが押された
-		s_nFrame = 0;
-		s_nIdxKey = 0;
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
 
-		// モーションセット
-		SetMotion(pPlayer);
+		if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT))
+		{// ←, →, ↑, ↓キーが押された
+			s_nFrame = 0;
+			s_nIdxKey = 0;
 
-		s_IdxMotion = MOTION_MOVE;
+			// モーションセット
+			SetMotion(pPlayer);
+
+			s_IdxMotion = MOTION_MOVE;
+		}
+		
+		break;
+
+	case MENU_TUTORIAL:		// チュートリアル
+	case MENU_RANKING:		// ランキング
+
+		if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
+			GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+		{// ←, →, ↑, ↓キーが押された
+			s_nFrame = 0;
+			s_nIdxKey = 0;
+
+			// モーションセット
+			SetMotion(pPlayer);
+
+			s_IdxMotion = MOTION_MOVE;
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 
 	if (s_bMotionBlend)

@@ -19,7 +19,7 @@
 #define NUMBER_WIDTH		(60.0f)			// 幅
 #define NUMBER_HEIGHT		(100.0f)		// 高さ
 #define WIDTH_INTERVAL		(5.0f)			// 幅の間隔
-#define START_TIME			(15)			// 最初の値
+#define START_TIME			(10)			// 最初の値
 #define ONE_SECONDS			(60)			// １秒
 
 //--------------------------------------------------
@@ -59,7 +59,7 @@ void InitTime(void)
 		float fCenter = (NUMBER_WIDTH * 0.5) * (MAX_TIME - 1) + (WIDTH_INTERVAL * 0.5f) * (MAX_TIME - 1);
 
 		// 数の設定
-		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, 0);
+		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME);
 	}
 }
 
@@ -83,7 +83,7 @@ void SubTime(int nValue)
 			nTime /= 10;
 
 			// 数のテクスチャ
-			TexNumber(aNumber[i], i);
+			TexNumber(aNumber[i], i, USE_GAME);
 		}
 	}
 	else if (s_nTime <= 0)

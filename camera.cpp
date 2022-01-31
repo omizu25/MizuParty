@@ -38,10 +38,6 @@ static Camera		s_camera;			// カメラの情報
 // プロトタイプ宣言
 //--------------------------------------------------
 static void FollowMove(void);
-static void FollowWrap(void);
-static void Move(void);
-static void Rot(void);
-static void ResetCamera(void);
 
 //--------------------------------------------------
 // 初期化
@@ -65,8 +61,6 @@ void InitCamera(void)
 	s_camera.fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
 	s_camera.fDisPlayer = START_DISTANCE;
 
-	s_camera.bFollow = false;
-
 	s_camera.viewport.X = (DWORD)0.0f;
 	s_camera.viewport.Y = (DWORD)0.0f;
 	s_camera.viewport.Width = SCREEN_WIDTH;
@@ -86,57 +80,20 @@ void UninitCamera(void)
 //--------------------------------------------------
 void UpdateCamera(void)
 {
-	if (GetKeyboardTrigger(DIK_F6))
-	{// F6キーが押された
-		s_camera.bFollow = !s_camera.bFollow;
-	
-		// リセット
-		ResetCamera();
+	if (GetKeyboardPress(DIK_1))
+	{// 1キーが押された
+		s_camera.fDisPlayer -= 1.0f;
+	}
+	else if (GetKeyboardPress(DIK_2))
+	{// 2キーが押された
+		s_camera.fDisPlayer += 1.0f;
 	}
 
-	if (s_camera.bFollow)
-	{// 追従する
-		if (GetKeyboardPress(DIK_1))
-		{// 1キーが押された
-			s_camera.fDisPlayer -= 1.0f;
-		}
-		else if (GetKeyboardPress(DIK_2))
-		{// 2キーが押された
-			s_camera.fDisPlayer += 1.0f;
-		}
+	// 指定の値以上・以下
+	Specified(&s_camera.fDisPlayer, MAX_DISTANCE, MIN_DISTANCE);
 
-		// 指定の値以上・以下
-		Specified(&s_camera.fDisPlayer, MAX_DISTANCE, MIN_DISTANCE);
-
-		// 追従の移動
-		FollowMove();
-
-		// 追従の回り込み
-		//FollowWrap();
-	}
-	else
-	{// 追従しない
-		// 移動
-		Move();
-
-		// 回転
-		Rot();
-
-		/* ↓旋回の移動↓ */
-
-		if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_C) ||
-			GetKeyboardPress(DIK_U) || GetKeyboardPress(DIK_J))
-		{// Z, C, U, Jキーが押された
-		 // 視点の移動
-			s_camera.posV.x = s_camera.posR.x - sinf(s_camera.rot.y) * s_camera.fDistance;
-			s_camera.posV.z = s_camera.posR.z - cosf(s_camera.rot.y) * s_camera.fDistance;
-		}
-
-		// 注視点の移動
-		s_camera.posR.x = s_camera.posV.x + sinf(s_camera.rot.y) * s_camera.fDistance;
-		s_camera.posR.z = s_camera.posV.z + cosf(s_camera.rot.y) * s_camera.fDistance;
-		s_camera.posR.y = s_camera.posV.y + tanf(-s_camera.rot.x + (D3DX_PI * 0.5f)) * s_camera.fDistance;
-	}
+	// 追従の移動
+	FollowMove();
 }
 
 //--------------------------------------------------
@@ -249,172 +206,4 @@ static void FollowMove(void)
 	// 視点の移動
 	s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
 	s_camera.posV.z += (s_camera.posVDest.z - s_camera.posV.z) * MAX_POS_FACTOR;
-}
-
-//--------------------------------------------------
-// 追従の回り込み
-//--------------------------------------------------
-static void FollowWrap(void)
-{
-	Player *pPlayer = GetPlayer();		// プレイヤーの情報
-
-	if (pPlayer->nStopTime >= STOP_TIME)
-	{// 指定の値以上
-		float fAngle = pPlayer->rot.y - s_camera.rot.y;
-
-		// 角度の正規化
-		NormalizeRot(&fAngle);
-
-		s_camera.rotDest.y = cosf(fAngle + (D3DX_PI * 0.5f));
-
-		s_camera.rot.y += (s_camera.rotDest.y) * MAX_ROT_FACTOR;
-	}
-}
-
-//--------------------------------------------------
-// 移動
-//--------------------------------------------------
-static void Move(void)
-{
-	float fRot = 0.0f;
-
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-
-		/* ↓視点の移動↓ */
-
-		if (GetKeyboardPress(DIK_A))
-		{// Aキーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// Wキーが押された
-				fRot = s_camera.rot.y + (-D3DX_PI * 0.25f);
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// Sキーが押された
-				fRot = s_camera.rot.y + (-D3DX_PI * 0.75f);
-			}
-			else
-			{
-				fRot = s_camera.rot.y + (-D3DX_PI * 0.5f);
-			}
-
-			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_D))
-		{// Dキーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// Wキーが押された
-				fRot = s_camera.rot.y + (D3DX_PI * 0.25f);
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// Sキーが押された
-				fRot = s_camera.rot.y + (D3DX_PI * 0.75f);
-			}
-			else
-			{
-				fRot = s_camera.rot.y + (D3DX_PI * 0.5f);
-			}
-
-			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_W))
-		{// Wキーが押された
-			fRot = s_camera.rot.y;
-
-			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_S))
-		{// Sキーが押された
-			fRot = s_camera.rot.y + (-D3DX_PI);
-
-			s_camera.posV.x += sinf(fRot) * MAX_MOVE;
-			s_camera.posV.z += cosf(fRot) * MAX_MOVE;
-		}
-
-		if (GetKeyboardPress(DIK_T))
-		{// Tキーが押された
-			fRot = D3DX_PI * 0.5f;
-
-			s_camera.posV.y += sinf(fRot) * MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_G))
-		{// Gキーが押された
-			fRot = -D3DX_PI * 0.5f;
-
-			s_camera.posV.y += sinf(fRot) * MAX_MOVE;
-		}
-
-		/* ↓視点と注視点の距離↓ */
-
-		if (GetKeyboardPress(DIK_U))
-		{// Uキーが押された
-			s_camera.fDistance += -MAX_MOVE;
-		}
-		else if (GetKeyboardPress(DIK_J))
-		{// Jキーが押された
-			s_camera.fDistance += MAX_MOVE;
-		}
-
-		// 指定の値以上・以下
-		Specified(&s_camera.fDistance, MAX_FAR, MAX_NEAR);
-	}
-}
-
-//--------------------------------------------------
-// 回転
-//--------------------------------------------------
-static void Rot(void)
-{
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-
-		/* ↓視点・注視点の旋回↓ */
-
-		if (GetKeyboardPress(DIK_Z) || GetKeyboardPress(DIK_E))
-		{// Z, Eキーが押された
-			s_camera.rot.y += MAX_ROTATION;
-		}
-
-		if (GetKeyboardPress(DIK_C) || GetKeyboardPress(DIK_Q))
-		{// C, Qキーが押された
-			s_camera.rot.y += -MAX_ROTATION;
-		}
-
-		// 角度の正規化
-		NormalizeRot(&s_camera.rot.y);
-
-		/* ↓注視点の上下↓ */
-
-		if (GetKeyboardPress(DIK_Y))
-		{// Yキーが押された
-			s_camera.rot.x += -MAX_ROTATION;
-		}
-		else if (GetKeyboardPress(DIK_H))
-		{// Hキーが押された
-			s_camera.rot.x += MAX_ROTATION;
-		}
-
-		// 指定の値以上・以下
-		Specified(&s_camera.rot.x, 3.0f, 0.1f);
-	}
-}
-
-//--------------------------------------------------
-// リセット
-//--------------------------------------------------
-static void ResetCamera(void)
-{
-	Player *pPlayer = GetPlayer();		// プレイヤーの情報
-
-	s_camera.posV.x = pPlayer->pos.x;
-	s_camera.posV.y = pPlayer->pos.y + START_POS_Y;
-	s_camera.posV.z = pPlayer->pos.z + START_POS_Z;
-	s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
-	s_camera.posVDest = s_camera.posV;
-	s_camera.posRDest = s_camera.posR;
-	s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
-	s_camera.rotDest = s_camera.rot;
 }

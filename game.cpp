@@ -13,6 +13,7 @@
 #include "bullet.h"
 #include "camera.h"
 #include "effect.h"
+#include "fade.h"
 #include "game.h"
 #include "input.h"
 #include "light.h"
@@ -26,6 +27,7 @@
 #include "player.h"
 #include "particle.h"
 #include "polygon.h"
+#include "result.h"
 #include "shadow.h"
 #include "target.h"
 #include "time.h"
@@ -175,6 +177,9 @@ void UninitGame(void)
 
 	// 数の終了
 	UninitNumber();
+
+	// リザルトの終了
+	UninitResult();
 }
 
 //--------------------------------------------------
@@ -275,6 +280,8 @@ void UpdateGame(void)
 
 	case GAMESTATE_END:		// 終了状態(ゲーム終了時)
 
+		// リザルトの更新
+		UpdateResult();
 		break;
 
 	default:
@@ -331,7 +338,16 @@ void DrawGame(void)
 	DrawBillboard(true);
 
 	// 数の描画
-	DrawNumber();
+	DrawNumber(USE_GAME);
+
+	if (s_game.gameState == GAMESTATE_END)
+	{
+		// リザルトの描画
+		DrawResult();
+
+		// 数の描画
+		DrawNumber(USE_RESULT);
+	}
 }
 
 //--------------------------------------------------
@@ -340,6 +356,12 @@ void DrawGame(void)
 void SetGameState(GAMESTATE state)
 {
 	s_game.gameState = state;
+
+	if (state == GAMESTATE_END)
+	{
+		// リザルトの初期化
+		InitResult();
+	}
 }
 
 //--------------------------------------------------

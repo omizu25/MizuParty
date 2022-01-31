@@ -30,7 +30,7 @@ typedef struct
 	float			fHeight;		// 高さ
 	int				nNumber;		// 数
 	int				nDigit;			// 桁数
-	int				nRank;			// 順位
+	USE				use;			// 使用者
 	bool			bUse;			// 使用しているかどうか
 }Number;
 
@@ -113,7 +113,7 @@ void UpdateNumber(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawNumber(void)
+void DrawNumber(USE use)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -129,7 +129,7 @@ void DrawNumber(void)
 
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
-		if (s_Number[i].bUse)
+		if (s_Number[i].bUse && s_Number[i].use == use)
 		{// 数が使用されている
 			// ポリゴンの描画
 			pDevice->DrawPrimitive(
@@ -142,8 +142,9 @@ void DrawNumber(void)
 
 //--------------------------------------------------
 // 設定 (右に中心)
+// 1.位置 2.幅 3.高さ 4.数 5.桁数 6.使用者
 //--------------------------------------------------
-void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, int nRank)
+void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
 {
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
@@ -161,7 +162,7 @@ void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, i
 		pNumber->fHeight = fHeight;
 		pNumber->nNumber = nNumber;
 		pNumber->nDigit = nDigit;
-		pNumber->nRank = nRank;
+		pNumber->use = use;
 		pNumber->bUse = true;
 
 		VERTEX_2D *pVtx;		// 頂点情報へのポインタ
@@ -189,8 +190,9 @@ void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, i
 
 //--------------------------------------------------
 // 設定 (真ん中に中心)
+// 1.位置 2.幅 3.高さ 4.数 5.桁数 6.順位
 //--------------------------------------------------
-void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber)
+void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
 {
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
@@ -207,8 +209,8 @@ void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber)
 		pNumber->fWidth = fWidth;
 		pNumber->fHeight = fHeight;
 		pNumber->nNumber = nNumber;
-		pNumber->nDigit = -1;
-		pNumber->nRank = -1;
+		pNumber->nDigit = nDigit;
+		pNumber->use = use;
 		pNumber->bUse = true;
 
 		VERTEX_2D *pVtx;		// 頂点情報へのポインタ
@@ -240,13 +242,13 @@ void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber)
 //--------------------------------------------------
 // テクスチャ
 //--------------------------------------------------
-void TexNumber(int nNumber, int nDigit)
+void TexNumber(int nNumber, int nDigit, USE use)
 {
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
 		Number *pNumber = &s_Number[i];
 
-		if (!pNumber->bUse || pNumber->nDigit != nDigit)
+		if (!pNumber->bUse || pNumber->nDigit != nDigit || pNumber->use != use)
 		{// 数が使用されていない、桁数が違う
 			continue;
 		}
@@ -272,25 +274,5 @@ void TexNumber(int nNumber, int nDigit)
 		s_pVtxBuff->Unlock();
 
 		break;
-	}
-}
-
-//--------------------------------------------------
-// 使用
-//--------------------------------------------------
-void UseNumber(int nDigit)
-{
-	for (int i = 0; i < MAX_NUMBER; i++)
-	{
-		Number *pNumber = &s_Number[i];
-
-		if (!pNumber->bUse || pNumber->nDigit != nDigit)
-		{// 数が使用されていない、桁数が違う
-			continue;
-		}
-
-		/*↓ 数が使用されている、桁数が同じ ↓*/
-
-		pNumber->bUse = false;
 	}
 }

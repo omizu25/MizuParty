@@ -29,7 +29,6 @@ typedef struct
 	D3DVIEWPORT9		viewport;			// ビューポート
 	float				fDistance;			// 視点から注視点の距離
 	float				fDisPlayer;			// 注視点からプレイヤーの距離
-	bool				bFollow;			// 追従するかどうか
 }Camera;
 
 //--------------------------------------------------

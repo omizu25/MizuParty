@@ -42,7 +42,7 @@ static LPDIRECT3D9				s_pD3D = NULL;				// Direct3Dオブジェクトへのポインタ
 static LPDIRECT3DDEVICE9		s_pD3DDevice = NULL;		// Direct3Dデバイスへのポインタ
 static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
-static MODE						s_mode = MODE_RESULT;		// 現在のモード
+static MODE						s_mode = MODE_TITLE;		// 現在のモード
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
 static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
 
@@ -312,14 +312,20 @@ static void Uninit(void)
 	// 入力処理の終了
 	UninitInput();
 
-	// タイトルの終了
-	UninitTitle();
+	switch (s_mode)
+	{// どのモード？
+	case MODE_TITLE:		// タイトル
+		UninitTitle();
+		break;
 
-	// ゲームの終了
-	UninitGame();
+	case MODE_GAME:			// ゲーム
+		UninitGame();
+		break;
 
-	// リザルトの終了
-	UninitResult();
+	default:
+		assert(false);
+		break;
+	}
 
 	if (s_pFont != NULL)
 	{// デバッグ表示用フォントの解放
@@ -360,10 +366,6 @@ static void Update(void)
 
 	case MODE_GAME:			// ゲーム
 		UpdateGame();
-		break;
-
-	case MODE_RESULT:		// リザルト
-		UpdateResult();
 		break;
 
 	default:
@@ -432,10 +434,6 @@ static void Draw(void)
 
 		case MODE_GAME:			// ゲーム
 			DrawGame();
-			break;
-
-		case MODE_RESULT:		// リザルト
-			DrawResult();
 			break;
 
 		default:
@@ -521,16 +519,6 @@ static void DrawDebug(void)
 	}
 	nLength = (int)strlen(&aStr[0]);
 
-	if (GetCamera()->bFollow)
-	{// 追従する
-		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 ON 】\n");
-	}
-	else
-	{// 追従しない
-		sprintf(&aStr[nLength], "追従              [ F6 ]  :【 OFF 】\n");
-	}
-	nLength = (int)strlen(&aStr[0]);
-
 	sprintf(&aStr[nLength], "F2, F3キー                : 表示項目の変更\n");
 	nLength = (int)strlen(&aStr[0]);
 	sprintf(&aStr[nLength], "\n");
@@ -608,10 +596,6 @@ void SetMode(MODE mode)
 		UninitGame();
 		break;
 
-	case MODE_RESULT:		// リザルト
-		UninitResult();
-		break;
-
 	default:
 		assert(false);
 		break;
@@ -626,10 +610,6 @@ void SetMode(MODE mode)
 
 	case MODE_GAME:			// ゲーム
 		InitGame();
-		break;
-
-	case MODE_RESULT:		// リザルト
-		InitResult();
 		break;
 
 	default:
