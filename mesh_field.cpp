@@ -51,7 +51,7 @@ void InitMeshField(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\InuiToko000.jpg",
+		"data\\TEXTURE\\block009.png",
 		&s_pTexture);
 
 	// メモリのクリア

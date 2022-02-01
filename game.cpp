@@ -37,7 +37,8 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static Game		s_game;		// ゲーム情報
+static Game		s_game;			// ゲーム情報
+static int		s_nTime;		// タイム
 
 //--------------------------------------------------
 // 初期化
@@ -45,25 +46,25 @@ static Game		s_game;		// ゲーム情報
 void InitGame(void)
 {
 	// ポリゴンの初期化
-	//InitPolygon();
+	InitPolygon();
 
 	// メッシュフィールドの初期化
-	InitMeshField();
+	//InitMeshField();
 
 	// メッシュフィールドの設定
-	SetMeshField();
+	//SetMeshField();
 
 	// メッシュ円柱の初期化
-	InitMeshCylinder();
+	//InitMeshCylinder();
 
 	// メッシュ円柱の設定
-	SetMeshCylinder();
+	//SetMeshCylinder();
 
 	// メッシュ球の初期化
-	InitMeshSphere();
+	//InitMeshSphere();
 
 	// メッシュ球の設定
-	SetMeshSphere();
+	//SetMeshSphere();
 
 	// メッシュ空の初期化
 	InitMeshSky();
@@ -72,10 +73,10 @@ void InitGame(void)
 	SetMeshSky();
 
 	// 壁の初期化
-	InitWall();
+	//InitWall();
 
 	// 壁の設置
-	InstallationWall();
+	//InstallationWall();
 
 	// ビルボードの初期化
 	InitBillboard();
@@ -123,6 +124,8 @@ void InitGame(void)
 	InitTarget();
 
 	s_game.gameState = GAMESTATE_NORMAL;
+
+	s_nTime = 0;
 }
 
 //--------------------------------------------------
@@ -131,22 +134,22 @@ void InitGame(void)
 void UninitGame(void)
 {
 	// ポリゴンの終了
-	//UninitPolygon();
+	UninitPolygon();
 
 	// メッシュフィールドの終了
-	UninitMeshField();
+	//UninitMeshField();
 
 	// メッシュ円柱の終了
-	UninitMeshCylinder();
+	//UninitMeshCylinder();
 
 	// メッシュ球の終了
-	UninitMeshSphere();
+	//UninitMeshSphere();
 
 	// メッシュ空の終了
 	UninitMeshSky();
 
 	// 壁の終了
-	UninitWall();
+	//UninitWall();
 
 	// ビルボードの終了
 	UninitBillboard();
@@ -198,22 +201,22 @@ void UpdateGame(void)
 		if (!s_game.bPause)
 		{
 			// ポリゴンの更新
-			//UpdatePolygon();
+			UpdatePolygon();
 
 			// メッシュフィールドの更新
-			UpdateMeshField();
+			//UpdateMeshField();
 
 			// メッシュ円柱の更新
-			UpdateMeshCylinder();
+			//UpdateMeshCylinder();
 
 			// メッシュ球の更新
-			UpdateMeshSphere();
+			//UpdateMeshSphere();
 
 			// メッシュ空の更新
 			UpdateMeshSky();
 
 			// 壁の更新
-			UpdateWall();
+			//UpdateWall();
 
 			// ビルボードの更新
 			UpdateBillboard();
@@ -227,23 +230,11 @@ void UpdateGame(void)
 			// モデルの更新
 			UpdateModel();
 
-			// プレイヤーの更新
-			UpdatePlayer();
-
 			// 線の更新
 			UpdateLine();
 
 			// 弾の更新
 			UpdateBullet();
-
-			// 影の更新
-			UpdateShadow();
-
-			// カメラの更新
-			UpdateCamera();
-
-			// ライトの更新
-			UpdateLight();
 		}
 
 		if (GetKeyboardTrigger(DIK_F4))
@@ -280,14 +271,44 @@ void UpdateGame(void)
 
 	case GAMESTATE_END:		// 終了状態(ゲーム終了時)
 
-		// リザルトの更新
-		UpdateResult();
+		s_nTime++;
+
+		if (s_nTime >= 120)
+		{
+			SetGameState(GAMESTATE_RESULT);
+
+			// カメラの初期化
+			InitCamera();
+		}
+
+		break;
+
+	case GAMESTATE_RESULT:		// リザルト状態(ゲーム終了後)
+
+		if (GetOverlap())
+		{// 重なった
+			// リザルトの更新
+			UpdateResult();
+		}
+
 		break;
 
 	default:
 		assert(false);
 		break;
 	}
+
+	// プレイヤーの更新
+	UpdatePlayer();
+
+	// 影の更新
+	UpdateShadow();
+
+	// カメラの更新
+	UpdateCamera();
+
+	// ライトの更新
+	UpdateLight();
 }
 
 //--------------------------------------------------
@@ -299,13 +320,13 @@ void DrawGame(void)
 	SetCamera();
 
 	// ポリゴンの描画
-	//DrawPolygon();
+	DrawPolygon();
 
 	// メッシュ空の描画
 	DrawMeshSky();
 
 	// メッシュフィールドの描画
-	DrawMeshField();
+	//DrawMeshField();
 
 	// モデルの描画
 	DrawModel();
@@ -329,24 +350,30 @@ void DrawGame(void)
 	DrawBillboard(false);
 
 	// 壁の描画
-	DrawWall();
+	//DrawWall();
 
 	// エフェクトの描画
 	DrawEffect();
 
-	// ビルボードの描画
-	DrawBillboard(true);
-
-	// 数の描画
-	DrawNumber(USE_GAME);
-
-	if (s_game.gameState == GAMESTATE_END)
+	if (s_game.gameState != GAMESTATE_RESULT)
 	{
-		// リザルトの描画
-		DrawResult();
-
 		// 数の描画
-		DrawNumber(USE_RESULT);
+		DrawNumber(USE_GAME);
+	}
+
+	if (s_game.gameState == GAMESTATE_RESULT)
+	{
+		// ビルボードの描画
+		DrawBillboard(true);
+
+		if (GetOverlap())
+		{// 重なった
+			// リザルトの描画
+			DrawResult();
+
+			// 数の描画
+			DrawNumber(USE_RESULT);
+		}
 	}
 }
 

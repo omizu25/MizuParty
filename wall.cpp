@@ -237,14 +237,12 @@ void InstallationWall(void)
 
 	// •Ç‚Ìİ’è
 
-	float fRot = D3DX_PI * 0.1f;
-
 	/*« “à‘¤ «*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI + fRot, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
-	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f + fRot, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
-	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f) + fRot, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (D3DX_PI * 0.5f) + fRot, 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
+	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
+	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (D3DX_PI * 0.5f), 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
 
 	/*« ŠO‘¤ «*/
 

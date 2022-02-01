@@ -9,35 +9,40 @@
 // インクルード
 //--------------------------------------------------
 #include "camera.h"
+#include "game.h"
 #include "input.h"
 #include "player.h"
 #include "setup.h"
+
+#include <assert.h>
 
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
 #define MAX_NEAR			(10.0f)			// ニアの最大値
-#define MAX_FAR				(1500.0f)		// ファーの最大値
-#define MAX_MOVE			(2.0f)			// 移動量の最大値
+#define MAX_FAR				(1500.0f)		// ファーの最大
 #define MAX_ROTATION		(0.035f)		// 回転の最大値
 #define MAX_DISTANCE		(50.0f)			// 距離の最大値
 #define MIN_DISTANCE		(0.0f)			// 距離の最小値
-#define START_DISTANCE		(20.0f)			// 距離の最初の値
+#define START_DISTANCE		(30.0f)			// 距離の最初の値
 #define MAX_POS_FACTOR		(0.05f)			// 位置の減衰係数
 #define MAX_ROT_FACTOR		(0.2f)			// 向きの減衰係数
 #define START_POS_Y			(100.0f)		// Yの位置の最初の値
-#define START_POS_Z			(-200.0f)		// Zの位置の最初の値
+#define START_POS_Z			(-300.0f)		// Zの位置の最初の値
 #define STOP_TIME			(120)			// 止まっている時間
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Camera		s_camera;			// カメラの情報
+static bool			s_bOverlap;			// プレイヤーと重なったかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 static void FollowMove(void);
+static void ResultMove(void);
+static void Overlap(float fPosX);
 
 //--------------------------------------------------
 // 初期化
@@ -65,6 +70,10 @@ void InitCamera(void)
 	s_camera.viewport.Y = (DWORD)0.0f;
 	s_camera.viewport.Width = SCREEN_WIDTH;
 	s_camera.viewport.Height = SCREEN_HEIGHT;
+	s_camera.viewport.MinZ = 0.0f;
+	s_camera.viewport.MaxZ = 1.0f;
+
+	s_bOverlap = false;
 }
 
 //--------------------------------------------------
@@ -80,6 +89,34 @@ void UninitCamera(void)
 //--------------------------------------------------
 void UpdateCamera(void)
 {
+	switch (GetGame().gameState)
+	{
+	case GAMESTATE_NORMAL:		// ゲーム中
+
+		// 追従の移動
+		FollowMove();
+
+		break;
+
+	case GAMESTATE_RESULT:			// リザルト
+		
+		// リザルトの移動
+		ResultMove();
+		break;
+
+	case GAMESTATE_NONE:		// 何もなし
+	case GAMESTATE_START:		// 始まり
+	case GAMESTATE_END:			// 終わり
+
+		/* 処理なし */
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	if (GetKeyboardPress(DIK_1))
 	{// 1キーが押された
 		s_camera.fDisPlayer -= 1.0f;
@@ -91,9 +128,6 @@ void UpdateCamera(void)
 
 	// 指定の値以上・以下
 	Specified(&s_camera.fDisPlayer, MAX_DISTANCE, MIN_DISTANCE);
-
-	// 追従の移動
-	FollowMove();
 }
 
 //--------------------------------------------------
@@ -180,6 +214,14 @@ Camera *GetCamera(void)
 }
 
 //--------------------------------------------------
+// 重なってるかどうかを取得
+//--------------------------------------------------
+bool GetOverlap(void)
+{
+	return s_bOverlap;
+}
+
+//--------------------------------------------------
 // 追従の移動
 //--------------------------------------------------
 static void FollowMove(void)
@@ -206,4 +248,76 @@ static void FollowMove(void)
 	// 視点の移動
 	s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
 	s_camera.posV.z += (s_camera.posVDest.z - s_camera.posV.z) * MAX_POS_FACTOR;
+}
+
+//--------------------------------------------------
+// リザルトの移動
+//--------------------------------------------------
+static void ResultMove(void)
+{
+	if (!s_bOverlap)
+	{// 重なってない
+		D3DXVECTOR3 pos = GetPlayer()->pos;
+		float fMove = GetPlayer()->fMove;
+		bool bDirection = true;		// true : 右向き  false : 左向き
+
+		if (pos.x <= 0.0f)
+		{
+			fMove *= -1.0f;
+			bDirection = false;
+		}
+
+		// 目的の注視点
+		s_camera.posRDest.x += fMove;
+		//s_camera.posRDest.z += fMove;
+
+		// 目的の視点
+		s_camera.posVDest.x += fMove;
+		//s_camera.posVDest.z += fMove;
+
+		// 注視点の移動
+		s_camera.posR.x += (s_camera.posRDest.x - s_camera.posR.x) * MAX_POS_FACTOR;
+		//s_camera.posR.z += (s_camera.posRDest.z - s_camera.posR.z) * MAX_POS_FACTOR;
+
+		// 視点の移動
+		s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
+		//s_camera.posV.z += (s_camera.posVDest.z - s_camera.posV.z) * MAX_POS_FACTOR;
+
+		if (bDirection)
+		{// 右向き
+			if (pos.x <= s_camera.posR.x)
+			{
+				// 重ねる
+				Overlap(pos.x);
+			}
+		}
+		else
+		{// 左向き
+			if (pos.x >= s_camera.posR.x)
+			{
+				// 重ねる
+				Overlap(pos.x);
+			}
+		}
+	}
+}
+
+//--------------------------------------------------
+// 重ねる
+//--------------------------------------------------
+static void Overlap(float fPosX)
+{
+	// 目的の注視点
+	s_camera.posRDest.x = fPosX;
+
+	// 目的の視点
+	s_camera.posVDest.x = fPosX;
+
+	// 注視点の移動
+	s_camera.posR.x = fPosX;
+
+	// 視点の移動
+	s_camera.posV.x = fPosX;
+
+	s_bOverlap = true;
 }

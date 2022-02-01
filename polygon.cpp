@@ -15,9 +15,9 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WIDTH		(200.0f)		// 幅の最大値
+#define MAX_WIDTH		(3000.0f)		// 幅の最大値
 #define MAX_HEIGHT		(0.0f)			// 高さの最大値
-#define MAX_DEPTH		(200.0f)		// 奥行きの最大値
+#define MAX_DEPTH		(3000.0f)		// 奥行きの最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -37,7 +37,7 @@ void InitPolygon(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\InuiToko000.jpg",
+		"data\\TEXTURE\\block009.png",
 		&s_pTexture);
 
 	// 頂点バッファの生成

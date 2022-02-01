@@ -109,7 +109,7 @@ void InitModel(void)
 		}
 	}
 
-	s_model.pos = D3DXVECTOR3(25.0f, 20.0f, 0.0f);
+	s_model.pos = D3DXVECTOR3(25.0f, 20.0f, 50.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 

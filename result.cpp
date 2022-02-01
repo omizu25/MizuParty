@@ -7,6 +7,7 @@
 #include "fade.h"
 #include "input.h"
 #include "number.h"
+#include "player.h"
 #include "result.h"
 #include "setup.h"
 #include "time.h"
@@ -87,8 +88,10 @@ void InitResult(void)
 
 	// ˆÊ’u‚ð‰Šú‰»‚·‚é
 	D3DXVECTOR3 posNumber = D3DXVECTOR3(1000.0f, SCREEN_HEIGHT * 0.7f, 0.0f);
+	
+	pos.x = GetPlayer()->pos.x;
 
-	int nTime = GetTime();
+	int nTime = (int)(pos.x / 30.0);
 	int aNumber[MAX_TIME];
 
 	for (int i = 0; i < MAX_TIME; i++)

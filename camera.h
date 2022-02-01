@@ -40,5 +40,6 @@ void UpdateCamera(void);
 void DrawCamera(void);
 void SetCamera(void);
 Camera *GetCamera(void);
+bool GetOverlap(void);
 
 #endif // !_CAMERA_H_

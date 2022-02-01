@@ -24,6 +24,7 @@
 #define MAX_BILLBOARD		(256)		// ビルボードの最大数
 #define MAX_TEXTURE			(256)		// テクスチャの最大数
 #define DO_NOT_ROT_Y		(0)			// Y軸回転をしない数値
+#define DO_NOT_RESULT		(0)			// リザルトで表示しない
 
 //--------------------------------------------------
 // 構造体
@@ -40,7 +41,7 @@ typedef struct
 	float					fHeight;		// 高さ
 	bool					bUse;			// 使用しているかどうか
 	bool					bYRot;			// Y軸回転をするかどうか
-	bool					bZBuffer;		// Zバッファが必ず成功するかどうか
+	bool					bResult;		// リザルトだけで表示する
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
@@ -53,6 +54,7 @@ typedef struct
 	float					fHeight;		// 高さ
 	int						nTexIdx;		// テクスチャ番号
 	int						nYRot;			// Y軸回転をするかどうか
+	int						nResult;		// リザルトで表示する
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Text;
 
@@ -152,41 +154,6 @@ void UpdateBillboard(void)
 
 		pBillboard->pos += pBillboard->move;
 
-		Wall *pWall = GetWall();
-
-		for (int j = 0; j < MAX_WALL; j++, pWall++)
-		{
-			if (!pWall->bUse)
-			{//使用されていない
-				continue;
-			}
-
-			/*↓ 使用されている ↓*/
-
-			/*↓ ビルボード ↓*/
-			float fRightBillboard = pBillboard->pos.x + pBillboard->fWidth;
-			float fLeftBillboard = pBillboard->pos.x - pBillboard->fWidth;
-			float fTopBillboard = pBillboard->pos.y + pBillboard->fHeight;
-			float fBottomBillboard = pBillboard->pos.y - pBillboard->fHeight;
-
-			/*↓ 壁 ↓*/
-			float fRightWall = pWall->pos.x + cosf(pWall->rot.y) * pWall->fWidth;
-			float fLeftWall = pWall->pos.x - cosf(pWall->rot.y) * pWall->fWidth;
-			float fTopWall = pWall->pos.y + pWall->fHeight;
-			float fBottomWall = pWall->pos.y - pWall->fHeight;
-
-			if (fRightBillboard >= fLeftWall && fLeftBillboard <= fRightWall &&
-				fTopBillboard >= fBottomWall && fBottomBillboard <= fTopWall &&
-				fRightBillboard >= pWall->pos.z && fLeftBillboard <= pWall->pos.z)
-			{//	当たってる
-				pBillboard->bZBuffer = true;
-				pBillboard->bUse = false;
-
-				// パーティクルの設定
-				SetParticle(pBillboard->pos, pBillboard->fWidth, true);
-			}
-		}
-
 		if (pBillboard->move.x != 0.0f || pBillboard->move.z != 0.0f)
 		{// 動いてる
 			// エフェクトの設定
@@ -198,7 +165,7 @@ void UpdateBillboard(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawBillboard(bool bZBuffer)
+void DrawBillboard(bool bResult)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -222,18 +189,12 @@ void DrawBillboard(bool bZBuffer)
 	{
 		Billboard *pBillboard = &s_billboard[i];
 
-		if (!pBillboard->bUse || pBillboard->bZBuffer != bZBuffer)
+		if (!pBillboard->bUse || pBillboard->bResult != bResult)
 		{//使用されていない
 			continue;
 		}
 
 		/*↓ 使用されている ↓*/
-
-		if (pBillboard->bZBuffer)
-		{// Zバッファの値を変更する
-			pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
-			pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-		}
 
 		// ワールドマトリックスの初期化
 		D3DXMatrixIdentity(&pBillboard->mtxWorld);
@@ -294,7 +255,7 @@ void DrawBillboard(bool bZBuffer)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, bool bResult, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -315,7 +276,7 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 		pBillboard->fHeight = fHeight;
 		pBillboard->pTexture = *pTexture;
 		pBillboard->bYRot = bYRot;
-		pBillboard->bZBuffer = false;
+		pBillboard->bResult = bResult;
 		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -490,6 +451,11 @@ static void Load(FILE *pFile)
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%d", &pText[nText].nYRot);
 					}
+					else if (strcmp(&aRead[0], "RESULT") == 0)
+					{// リザルトで表示する
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%d", &pText[nText].nResult);
+					}
 					else if (strcmp(&aRead[0], "WIDTH") == 0)
 					{// 幅
 						fscanf(pFile, "%s", &aRead);
@@ -520,14 +486,20 @@ static void Load(FILE *pFile)
 			pText[i].pTexture = s_pTexture[pText[i].nTexIdx];
 
 			bool bYRot = true;
+			bool bResult = true;
 
 			if (pText[i].nYRot == DO_NOT_ROT_Y)
 			{// Y軸回転をしない数値の時
 				bYRot = false;
 			}
 
+			if (pText[i].nResult == DO_NOT_RESULT)
+			{// Y軸回転をしない数値の時
+				bResult = false;
+			}
+
 			// 設定
-			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, &pText[i].pTexture);
+			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, bResult, &pText[i].pTexture);
 		}
 
 		delete[] pText;

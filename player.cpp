@@ -9,11 +9,12 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
-#include "model.h"
 #include "billboard.h"
 #include "camera.h"
+#include "game.h"
 #include "input.h"
 #include "mesh_field.h"
+#include "model.h"
 #include "player.h"
 #include "setup.h"
 #include "shadow.h"
@@ -247,14 +248,43 @@ void UpdatePlayer(void)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
-		// 移動
-		MoveWalking(pPlayer);
+
+		switch (GetGame().gameState)
+		{
+		case GAMESTATE_NONE:		// 何もしていない状態
+		case GAMESTATE_START:		// 開始状態 (ゲーム開始中)
+		case GAMESTATE_RESULT:		// リザルト状態 (ゲーム終了後)
+
+			/* 処理なし */
+
+			break;
+
+		case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
+
+			// 移動
+			MoveWalking(pPlayer);
+
+			break;
+
+		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
+			
+			pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+		
 		break;
 
 	case MENU_TUTORIAL:		// チュートリアル
 	case MENU_RANKING:		// ランキング
+
 		// 移動
 		Move(pPlayer);
+		
 		break;
 
 	default:
@@ -279,10 +309,10 @@ void UpdatePlayer(void)
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
 	// 壁との当たり判定
-	CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
+	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 
 	// メッシュフィールドとの当たり判定
-	CollisionMeshField(&pPlayer->pos);
+	//CollisionMeshField(&pPlayer->pos);
 
 	// モーション
 	Motion(pPlayer);
@@ -1016,43 +1046,46 @@ static void Motion(Player * pPlayer)
 		s_IdxMotion = MOTION_ATTACK;
 	}
 
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
+	if (GetGame().gameState == GAMESTATE_NORMAL)
+	{// 通常状態 (ゲーム進行中)
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_WALKING:		// ウォーキング
 
-		if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT))
-		{// ←, →, ↑, ↓キーが押された
-			s_nFrame = 0;
-			s_nIdxKey = 0;
+			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT))
+			{// ←, →, ↑, ↓キーが押された
+				s_nFrame = 0;
+				s_nIdxKey = 0;
 
-			// モーションセット
-			SetMotion(pPlayer);
+				// モーションセット
+				SetMotion(pPlayer);
 
-			s_IdxMotion = MOTION_MOVE;
+				s_IdxMotion = MOTION_MOVE;
+			}
+
+			break;
+
+		case MENU_TUTORIAL:		// チュートリアル
+		case MENU_RANKING:		// ランキング
+
+			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
+				GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+			{// ←, →, ↑, ↓キーが押された
+				s_nFrame = 0;
+				s_nIdxKey = 0;
+
+				// モーションセット
+				SetMotion(pPlayer);
+
+				s_IdxMotion = MOTION_MOVE;
+			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
-		
-		break;
-
-	case MENU_TUTORIAL:		// チュートリアル
-	case MENU_RANKING:		// ランキング
-
-		if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
-			GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
-		{// ←, →, ↑, ↓キーが押された
-			s_nFrame = 0;
-			s_nIdxKey = 0;
-
-			// モーションセット
-			SetMotion(pPlayer);
-
-			s_IdxMotion = MOTION_MOVE;
-		}
-
-		break;
-
-	default:
-		assert(false);
-		break;
 	}
 
 	if (s_bMotionBlend)
@@ -1091,10 +1124,13 @@ static void Motion(Player * pPlayer)
 			s_bMotionLoop = false;
 		}
 
-		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
-		{// ←, →, ↑, ↓キーが押された
-			s_bMotionLoop = false;
+		if (GetGame().gameState == GAMESTATE_NORMAL)
+		{// 通常状態 (ゲーム進行中)
+			if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+				GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+			{// ←, →, ↑, ↓キーが押された
+				s_bMotionLoop = false;
+			}
 		}
 
 		if (s_bMotionLoop)

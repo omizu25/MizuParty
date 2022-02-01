@@ -63,6 +63,6 @@ void UpdateBullet(void)
 		Player *pPlayer = GetPlayer();
 
 		// ビルボードの設定
-		SetBillboard(pPlayer->pos, move, MAX_WIDTH, MAX_HEIGHT, false, &s_pTexture);
+		SetBillboard(pPlayer->pos, move, MAX_WIDTH, MAX_HEIGHT, false, false, &s_pTexture);
 	}
 }
