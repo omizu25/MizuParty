@@ -15,6 +15,8 @@
 typedef enum
 {
 	USE_NONE = 0,		// なし
+	USE_START,			// スタート
+	USE_GAME_ONLY,		// ゲームだけ
 	USE_GAME,			// ゲーム
 	USE_RESULT,			// リザルト
 	USE_MAX
@@ -30,5 +32,6 @@ void DrawNumber(USE use);
 void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use);
 void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use);
 void TexNumber(int nNumber, int nDigit, USE use);
+void UseNumber(int nDigit, USE use);
 
 #endif // !_NUMBER_H_

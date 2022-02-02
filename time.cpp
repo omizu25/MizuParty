@@ -16,8 +16,8 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define NUMBER_WIDTH		(60.0f)			// 幅
-#define NUMBER_HEIGHT		(100.0f)		// 高さ
+#define NUMBER_WIDTH		(80.0f)			// 幅
+#define NUMBER_HEIGHT		(140.0f)		// 高さ
 #define WIDTH_INTERVAL		(5.0f)			// 幅の間隔
 #define START_TIME			(10)			// 最初の値
 #define ONE_SECONDS			(60)			// １秒
@@ -35,7 +35,7 @@ static int				s_nSecond;		// １秒間隔を数える
 void InitTime(void)
 {
 	float fWidth = SCREEN_WIDTH * 0.5f;
-	float fHeight = SCREEN_HEIGHT * 0.1f;
+	float fHeight = SCREEN_HEIGHT * 0.15f;
 
 	// 位置を初期化
 	s_pos = D3DXVECTOR3(fWidth, fHeight, 0.0f);
@@ -59,7 +59,7 @@ void InitTime(void)
 		float fCenter = (NUMBER_WIDTH * 0.5) * (MAX_TIME - 1) + (WIDTH_INTERVAL * 0.5f) * (MAX_TIME - 1);
 
 		// 数の設定
-		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME);
+		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME_ONLY);
 	}
 }
 
@@ -83,7 +83,7 @@ void SubTime(int nValue)
 			nTime /= 10;
 
 			// 数のテクスチャ
-			TexNumber(aNumber[i], i, USE_GAME);
+			TexNumber(aNumber[i], i, USE_GAME_ONLY);
 		}
 	}
 	else if (s_nTime <= 0)

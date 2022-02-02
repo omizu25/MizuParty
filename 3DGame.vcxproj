@@ -156,6 +156,7 @@
     <ClCompile Include="billboard.cpp" />
     <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
+    <ClCompile Include="countdown.cpp" />
     <ClCompile Include="effect.cpp" />
     <ClCompile Include="fade.cpp" />
     <ClCompile Include="game.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="player.cpp" />
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="result.cpp" />
+    <ClCompile Include="rule.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="shadow.cpp" />
     <ClCompile Include="target.cpp" />
@@ -185,6 +187,7 @@
     <ClInclude Include="billboard.h" />
     <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
+    <ClInclude Include="countdown.h" />
     <ClInclude Include="effect.h" />
     <ClInclude Include="fade.h" />
     <ClInclude Include="game.h" />
@@ -203,6 +206,7 @@
     <ClInclude Include="player.h" />
     <ClInclude Include="polygon.h" />
     <ClInclude Include="result.h" />
+    <ClInclude Include="rule.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shadow.h" />
     <ClInclude Include="target.h" />

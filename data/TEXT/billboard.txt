@@ -46,7 +46,7 @@ BILLBOARD_SET
 	RESULT = 0					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 0.0 20.0 0.0			# 位置
+	POS = 0.0 20.0 30.0			# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -55,7 +55,7 @@ BILLBOARD_SET
 	RESULT = 0					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 300.0 20.0 0.0		# 位置
+	POS = 300.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -64,7 +64,7 @@ BILLBOARD_SET
 	RESULT = 0					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 600.0 20.0 0.0		# 位置
+	POS = 600.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -73,7 +73,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 900.0 20.0 0.0		# 位置
+	POS = 900.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -82,7 +82,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 1200.0 20.0 0.0		# 位置
+	POS = 1200.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -91,7 +91,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 1500.0 20.0 0.0		# 位置
+	POS = 1500.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -100,7 +100,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 1800.0 20.0 0.0		# 位置
+	POS = 1800.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -109,7 +109,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 2100.0 20.0 0.0		# 位置
+	POS = 2100.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -118,7 +118,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = 2400.0 20.0 0.0		# 位置
+	POS = 2400.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -127,7 +127,7 @@ BILLBOARD_SET
 	RESULT = 0					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -300.0 20.0 0.0		# 位置
+	POS = -300.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -136,7 +136,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -600.0 20.0 0.0		# 位置
+	POS = -600.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -145,7 +145,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -900.0 20.0 0.0		# 位置
+	POS = -900.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -154,7 +154,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -1200.0 20.0 0.0		# 位置
+	POS = -1200.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -163,7 +163,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -1500.0 20.0 0.0		# 位置
+	POS = -1500.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -172,7 +172,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -1800.0 20.0 0.0		# 位置
+	POS = -1800.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -181,7 +181,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -2100.0 20.0 0.0		# 位置
+	POS = -2100.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 BILLBOARD_SET
@@ -190,7 +190,7 @@ BILLBOARD_SET
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
-	POS = -2400.0 20.0 0.0		# 位置
+	POS = -2400.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 END_SCRIPT		# この行は絶対消さないこと！

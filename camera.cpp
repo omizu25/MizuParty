@@ -92,6 +92,7 @@ void UpdateCamera(void)
 	switch (GetGame().gameState)
 	{
 	case GAMESTATE_NORMAL:		// ゲーム中
+	case GAMESTATE_END:			// 終わり
 
 		// 追従の移動
 		FollowMove();
@@ -104,9 +105,9 @@ void UpdateCamera(void)
 		ResultMove();
 		break;
 
-	case GAMESTATE_NONE:		// 何もなし
-	case GAMESTATE_START:		// 始まり
-	case GAMESTATE_END:			// 終わり
+	case GAMESTATE_NONE:			// 何もなし
+	case GAMESTATE_START:			// 始まり
+	case GAMESTATE_COUNTDOWN:		// カウントダウン
 
 		/* 処理なし */
 
@@ -269,19 +270,15 @@ static void ResultMove(void)
 
 		// 目的の注視点
 		s_camera.posRDest.x += fMove;
-		//s_camera.posRDest.z += fMove;
 
 		// 目的の視点
 		s_camera.posVDest.x += fMove;
-		//s_camera.posVDest.z += fMove;
 
 		// 注視点の移動
 		s_camera.posR.x += (s_camera.posRDest.x - s_camera.posR.x) * MAX_POS_FACTOR;
-		//s_camera.posR.z += (s_camera.posRDest.z - s_camera.posR.z) * MAX_POS_FACTOR;
 
 		// 視点の移動
 		s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
-		//s_camera.posV.z += (s_camera.posVDest.z - s_camera.posV.z) * MAX_POS_FACTOR;
 
 		if (bDirection)
 		{// 右向き

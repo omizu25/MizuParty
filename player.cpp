@@ -251,9 +251,10 @@ void UpdatePlayer(void)
 
 		switch (GetGame().gameState)
 		{
-		case GAMESTATE_NONE:		// 何もしていない状態
-		case GAMESTATE_START:		// 開始状態 (ゲーム開始中)
-		case GAMESTATE_RESULT:		// リザルト状態 (ゲーム終了後)
+		case GAMESTATE_NONE:			// 何もしていない状態
+		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
+		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
 
 			/* 処理なし */
 
@@ -434,6 +435,20 @@ void LoadPlayer(void)
 		// モーションの読み込み
 		LoadMotion(i);
 	}
+}
+
+//--------------------------------------------------
+// 次のモーション
+//--------------------------------------------------
+void NextMotion(MOTION motion)
+{
+	s_nFrame = 0;
+	s_nIdxKey = 0;
+
+	// モーションセット
+	SetMotion(&s_player[s_nSelectPlayer]);
+
+	s_IdxMotion = motion;
 }
 
 //--------------------------------------------------
@@ -923,15 +938,15 @@ static void Move(Player *pPlayer)
 
 		/* ↓モデルの移動↓ */
 
-		if (GetKeyboardPress(DIK_LEFT))
+		if (GetKeyboardPress(DIK_A))
 		{// ←キーが押された
-			if (GetKeyboardPress(DIK_UP))
+			if (GetKeyboardPress(DIK_W))
 			{// ↑キーが押された
 				fRot = -D3DX_PI * 0.25f;
 
 				pPlayer->rotDest.y = D3DX_PI * 0.75f;
 			}
-			else if (GetKeyboardPress(DIK_DOWN))
+			else if (GetKeyboardPress(DIK_S))
 			{// ↓キーが押された
 				fRot = -D3DX_PI * 0.75f;
 
@@ -944,15 +959,15 @@ static void Move(Player *pPlayer)
 				pPlayer->rotDest.y = D3DX_PI * 0.5f;
 			}
 		}
-		else if (GetKeyboardPress(DIK_RIGHT))
+		else if (GetKeyboardPress(DIK_D))
 		{// →キーが押された
-			if (GetKeyboardPress(DIK_UP))
+			if (GetKeyboardPress(DIK_W))
 			{// ↑キーが押された
 				fRot = D3DX_PI * 0.25f;
 
 				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
 			}
-			else if (GetKeyboardPress(DIK_DOWN))
+			else if (GetKeyboardPress(DIK_S))
 			{// ↓キーが押された
 				fRot = D3DX_PI * 0.75f;
 
@@ -965,21 +980,21 @@ static void Move(Player *pPlayer)
 				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 			}
 		}
-		else if (GetKeyboardPress(DIK_UP))
+		else if (GetKeyboardPress(DIK_W))
 		{// ↑キーが押された
 			fRot = 0.0f;
 
 			pPlayer->rotDest.y = D3DX_PI;
 		}
-		else if (GetKeyboardPress(DIK_DOWN))
+		else if (GetKeyboardPress(DIK_S))
 		{// ↓キーが押された
 			fRot = D3DX_PI;
 
 			pPlayer->rotDest.y = 0.0f;
 		}
 
-		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
+			GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 		{// ←, →, ↑, ↓キーが押された
 			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
 			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
@@ -1008,20 +1023,20 @@ static void MoveWalking(Player *pPlayer)
 
 	/* ↓モデルの移動↓ */
 
-	if (GetKeyboardPress(DIK_LEFT))
+	if (GetKeyboardPress(DIK_A))
 	{// ←キーが押された
 		fRot = -D3DX_PI * 0.5f;
 
 		pPlayer->rotDest.y = D3DX_PI * 0.5f;
 	}
-	else if (GetKeyboardPress(DIK_RIGHT))
+	else if (GetKeyboardPress(DIK_D))
 	{// →キーが押された
 		fRot = D3DX_PI * 0.5f;
 
 		pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 	}
 
-	if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT))
+	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
 	{// ←, →, ↑, ↓キーが押された
 		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
 		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
@@ -1037,13 +1052,8 @@ static void Motion(Player * pPlayer)
 
 	if (GetKeyboardTrigger(DIK_RETURN))
 	{// ENTERが押された
-		s_nFrame = 0;
-		s_nIdxKey = 0;
-
-		// モーションセット
-		SetMotion(pPlayer);
-		
-		s_IdxMotion = MOTION_ATTACK;
+		// 次のモーション
+		NextMotion(MOTION_ATTACK);
 	}
 
 	if (GetGame().gameState == GAMESTATE_NORMAL)
@@ -1052,15 +1062,10 @@ static void Motion(Player * pPlayer)
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
 
-			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT))
+			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
 			{// ←, →, ↑, ↓キーが押された
-				s_nFrame = 0;
-				s_nIdxKey = 0;
-
-				// モーションセット
-				SetMotion(pPlayer);
-
-				s_IdxMotion = MOTION_MOVE;
+				// 次のモーション
+				NextMotion(MOTION_MOVE);
 			}
 
 			break;
@@ -1068,16 +1073,11 @@ static void Motion(Player * pPlayer)
 		case MENU_TUTORIAL:		// チュートリアル
 		case MENU_RANKING:		// ランキング
 
-			if (GetKeyboardTrigger(DIK_LEFT) || GetKeyboardTrigger(DIK_RIGHT) ||
-				GetKeyboardTrigger(DIK_UP) || GetKeyboardTrigger(DIK_DOWN))
+			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
+				GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
 			{// ←, →, ↑, ↓キーが押された
-				s_nFrame = 0;
-				s_nIdxKey = 0;
-
-				// モーションセット
-				SetMotion(pPlayer);
-
-				s_IdxMotion = MOTION_MOVE;
+				// 次のモーション
+				NextMotion(MOTION_MOVE);
 			}
 
 			break;
@@ -1126,8 +1126,8 @@ static void Motion(Player * pPlayer)
 
 		if (GetGame().gameState == GAMESTATE_NORMAL)
 		{// 通常状態 (ゲーム進行中)
-			if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
-				GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
+				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 			{// ←, →, ↑, ↓キーが押された
 				s_bMotionLoop = false;
 			}
@@ -1135,13 +1135,9 @@ static void Motion(Player * pPlayer)
 
 		if (s_bMotionLoop)
 		{// モーションループする
-			s_nFrame = 0;
-			s_nIdxKey = 0;
+			// 次のモーション
+			NextMotion(MOTION_NEUTRAL);
 
-			// モーションセット
-			SetMotion(pPlayer);
-
-			s_IdxMotion = MOTION_NEUTRAL;
 			s_bMotionLoop = false;
 		}
 
@@ -1159,12 +1155,8 @@ static void Motion(Player * pPlayer)
 			{// ループしない
 				if (s_nIdxKey >= pMotion->nNumKey)
 				{// キー数が超えた
-					s_nIdxKey = 0;
-
-					// モーションセット
-					SetMotion(pPlayer);
-					
-					s_IdxMotion = MOTION_NEUTRAL;
+					// 次のモーション
+					NextMotion(MOTION_NEUTRAL);
 				}
 			}
 

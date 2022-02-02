@@ -12,6 +12,7 @@
 #include "billboard.h"
 #include "bullet.h"
 #include "camera.h"
+#include "countdown.h"
 #include "effect.h"
 #include "fade.h"
 #include "game.h"
@@ -28,9 +29,11 @@
 #include "particle.h"
 #include "polygon.h"
 #include "result.h"
+#include "rule.h"
 #include "shadow.h"
 #include "target.h"
 #include "time.h"
+#include "title.h"
 #include "wall.h"
 
 #include <assert.h>
@@ -67,10 +70,10 @@ void InitGame(void)
 	//SetMeshSphere();
 
 	// メッシュ空の初期化
-	InitMeshSky();
+	//InitMeshSky();
 
 	// メッシュ空の設定
-	SetMeshSky();
+	//SetMeshSky();
 
 	// 壁の初期化
 	//InitWall();
@@ -120,10 +123,16 @@ void InitGame(void)
 	// タイムの初期化
 	InitTime();
 
+	// カウントダウンの初期化
+	InitCountdown();
+
 	// ターゲットの初期化
 	InitTarget();
 
-	s_game.gameState = GAMESTATE_NORMAL;
+	// ルールの初期化
+	InitRule();
+
+	s_game.gameState = GAMESTATE_START;
 
 	s_nTime = 0;
 }
@@ -146,7 +155,7 @@ void UninitGame(void)
 	//UninitMeshSphere();
 
 	// メッシュ空の終了
-	UninitMeshSky();
+	//UninitMeshSky();
 
 	// 壁の終了
 	//UninitWall();
@@ -183,6 +192,15 @@ void UninitGame(void)
 
 	// リザルトの終了
 	UninitResult();
+
+	// カウントダウンの終了
+	UninitCountdown();
+
+	// ターゲットの終了
+	UninitTarget();
+
+	// ルールの終了
+	UninitRule();
 }
 
 //--------------------------------------------------
@@ -193,10 +211,64 @@ void UpdateGame(void)
 	switch (s_game.gameState)
 	{
 	case GAMESTATE_START:		// 開始状態(ゲーム開始中)
-						 
+		s_nTime++;
+
+		if (s_nTime >= 120)
+		{
+			s_nTime = 0;
+
+			// ゲームの設定
+			SetGameState(GAMESTATE_COUNTDOWN);
+		}
+
+		break;
+
+	case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+
+		//カウントダウンの加算
+		AddCountdown(1);
+
+		//カウントダウンの更新
+		UpdateCountdown();
+
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_WALKING:		// ウォーキング
+
+			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
+			{// ←, →, ↑, ↓キーが押された
+			 // 次のモーション
+				NextMotion(MOTION_MOVE);
+			}
+
+			break;
+
+		case MENU_TUTORIAL:		// チュートリアル
+		case MENU_RANKING:		// ランキング
+
+			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
+				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
+			{// ←, →, ↑, ↓キーが押された
+			 // 次のモーション
+				NextMotion(MOTION_MOVE);
+			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
 		break;
 
 	case GAMESTATE_NORMAL:		// 通常状態(ゲーム進行中)
+
+			//カウントダウンの加算
+			AddCountdown(1);
+
+			//カウントダウンの更新
+			UpdateCountdown();
 
 		if (!s_game.bPause)
 		{
@@ -213,7 +285,7 @@ void UpdateGame(void)
 			//UpdateMeshSphere();
 
 			// メッシュ空の更新
-			UpdateMeshSky();
+			//UpdateMeshSky();
 
 			// 壁の更新
 			//UpdateWall();
@@ -275,6 +347,9 @@ void UpdateGame(void)
 
 		if (s_nTime >= 120)
 		{
+			s_nTime = 0;
+
+			// ゲームの設定
 			SetGameState(GAMESTATE_RESULT);
 
 			// カメラの初期化
@@ -297,6 +372,12 @@ void UpdateGame(void)
 		assert(false);
 		break;
 	}
+
+	// ルールの更新
+	UpdateRule();
+
+	// ターゲットの更新
+	UpdateTarget();
 
 	// プレイヤーの更新
 	UpdatePlayer();
@@ -323,7 +404,7 @@ void DrawGame(void)
 	DrawPolygon();
 
 	// メッシュ空の描画
-	DrawMeshSky();
+	//DrawMeshSky();
 
 	// メッシュフィールドの描画
 	//DrawMeshField();
@@ -355,10 +436,30 @@ void DrawGame(void)
 	// エフェクトの描画
 	DrawEffect();
 
-	if (s_game.gameState != GAMESTATE_RESULT)
+	// ターゲットの描画
+	DrawTarget();
+
+	if (s_game.gameState != GAMESTATE_START)
 	{
 		// 数の描画
 		DrawNumber(USE_GAME);
+
+		// ルールの描画
+		DrawRule();
+	}
+
+	if (s_game.gameState == GAMESTATE_START)
+	{
+		// 数の描画
+		DrawNumber(USE_START);
+	}
+
+	if (s_game.gameState == GAMESTATE_NORMAL ||
+		s_game.gameState == GAMESTATE_COUNTDOWN ||
+		s_game.gameState == GAMESTATE_END)
+	{
+		// 数の描画
+		DrawNumber(USE_GAME_ONLY);
 	}
 
 	if (s_game.gameState == GAMESTATE_RESULT)
@@ -375,6 +476,9 @@ void DrawGame(void)
 			DrawNumber(USE_RESULT);
 		}
 	}
+
+	//カウントダウンの描画
+	DrawCountdown();
 }
 
 //--------------------------------------------------

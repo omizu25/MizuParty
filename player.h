@@ -100,5 +100,6 @@ void UpdatePlayer(void);
 void DrawPlayer(void);
 Player *GetPlayer(void);
 void LoadPlayer(void);
+void NextMotion(MOTION motion);
 
 #endif // !_PLAYER_H_
