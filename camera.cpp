@@ -9,8 +9,10 @@
 // インクルード
 //--------------------------------------------------
 #include "camera.h"
+#include "countdown.h"
 #include "game.h"
 #include "input.h"
+#include "model.h"
 #include "player.h"
 #include "setup.h"
 #include "title.h"
@@ -30,15 +32,17 @@
 #define MAX_ROT_FACTOR		(0.2f)			// 向きの減衰係数
 #define START_WALKING_Y		(100.0f)		// Yの位置の最初の値
 #define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
-#define START_STOP_Y		(200.0f)		// Yの位置の最初の値
-#define START_STOP_Z		(-600.0f)		// Zの位置の最初の値
+#define START_STOP_Y		(150.0f)		// Yの位置の最初の値
+#define START_STOP_Z		(-450.0f)		// Zの位置の最初の値
 #define STOP_TIME			(120)			// 止まっている時間
+#define STOP_POS_Y			(100.0f)		// Yの位置の止まる場所
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Camera		s_camera;			// カメラの情報
 static bool			s_bOverlap;			// プレイヤーと重なったかどうか
+static bool			s_bStop;			// 止まるかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -97,7 +101,16 @@ void InitCamera(void)
 	s_camera.viewport.MinZ = 0.0f;
 	s_camera.viewport.MaxZ = 1.0f;
 
-	s_bOverlap = false;
+	if (GetTitle() == MENU_WALKING)
+	{
+		s_bOverlap = false;
+	}
+	else
+	{
+		s_bOverlap = true;;
+	}
+	
+	s_bStop = false;
 }
 
 //--------------------------------------------------
@@ -117,12 +130,26 @@ void UpdateCamera(void)
 	{
 	case MENU_STOP:			// 止める
 
-		if (GetGame().gameState == GAMESTATE_NORMAL)
+		if (GetCountdown())
 		{
-			s_camera.posV.z += 3.0f;
-			s_camera.posR.z += 3.0f;
-			s_camera.posV.y -= 1.5f;
-			s_camera.posR.y -= 1.5f;
+			if (!GetStop())
+			{
+				if (!s_bStop)
+				{// 止まらない
+					if (GetGame().gameState == GAMESTATE_NORMAL)
+					{
+						s_camera.posV.z += 4.0f;
+						s_camera.posR.z += 4.0f;
+						s_camera.posV.y -= 1.5f;
+						s_camera.posR.y -= 1.5f;
+					}
+
+					if (s_camera.posV.y <= STOP_POS_Y)
+					{
+						s_bStop = true;
+					}
+				}
+			}
 		}
 
 		break;

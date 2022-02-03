@@ -10,23 +10,27 @@
 //--------------------------------------------------
 #include "main.h"
 #include "camera.h"
+#include "game.h"
 #include "input.h"
 #include "line.h"
 #include "model.h"
 #include "setup.h"
 #include "shadow.h"
 
+#include <time.h>
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define START_POS_Y		(400.0f)		// スタートの高さ	
-#define MAX_MOVE		(3.0f)			// 移動量
+#define START_POS_Y		(300.0f)		// スタートの高さ	
+#define MAX_MOVE		(5.0f)			// 移動量
+#define MAX_RANDOM		(10)			// ランダムの最大値
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Model		s_model;		// モデルの情報
-static int			s_nTime;		// タイム
+static int			s_nRand;		// ランダム
+static bool			s_bStop;		// 止めるかどうか
 
 //--------------------------------------------------
 // 初期化
@@ -35,8 +39,6 @@ void InitModel(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	s_nTime = 0;
 
 	int nNumVtx;		// 頂点数
 	DWORD SizeFVF;		// 頂点フォーマットのサイズ
@@ -113,8 +115,17 @@ void InitModel(void)
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
+	//世界の種子の初期化
+	srand((unsigned)time(NULL));
+
+	int nRand = (rand() % MAX_RANDOM);
+
+	s_model.fMove = MAX_MOVE + (nRand * 0.1f);
+
 	// 影の設定
 	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
+
+	s_bStop = false;
 }
 
 //--------------------------------------------------
@@ -155,7 +166,19 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-	s_model.pos.y -= MAX_MOVE;
+	if (!s_bStop)
+	{// 止まらない
+		s_model.pos.y -= MAX_MOVE;
+
+		if (GetKeyboardTrigger(DIK_SPACE) || 
+			GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
+		{// F4キーが押された
+			s_bStop = true;
+
+			// ゲームの設定
+			SetGameState(GAMESTATE_END);
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -209,11 +232,19 @@ void DrawModel(void)
 }
 
 //--------------------------------------------------
-// 取得
+// 取得 (モデル情報)
 //--------------------------------------------------
 Model *GetModel(void)
 {
 	return &s_model;
+}
+
+//--------------------------------------------------
+// 取得 (止まってるかどうか)
+//--------------------------------------------------
+bool GetStop(void)
+{
+	return s_bStop;
 }
 
 //--------------------------------------------------

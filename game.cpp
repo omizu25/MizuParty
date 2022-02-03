@@ -81,11 +81,14 @@ void InitGame(void)
 	// 壁の設置
 	//InstallationWall();
 
-	// ビルボードの初期化
-	InitBillboard();
+	if (GetTitle() == MENU_WALKING)
+	{// ウォーキング
+		// ビルボードの初期化
+		InitBillboard();
 
-	// ビルボードの読み込み
-	LoadBillboard();
+		// ビルボードの読み込み
+		LoadBillboard();
+	}
 
 	// パーティクルの初期化
 	InitParticle();
@@ -265,82 +268,88 @@ void UpdateGame(void)
 
 	case GAMESTATE_NORMAL:		// 通常状態(ゲーム進行中)
 
-			//カウントダウンの加算
-			AddCountdown(1);
+		//カウントダウンの加算
+		AddCountdown(1);
 
-			//カウントダウンの更新
-			UpdateCountdown();
+		//カウントダウンの更新
+		UpdateCountdown();
 
-		if (!s_game.bPause)
+		if (GetCountdown())
 		{
-			// ポリゴンの更新
-			UpdatePolygon();
+			if (!s_game.bPause)
+			{
+				// ポリゴンの更新
+				UpdatePolygon();
 
-			// メッシュフィールドの更新
-			//UpdateMeshField();
+				// メッシュフィールドの更新
+				//UpdateMeshField();
 
-			// メッシュ円柱の更新
-			//UpdateMeshCylinder();
+				// メッシュ円柱の更新
+				//UpdateMeshCylinder();
 
-			// メッシュ球の更新
-			//UpdateMeshSphere();
+				// メッシュ球の更新
+				//UpdateMeshSphere();
 
-			// メッシュ空の更新
-			//UpdateMeshSky();
+				// メッシュ空の更新
+				//UpdateMeshSky();
 
-			// 壁の更新
-			//UpdateWall();
+				// 壁の更新
+				//UpdateWall();
 
-			// ビルボードの更新
-			UpdateBillboard();
+				if (GetTitle() == MENU_WALKING)
+				{// ウォーキング
+					// ビルボードの更新
+					UpdateBillboard();
+				}
 
-			// パーティクルの更新
-			UpdateParticle();
+				// パーティクルの更新
+				UpdateParticle();
 
-			// エフェクトの更新
-			UpdateEffect();
+				// エフェクトの更新
+				UpdateEffect();
 
-			if (GetTitle() == MENU_STOP)
-			{// 止める
-				// モデルの更新
-				UpdateModel();
+				if (GetTitle() == MENU_STOP)
+				{// 止める
+					// モデルの更新
+					UpdateModel();
+				}
+
+				// 線の更新
+				//UpdateLine();
+
+				// 弾の更新
+				//UpdateBullet();
 			}
 
-			// 線の更新
-			//UpdateLine();
-
-			// 弾の更新
-			//UpdateBullet();
-		}
-
-		if (GetKeyboardTrigger(DIK_F4))
-		{// F4キーが押された
-			s_game.bPause = !s_game.bPause;
-		}
-
-		if (GetKeyboardTrigger(DIK_F5))
-		{// F5キーが押された
-			s_game.bWireframe = !s_game.bWireframe;
-
-			// デバイスへのポインタの取得
-			LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-			if (s_game.bWireframe)
-			{// 表示
-				// レンダーステートの設定
-				pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+			if (GetKeyboardTrigger(DIK_F4))
+			{// F4キーが押された
+				s_game.bPause = !s_game.bPause;
 			}
-			else
-			{// 非表示
-				// レンダーステートを元に戻す
-				pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-			}
-		}
 
-		if (GetTitle() != MENU_STOP)
-		{// 止めるじゃない
-			// タイムの減算
-			SubTime(1);
+			if (GetKeyboardTrigger(DIK_F5))
+			{// F5キーが押された
+				s_game.bWireframe = !s_game.bWireframe;
+
+				// デバイスへのポインタの取得
+				LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+				if (s_game.bWireframe)
+				{// 表示
+					// レンダーステートの設定
+					pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+				}
+				else
+				{// 非表示
+					// レンダーステートを元に戻す
+					pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
+				}
+			}
+
+			if (GetTitle() != MENU_STOP)
+			{// 止めるじゃない
+				// タイムの減算
+				SubTime(1);
+			}
 		}
 
 		break;
@@ -356,8 +365,11 @@ void UpdateGame(void)
 			// ゲームの設定
 			SetGameState(GAMESTATE_RESULT);
 
-			// カメラの初期化
-			InitCamera();
+			if (GetTitle() == MENU_WALKING)
+			{// 止める
+				// カメラの初期化
+				InitCamera();
+			}
 		}
 
 		break;
@@ -437,8 +449,11 @@ void DrawGame(void)
 	// メッシュ円柱の描画
 	//DrawMeshCylinder();
 
-	// ビルボードの描画
-	DrawBillboard(false);
+	if (GetTitle() == MENU_WALKING)
+	{// ウォーキング
+		// ビルボードの描画
+		DrawBillboard(false);
+	}
 
 	// 壁の描画
 	//DrawWall();
@@ -474,8 +489,11 @@ void DrawGame(void)
 
 	if (s_game.gameState == GAMESTATE_RESULT)
 	{
-		// ビルボードの描画
-		DrawBillboard(true);
+		if (GetTitle() == MENU_WALKING)
+		{// ウォーキング
+			// ビルボードの描画
+			DrawBillboard(true);
+		}
 
 		if (GetOverlap())
 		{// 重なった
