@@ -11,6 +11,7 @@
 #include "result.h"
 #include "setup.h"
 #include "time.h"
+#include "title.h"
 
 #include <assert.h>
 
@@ -225,11 +226,32 @@ static void InitPosNumber(void)
 	// 位置を初期化する
 	D3DXVECTOR3 posNumber = D3DXVECTOR3(SCREEN_WIDTH * 0.85f, SCREEN_HEIGHT * 0.75f, 0.0f);
 
-	int nPos = (int)(GetPlayer()->pos.x / 30);
+	int nPos = 0;
 
-	if (GetPlayer()->pos.x <= 0.0f)
-	{// マイナス
-		nPos *= -1;
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+		
+		nPos = (int)(GetPlayer()->pos.x / 30);
+
+		if (GetPlayer()->pos.x <= 0.0f)
+		{// マイナス
+			nPos *= -1;
+		}
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		break;
+
+	case MENU_RANKING:		// ランキング
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 
 	int aNumber[MAX_TIME];

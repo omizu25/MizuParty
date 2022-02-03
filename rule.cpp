@@ -11,6 +11,7 @@
 #include "rule.h"
 #include "setup.h"
 #include "time.h"
+#include "title.h"
 
 #include <assert.h>
 
@@ -33,65 +34,62 @@ static LPDIRECT3DTEXTURE9			s_pTextureAorD = NULL;		// AorD‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffAorD = NULL;		// AorD‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DTEXTURE9			s_pTextureStick= NULL;		// ƒXƒeƒBƒbƒN‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStick = NULL;		// ƒXƒeƒBƒbƒN‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureStop = NULL;		// ~‚ß‚é‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStop = NULL;		// ~‚ß‚é‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureAorB = NULL;		// AorB‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffAorB = NULL;		// AorB‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureSpace = NULL;		// ƒXƒy[ƒX‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffSpace = NULL;		// ƒXƒy[ƒX‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
 
 //--------------------------------------------------
 // ƒvƒƒgƒ^ƒCƒvéŒ¾
 //--------------------------------------------------
+static void InitMove(void);
 static void InitAorD(void);
 static void InitStick(void);
+static void InitStop(void);
+static void InitAorB(void);
+static void InitSpace(void);
+static void DrawStop(void);
 
 //--------------------------------------------------
 // ‰Šú‰»
 //--------------------------------------------------
 void InitRule(void)
 {
-	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ƒEƒH[ƒLƒ“ƒO
+	case MENU_RANKING:		// ƒ‰ƒ“ƒLƒ“ƒO
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data\\TEXTURE\\move.png",
-		&s_pTexture);
+		// ˆÚ“®
+		InitMove();
 
-	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
-	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_2D) * 4,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&s_pVtxBuff,
-		NULL);
+		// AorD
+		InitAorD();
 
-	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+		// ƒXƒeƒBƒbƒN
+		InitStick();
 
-	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+		break;
 
-	float fWidth = RESULT_WIDTH * 0.5f;
-	float fHeight = RESULT_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
+	case MENU_STOP:			// ~‚ß‚é
 
-	// ’¸“_À•W‚Ìİ’èˆ—
-	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+		// ~‚ß‚é
+		InitStop();
 
-	// rhw‚Ì‰Šú‰»ˆ—
-	Initrhw(pVtx);
+		// AorB
+		InitAorB();
 
-	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
-	Initcol(pVtx);
+		// ƒXƒy[ƒX
+		InitSpace();
 
-	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
-	Inittex(pVtx);
+		break;
 
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
-	s_pVtxBuff->Unlock();
-
-	// AorD
-	InitAorD();
-
-	// ƒXƒeƒBƒbƒN
-	InitStick();
+	default:
+		assert(false);
+		break;
+	}
 }
 
 //--------------------------------------------------
@@ -134,6 +132,42 @@ void UninitRule(void)
 		s_pVtxBuffStick->Release();
 		s_pVtxBuffStick = NULL;
 	}
+
+	if (s_pTextureStop != NULL)
+	{// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
+		s_pTextureStop->Release();
+		s_pTextureStop = NULL;
+	}
+
+	if (s_pVtxBuffStop != NULL)
+	{// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
+		s_pVtxBuffStop->Release();
+		s_pVtxBuffStop = NULL;
+	}
+
+	if (s_pTextureAorB != NULL)
+	{// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
+		s_pTextureAorB->Release();
+		s_pTextureAorB = NULL;
+	}
+
+	if (s_pVtxBuffAorB != NULL)
+	{// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
+		s_pVtxBuffAorB->Release();
+		s_pVtxBuffAorB = NULL;
+	}
+
+	if (s_pTextureSpace != NULL)
+	{// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
+		s_pTextureSpace->Release();
+		s_pTextureSpace = NULL;
+	}
+
+	if (s_pVtxBuffSpace != NULL)
+	{// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
+		s_pVtxBuffSpace->Release();
+		s_pVtxBuffSpace = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -152,50 +186,117 @@ void DrawRule(void)
 	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
-	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ƒEƒH[ƒLƒ“ƒO
+	case MENU_RANKING:		// ƒ‰ƒ“ƒLƒ“ƒO
 
-	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
-	pDevice->SetFVF(FVF_VERTEX_2D);
+		// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+		pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-	pDevice->SetTexture(0, s_pTexture);
+		// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
-		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
-		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+		// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+		pDevice->SetTexture(0, s_pTexture);
 
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
-	pDevice->SetStreamSource(0, s_pVtxBuffAorD, 0, sizeof(VERTEX_2D));
+		// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+			0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+			2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
 
-	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
-	pDevice->SetFVF(FVF_VERTEX_2D);
+		// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+		pDevice->SetStreamSource(0, s_pVtxBuffAorD, 0, sizeof(VERTEX_2D));
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-	pDevice->SetTexture(0, s_pTextureAorD);
+		// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
-		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
-		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+		// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+		pDevice->SetTexture(0, s_pTextureAorD);
 
-	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
-	pDevice->SetStreamSource(0, s_pVtxBuffStick, 0, sizeof(VERTEX_2D));
+		// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+			0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+			2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
 
-	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
-	pDevice->SetFVF(FVF_VERTEX_2D);
+		// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+		pDevice->SetStreamSource(0, s_pVtxBuffStick, 0, sizeof(VERTEX_2D));
 
-	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
-	pDevice->SetTexture(0, s_pTextureStick);
+		// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
-		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
-		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+		// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+		pDevice->SetTexture(0, s_pTextureStick);
+
+		// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+			0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+			2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+
+		break;
+
+	case MENU_STOP:			// ~‚ß‚é
+
+		// ~‚ß‚é
+		DrawStop();
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// ˆÚ“®
+//--------------------------------------------------
+static void InitMove(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data\\TEXTURE\\move.png",
+		&s_pTexture);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuff,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = RESULT_WIDTH * 0.5f;
+	float fHeight = RESULT_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’èˆ—
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»ˆ—
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuff->Unlock();
 }
 
 //--------------------------------------------------
@@ -292,4 +393,202 @@ static void InitStick(void)
 
 	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
 	s_pVtxBuffStick->Unlock();
+}
+
+//--------------------------------------------------
+// ‚Æ‚ß‚é
+//--------------------------------------------------
+static void InitStop(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data\\TEXTURE\\stop.png",
+		&s_pTextureStop);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffStop,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuffStop->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = RESULT_WIDTH * 0.5f;
+	float fHeight = RESULT_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’èˆ—
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»ˆ—
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuffStop->Unlock();
+}
+
+//--------------------------------------------------
+// AorB
+//--------------------------------------------------
+static void InitAorB(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/AorB.png",
+		&s_pTextureAorB);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffAorB,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuffAorB->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = A_OR_D_WIDTH * 0.5f;
+	float fHeight = A_OR_D_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.075f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’èˆ—
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»ˆ—
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuffAorB->Unlock();
+}
+
+//--------------------------------------------------
+// ƒXƒy[ƒX
+//--------------------------------------------------
+static void InitSpace(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/space.png",
+		&s_pTextureSpace);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffSpace,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuffSpace->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = STICK_WIDTH * 0.5f;
+	float fHeight = STICK_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.225f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’è
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuffSpace->Unlock();
+}
+
+//--------------------------------------------------
+// ~‚ß‚é
+//--------------------------------------------------
+static void DrawStop(void)
+{// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+	pDevice->SetStreamSource(0, s_pVtxBuffStop, 0, sizeof(VERTEX_2D));
+
+	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+	pDevice->SetTexture(0, s_pTextureStop);
+
+	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+	pDevice->SetStreamSource(0, s_pVtxBuffAorB, 0, sizeof(VERTEX_2D));
+
+	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+	pDevice->SetTexture(0, s_pTextureAorB);
+
+	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+	pDevice->SetStreamSource(0, s_pVtxBuffSpace, 0, sizeof(VERTEX_2D));
+
+	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+	pDevice->SetTexture(0, s_pTextureSpace);
+
+	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+
 }

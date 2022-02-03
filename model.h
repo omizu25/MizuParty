@@ -22,6 +22,7 @@ typedef struct
 	LPD3DXBUFFER			pBuffMat;		// マテリアル情報へのポインタ
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
 	DWORD					nNumMat;		// マテリアル情報の数
+	float					fMove;			// 移動量
 	int						nIdxShadow;		// 使用している影の番号
 }Model;
 
@@ -33,6 +34,7 @@ void UninitModel(void);
 void UpdateModel(void);
 void DrawModel(void);
 Model *GetModel(void);
+bool GetStop(void);
 void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
 
 #endif // !_MODEL_H_

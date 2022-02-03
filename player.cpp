@@ -960,12 +960,6 @@ static void Motion(Player * pPlayer)
 {
 	s_nFrame++;
 
-	if (GetKeyboardTrigger(DIK_RETURN))
-	{// ENTERが押された
-		// 次のモーション
-		NextMotion(MOTION_ATTACK);
-	}
-
 	if (GetGame().gameState == GAMESTATE_NORMAL)
 	{// 通常状態 (ゲーム進行中)
 		switch (GetTitle())
@@ -983,12 +977,7 @@ static void Motion(Player * pPlayer)
 
 		case MENU_STOP:			// 止める
 
-			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
-				GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
-			{// ←, →, ↑, ↓キーが押された
-				// 次のモーション
-				NextMotion(MOTION_MOVE);
-			}
+			/* 処理なし */
 
 			break;
 
