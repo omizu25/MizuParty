@@ -97,10 +97,13 @@ void InitGame(void)
 	InitShadow();
 
 	// 線の初期化
-	InitLine();
+	//InitLine();
 
-	// モデルの初期化
-	InitModel();
+	if (GetTitle() == MENU_STOP)
+	{// 止める
+		// モデルの初期化
+		InitModel();
+	}
 
 	// プレイヤーの読み込み
 	LoadPlayer();
@@ -109,7 +112,7 @@ void InitGame(void)
 	InitPlayer();
 
 	// 弾の初期化
-	InitBullet();
+	//InitBullet();
 
 	// カメラの初期化
 	InitCamera();
@@ -120,14 +123,17 @@ void InitGame(void)
 	// 数の初期化
 	InitNumber();
 
-	// タイムの初期化
-	InitTime();
-
-	// カウントダウンの初期化
-	InitCountdown();
+	if (GetTitle() != MENU_STOP)
+	{// 止めるじゃない
+		// タイムの初期化
+		InitTime();
+	}
 
 	// ターゲットの初期化
 	InitTarget();
+
+	// カウントダウンの初期化
+	InitCountdown();
 
 	// ルールの初期化
 	InitRule();
@@ -170,7 +176,7 @@ void UninitGame(void)
 	UninitShadow();
 
 	// 線の終了
-	UninitLine();
+	//UninitLine();
 
 	// モデルの終了
 	UninitModel();
@@ -179,7 +185,7 @@ void UninitGame(void)
 	UninitPlayer();
 
 	// 弾の終了
-	UninitBullet();
+	//UninitBullet();
 
 	// カメラの終了
 	UninitCamera();
@@ -234,6 +240,7 @@ void UpdateGame(void)
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
+		case MENU_RANKING:		// ランキング
 
 			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
 			{// ←, →, ↑, ↓キーが押された
@@ -243,15 +250,9 @@ void UpdateGame(void)
 
 			break;
 
-		case MENU_TUTORIAL:		// チュートリアル
-		case MENU_RANKING:		// ランキング
+		case MENU_STOP:			// 止める
 
-			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
-				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
-			{// ←, →, ↑, ↓キーが押された
-			 // 次のモーション
-				NextMotion(MOTION_MOVE);
-			}
+			/* 処理なし */
 
 			break;
 
@@ -299,14 +300,17 @@ void UpdateGame(void)
 			// エフェクトの更新
 			UpdateEffect();
 
-			// モデルの更新
-			UpdateModel();
+			if (GetTitle() == MENU_STOP)
+			{// 止める
+				// モデルの更新
+				UpdateModel();
+			}
 
 			// 線の更新
-			UpdateLine();
+			//UpdateLine();
 
 			// 弾の更新
-			UpdateBullet();
+			//UpdateBullet();
 		}
 
 		if (GetKeyboardTrigger(DIK_F4))
@@ -332,12 +336,12 @@ void UpdateGame(void)
 				pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
 			}
 		}
-		
-		// タイムの減算
-		SubTime(1);
 
-		// 数の更新
-		UpdateNumber();
+		if (GetTitle() != MENU_STOP)
+		{// 止めるじゃない
+			// タイムの減算
+			SubTime(1);
+		}
 
 		break;
 
@@ -372,6 +376,9 @@ void UpdateGame(void)
 		assert(false);
 		break;
 	}
+
+	// 数の更新
+	UpdateNumber();
 
 	// ルールの更新
 	UpdateRule();
@@ -409,14 +416,17 @@ void DrawGame(void)
 	// メッシュフィールドの描画
 	//DrawMeshField();
 
-	// モデルの描画
-	DrawModel();
+	if (GetTitle() == MENU_STOP)
+	{// 止める
+		// モデルの描画
+		DrawModel();
+	}
 
 	// プレイヤーの描画
 	DrawPlayer();
 
 	// 線の描画
-	DrawLine();
+	//DrawLine();
 
 	// 影の描画
 	DrawShadow();

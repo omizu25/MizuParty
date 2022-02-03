@@ -12,6 +12,7 @@
 #include "game.h"
 #include "number.h"
 #include "setup.h"
+#include "title.h"
 
 #include <time.h>
 //--------------------------------------------------
@@ -32,6 +33,8 @@
 #define GAME_WIDTH_INTERVAL			(5.0f)			// ゲームの数の幅の間隔
 #define GAME_METER_WIDTH			(80.0f)			// ゲームのメートルの幅
 #define GAME_METER_HEIGHT			(140.0f)		// ゲームのメートルの高さ
+#define STOP_WIDTH					(1000.0f)		// ストップの幅
+#define STOP_HEIGHT					(600.0f)		// ストップの高さ
 
 //--------------------------------------------------
 // スタティック変数
@@ -41,6 +44,8 @@ static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;					// 頂点バッファのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;				// メートルのテクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStartMeter = NULL;		// スタートのメートルの頂点バッファのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameMeter = NULL;			// ゲームのメートルの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureStop = NULL;				// ストップのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStop = NULL;				// ストップの頂点バッファのポインタ
 static int							s_nTarget;							// 目標地点
 
 //--------------------------------------------------
@@ -53,31 +58,40 @@ static void InitGameNumber(void);
 static void InitGameMeter(void);
 static void DrawStartMeter(void);
 static void DrawGameMeter(void);
+static void InitStop(void);
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitTarget(void)
 {
-	//世界の種子の初期化
-	srand((unsigned)time(NULL));
+	if (GetTitle() == MENU_STOP)
+	{
+		// 止める
+		InitStop();
+	}
+	else
+	{
+		//世界の種子の初期化
+		srand((unsigned)time(NULL));
 
-	s_nTarget = (rand() % MAX_RANDOM) + MIN_TARGET;
-	
-	// スタートの数の初期化
-	InitStartNumber();
+		s_nTarget = (rand() % MAX_RANDOM) + MIN_TARGET;
 
-	// スタートのメートルの初期化
-	InitStartMeter();
+		// スタートの数の初期化
+		InitStartNumber();
 
-	// スタートの目指すの初期化
-	InitStartTarget();
+		// スタートのメートルの初期化
+		InitStartMeter();
 
-	// ゲームの数の初期化
-	InitGameNumber();
+		// スタートの目指すの初期化
+		InitStartTarget();
 
-	// ゲームのメートルの初期化
-	InitGameMeter();
+		// ゲームの数の初期化
+		InitGameNumber();
+
+		// ゲームのメートルの初期化
+		InitGameMeter();
+	}
 }
 
 //--------------------------------------------------
@@ -114,6 +128,18 @@ void UninitTarget(void)
 		s_pVtxBuffGameMeter->Release();
 		s_pVtxBuffGameMeter = NULL;
 	}
+
+	if (s_pTextureStop != NULL)
+	{// テクスチャの破棄
+		s_pTextureStop->Release();
+		s_pTextureStop = NULL;
+	}
+
+	if (s_pVtxBuffStop != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffStop->Release();
+		s_pVtxBuffStop = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -129,15 +155,41 @@ void UpdateTarget(void)
 //--------------------------------------------------
 void DrawTarget(void)
 {
-	if (GetGame().gameState == GAMESTATE_START)
-	{// スタート状態
-		// スタートの描画
-		DrawStartMeter();
+	if (GetTitle() == MENU_STOP)
+	{
+		if (GetGame().gameState == GAMESTATE_START)
+		{// スタート状態
+			// デバイスへのポインタの取得
+			LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+			// 頂点バッファをデータストリームに設定
+			pDevice->SetStreamSource(0, s_pVtxBuffStop, 0, sizeof(VERTEX_2D));
+
+			// 頂点フォーマットの設定
+			pDevice->SetFVF(FVF_VERTEX_2D);
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, s_pTextureStop);
+
+			// ポリゴンの描画
+			pDevice->DrawPrimitive(
+				D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+				0,							// 描画する最初の頂点インデックス
+				2);							// プリミティブ(ポリゴン)数
+		}
 	}
-	else if (GetGame().gameState != GAMESTATE_START)
-	{// ゲーム状態
-		// ゲームの描画
-		DrawGameMeter();
+	else
+	{
+		if (GetGame().gameState == GAMESTATE_START)
+		{// スタート状態
+			// スタートの描画
+			DrawStartMeter();
+		}
+		else if (GetGame().gameState != GAMESTATE_START)
+		{// ゲーム状態
+			// ゲームの描画
+			DrawGameMeter();
+		}
 	}
 }
 
@@ -406,4 +458,52 @@ static void DrawGameMeter(void)
 		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
 		0,							// 描画する最初の頂点インデックス
 		2);							// プリミティブ(ポリゴン)数
+}
+
+//--------------------------------------------------
+// 止める
+//--------------------------------------------------
+static void InitStop(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/game001.png",
+		&s_pTextureStop);
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffStop,
+		NULL);
+
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffStop->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = STOP_WIDTH * 0.5f;
+	float fHeight = STOP_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.35f, 0.0f);
+
+	// 頂点座標の設定処理
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhwの初期化処理
+	Initrhw(pVtx);
+
+	// 頂点カラーの初期化
+	Initcol(pVtx);
+
+	// テクスチャ座標の初期化処理
+	Inittex(pVtx);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuffStop->Unlock();
 }

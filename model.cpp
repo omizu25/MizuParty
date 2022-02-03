@@ -19,16 +19,14 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_MOVE			(1.0f)			//移動量の最大値
-#define MAX_ROTATION		(0.035f)		//回転の最大値
-#define MAX_ATTENUATION		(0.1f)			//減衰係数の最大値
-#define MAX_HEIGHT			(80.0f)			//高さの最大値
-#define MIN_HEIGHT			(10.0f)			//高さの最小値
+#define START_POS_Y		(400.0f)		// スタートの高さ	
+#define MAX_MOVE		(3.0f)			// 移動量
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Model		s_model;		// モデルの情報
+static int			s_nTime;		// タイム
 
 //--------------------------------------------------
 // 初期化
@@ -37,6 +35,8 @@ void InitModel(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	s_nTime = 0;
 
 	int nNumVtx;		// 頂点数
 	DWORD SizeFVF;		// 頂点フォーマットのサイズ
@@ -109,92 +109,12 @@ void InitModel(void)
 		}
 	}
 
-	s_model.pos = D3DXVECTOR3(25.0f, 20.0f, 50.0f);
+	s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, 0.0f);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// 影の設定
 	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
-
-	D3DXCOLOR col = D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f);
-
-	/*↓ Y棒 ↓*/
-
-	D3DXVECTOR3 start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
-	D3DXVECTOR3 end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
-	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	/*↓ X棒 ↓*/
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	/*↓ Z棒 ↓*/
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMax.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMax.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMax.x, s_model.vtxMin.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
-
-	start = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMax.z);
-	end = D3DXVECTOR3(s_model.vtxMin.x, s_model.vtxMin.y, s_model.vtxMin.z);
-
-	// 線の設定
-	SetLine(s_model.pos, s_model.rot, start, end, col);
 }
 
 //--------------------------------------------------
@@ -235,7 +155,7 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-
+	s_model.pos.y -= MAX_MOVE;
 }
 
 //--------------------------------------------------

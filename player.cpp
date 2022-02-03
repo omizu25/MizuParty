@@ -68,7 +68,6 @@ static void LoadNew(int nCnt);
 static void LoadParts(int nCnt);
 static void LoadMotion(int nCnt);
 static void Move(Player *pPlayer);
-static void MoveWalking(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
 
@@ -248,6 +247,7 @@ void UpdatePlayer(void)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
+	case MENU_RANKING:		// ランキング
 
 		switch (GetGame().gameState)
 		{
@@ -263,7 +263,7 @@ void UpdatePlayer(void)
 		case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
 
 			// 移動
-			MoveWalking(pPlayer);
+			Move(pPlayer);
 
 			break;
 
@@ -280,11 +280,9 @@ void UpdatePlayer(void)
 		
 		break;
 
-	case MENU_TUTORIAL:		// チュートリアル
-	case MENU_RANKING:		// ランキング
+	case MENU_STOP:			// 止める
 
-		// 移動
-		Move(pPlayer);
+		/* 移動しない */
 		
 		break;
 
@@ -931,94 +929,6 @@ static void LoadMotion(int nCnt)
 //--------------------------------------------------
 static void Move(Player *pPlayer)
 {
-	if (GetDebug() != DEBUG_MESH)
-	{// デバッグ表示がメッシュではない時
-
-		float fRot = 0.0f;
-
-		/* ↓モデルの移動↓ */
-
-		if (GetKeyboardPress(DIK_A))
-		{// ←キーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// ↑キーが押された
-				fRot = -D3DX_PI * 0.25f;
-
-				pPlayer->rotDest.y = D3DX_PI * 0.75f;
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// ↓キーが押された
-				fRot = -D3DX_PI * 0.75f;
-
-				pPlayer->rotDest.y = D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = -D3DX_PI * 0.5f;
-
-				pPlayer->rotDest.y = D3DX_PI * 0.5f;
-			}
-		}
-		else if (GetKeyboardPress(DIK_D))
-		{// →キーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// ↑キーが押された
-				fRot = D3DX_PI * 0.25f;
-
-				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// ↓キーが押された
-				fRot = D3DX_PI * 0.75f;
-
-				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = D3DX_PI * 0.5f;
-
-				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-			}
-		}
-		else if (GetKeyboardPress(DIK_W))
-		{// ↑キーが押された
-			fRot = 0.0f;
-
-			pPlayer->rotDest.y = D3DX_PI;
-		}
-		else if (GetKeyboardPress(DIK_S))
-		{// ↓キーが押された
-			fRot = D3DX_PI;
-
-			pPlayer->rotDest.y = 0.0f;
-		}
-
-		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
-			GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
-		{// ←, →, ↑, ↓キーが押された
-			pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
-			pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
-		}
-
-		if (GetKeyboardPress(DIK_I))
-		{// Iキーが押された
-			pPlayer->pos.y += sinf(D3DX_PI * 0.5f) * pPlayer->fMove;
-		}
-		else if (GetKeyboardPress(DIK_K))
-		{// Kキーが押された
-			pPlayer->pos.y += sinf(-D3DX_PI * 0.5f) * pPlayer->fMove;
-		}
-
-		// 指定の値以上・以下
-		Specified(&pPlayer->pos.y, MAX_HEIGHT, MIN_HEIGHT);
-	}
-}
-
-//--------------------------------------------------
-// 移動 (ウォーキング)
-//--------------------------------------------------
-static void MoveWalking(Player *pPlayer)
-{
 	float fRot = 0.0f;
 
 	/* ↓モデルの移動↓ */
@@ -1061,6 +971,7 @@ static void Motion(Player * pPlayer)
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
+		case MENU_RANKING:		// ランキング
 
 			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
 			{// ←, →, ↑, ↓キーが押された
@@ -1070,8 +981,7 @@ static void Motion(Player * pPlayer)
 
 			break;
 
-		case MENU_TUTORIAL:		// チュートリアル
-		case MENU_RANKING:		// ランキング
+		case MENU_STOP:			// 止める
 
 			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
 				GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))

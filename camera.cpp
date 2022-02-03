@@ -13,6 +13,7 @@
 #include "input.h"
 #include "player.h"
 #include "setup.h"
+#include "title.h"
 
 #include <assert.h>
 
@@ -27,8 +28,10 @@
 #define START_DISTANCE		(30.0f)			// 距離の最初の値
 #define MAX_POS_FACTOR		(0.05f)			// 位置の減衰係数
 #define MAX_ROT_FACTOR		(0.2f)			// 向きの減衰係数
-#define START_POS_Y			(100.0f)		// Yの位置の最初の値
-#define START_POS_Z			(-300.0f)		// Zの位置の最初の値
+#define START_WALKING_Y		(100.0f)		// Yの位置の最初の値
+#define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
+#define START_STOP_Y		(200.0f)		// Yの位置の最初の値
+#define START_STOP_Z		(-600.0f)		// Zの位置の最初の値
 #define STOP_TIME			(120)			// 止まっている時間
 
 //--------------------------------------------------
@@ -49,13 +52,34 @@ static void Overlap(float fPosX);
 //--------------------------------------------------
 void InitCamera(void)
 {
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+	case MENU_RANKING:		// ランキング
+
+		s_camera.posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
+		s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
+		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		s_camera.posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
+		s_camera.posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
+		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	// 視点・注視点・上方向・向き・距離を設定する
-	s_camera.posV = D3DXVECTOR3(0.0f, START_POS_Y, START_POS_Z);
-	s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
 	s_camera.posVDest = s_camera.posV;
 	s_camera.posRDest = s_camera.posR;
 	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
-	s_camera.rot  = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 	s_camera.rotDest = s_camera.rot;
 
 	float fDisX, fDisZ;
@@ -89,27 +113,51 @@ void UninitCamera(void)
 //--------------------------------------------------
 void UpdateCamera(void)
 {
-	switch (GetGame().gameState)
+	switch (GetTitle())
 	{
-	case GAMESTATE_NORMAL:		// ゲーム中
-	case GAMESTATE_END:			// 終わり
+	case MENU_STOP:			// 止める
 
-		// 追従の移動
-		FollowMove();
+		if (GetGame().gameState == GAMESTATE_NORMAL)
+		{
+			s_camera.posV.z += 3.0f;
+			s_camera.posR.z += 3.0f;
+			s_camera.posV.y -= 1.5f;
+			s_camera.posR.y -= 1.5f;
+		}
 
 		break;
 
-	case GAMESTATE_RESULT:			// リザルト
-		
-		// リザルトの移動
-		ResultMove();
-		break;
+	case MENU_WALKING:		// ウォーキング
+	case MENU_RANKING:		// ランキング
 
-	case GAMESTATE_NONE:			// 何もなし
-	case GAMESTATE_START:			// 始まり
-	case GAMESTATE_COUNTDOWN:		// カウントダウン
+		switch (GetGame().gameState)
+		{
+		case GAMESTATE_NORMAL:		// ゲーム中
+		case GAMESTATE_END:			// 終わり
 
-		/* 処理なし */
+			// 追従の移動
+			FollowMove();
+
+			break;
+
+		case GAMESTATE_RESULT:			// リザルト
+
+			// リザルトの移動
+			ResultMove();
+			break;
+
+		case GAMESTATE_NONE:			// 何もなし
+		case GAMESTATE_START:			// 始まり
+		case GAMESTATE_COUNTDOWN:		// カウントダウン
+
+			/* 処理なし */
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
 
 		break;
 
@@ -117,18 +165,6 @@ void UpdateCamera(void)
 		assert(false);
 		break;
 	}
-
-	if (GetKeyboardPress(DIK_1))
-	{// 1キーが押された
-		s_camera.fDisPlayer -= 1.0f;
-	}
-	else if (GetKeyboardPress(DIK_2))
-	{// 2キーが押された
-		s_camera.fDisPlayer += 1.0f;
-	}
-
-	// 指定の値以上・以下
-	Specified(&s_camera.fDisPlayer, MAX_DISTANCE, MIN_DISTANCE);
 }
 
 //--------------------------------------------------

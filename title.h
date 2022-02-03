@@ -13,7 +13,7 @@
 typedef enum
 {
 	MENU_WALKING = 0,		// ウォーキング
-	MENU_TUTORIAL,			// チュートリアル
+	MENU_STOP,				// 止める
 	MENU_RANKING,			// ランキング
 	MENU_MAX
 }MENU;

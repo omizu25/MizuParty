@@ -99,7 +99,7 @@ void InitTitle(void)
 	D3DXCreateTextureFromFile(
 		pDevice,
 		"Data\\TEXTURE\\title003.png",
-		&s_pTextureMenu[MENU_TUTORIAL]);
+		&s_pTextureMenu[MENU_STOP]);
 
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
@@ -438,7 +438,7 @@ static void UpdateMenu(void)
 		switch (s_Menu)
 		{
 		case MENU_WALKING:		// ゲーム
-		case MENU_TUTORIAL:		// チュートリアル
+		case MENU_STOP:			// 止める
 		case MENU_RANKING:		// ランキング
 			// フェードの設定
 			SetFade(MODE_GAME);

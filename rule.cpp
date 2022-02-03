@@ -17,12 +17,12 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define RESULT_WIDTH		(400.0f)		// 幅
-#define RESULT_HEIGHT		(150.0f)		// 高さ
+#define RESULT_WIDTH		(180.0f)		// 幅
+#define RESULT_HEIGHT		(120.0f)		// 高さ
 #define A_OR_D_WIDTH		(200.0f)		// AorDの幅
-#define A_OR_D_HEIGHT		(80.0f)		// AorDの高さ
+#define A_OR_D_HEIGHT		(80.0f)			// AorDの高さ
 #define STICK_WIDTH			(200.0f)		// スティックの幅
-#define STICK_HEIGHT		(80.0f)		// スティックの高さ
+#define STICK_HEIGHT		(80.0f)			// スティックの高さ
 
 //--------------------------------------------------
 // スタティック変数
@@ -51,7 +51,7 @@ void InitRule(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\word_move.png",
+		"data\\TEXTURE\\move.png",
 		&s_pTexture);
 
 	// 頂点バッファの生成
