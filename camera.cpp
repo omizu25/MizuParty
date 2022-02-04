@@ -34,7 +34,9 @@
 #define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
 #define START_STOP_Y		(180.0f)		// Yの位置の最初の値
 #define START_STOP_Z		(-500.0f)		// Zの位置の最初の値
-#define STOP_POS_Y			(150.0f)		// Yの位置の止まる場所
+#define MOVE_Y				(5.0f)			// Yの移動量
+#define MOVE_Z				(-3.0f	)		// Zの移動量
+#define STOP_POS_Y			(100.0f)		// Yの位置の止まる場所
 
 //--------------------------------------------------
 // スタティック変数
@@ -137,10 +139,10 @@ void UpdateCamera(void)
 				{// 止まらない
 					if (GetGame().gameState == GAMESTATE_NORMAL)
 					{
-						s_camera.posV.z += 5.0f;
-						s_camera.posR.z += 5.0f;
-						s_camera.posV.y -= 1.75f;
-						s_camera.posR.y -= 1.75f;
+						s_camera.posV.z += MOVE_Y;
+						s_camera.posR.z += MOVE_Y;
+						s_camera.posV.y += MOVE_Z;
+						s_camera.posR.y += MOVE_Z;
 					}
 
 					if (s_camera.posV.y <= STOP_POS_Y)

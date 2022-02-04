@@ -32,6 +32,7 @@
 #define WIDTH_INTERVAL		(0.0f)			// 幅の間隔
 #define MAX_RESULT			(3)				// リザルトの最大数
 #define MIN_RESULT			(2)				// リザルトの最小数
+#define STOP_SCORE			(-1)			// 止めるのスコアの微調整
 
 //--------------------------------------------------
 // スタティック変数
@@ -336,10 +337,10 @@ static void InitPosNumber(void)
 
 	case MENU_STOP:			// 止める
 		
-		fModel = GetModel()->pos.y + GetModel()->vtxMin.y;
+		fModel = GetModel()->pos.y;
 		fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
 
-		nPos = (int)(fModel - fPlayer);
+		nPos = (int)(fModel - fPlayer) + STOP_SCORE;
 
 		break;
 

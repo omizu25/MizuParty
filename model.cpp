@@ -26,8 +26,9 @@
 //--------------------------------------------------
 #define START_POS_Y		(300.0f)		// スタートの高さ
 #define START_POS_Z		(-15.0f)		// スタートの奥行き
-#define MAX_MOVE		(5.0f)			// 移動量
-#define MAX_RANDOM		(10)			// ランダムの最大値
+#define MAX_MOVE		(6.0f)			// 移動量の最大値
+#define MIN_MOVE		(5.0f)			// 移動量の最小値
+#define MAX_RANDOM		(2)				// ランダムの最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -126,8 +127,15 @@ void InitModel(void)
 		srand((unsigned)time(NULL));
 
 		int nRand = (rand() % MAX_RANDOM);
-
-		s_model.fMove = MAX_MOVE + (nRand * 0.1f);
+		
+		if (nRand == 0)
+		{
+			s_model.fMove = MAX_MOVE;
+		}
+		else if (nRand == 1)
+		{
+			s_model.fMove = MIN_MOVE;
+		}
 
 		// 影の設定
 		s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
@@ -181,7 +189,7 @@ void UpdateModel(void)
 		{
 			if (!s_bStop)
 			{// 止まらない
-				s_model.pos.y -= MAX_MOVE;
+				s_model.pos.y -= s_model.fMove;
 
 				if (GetKeyboardTrigger(DIK_SPACE) ||
 					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
@@ -338,7 +346,7 @@ void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
 {
 	if (GetTitle() == MENU_STOP)
 	{// 止める
-		float fBottom = s_model.pos.y + s_model.vtxMin.y;
+		float fBottom = s_model.pos.y;
 
 		if ((pPos->y + size.y > fBottom))
 		{// 下

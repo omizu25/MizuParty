@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "input.h"
 #include "game.h"
+#include "model.h"
 #include "result.h"
 #include "title.h"
 
@@ -525,6 +526,9 @@ static void DrawDebug(void)
 	nLength = (int)strlen(&aStr[0]);
 
 	sprintf(&aStr[nLength], "( カメラ ⇔ モデル ⇔ メッシュ )\n");
+	nLength = (int)strlen(&aStr[0]);
+
+	sprintf(&aStr[nLength], "[ %f ]\n", GetModel()->fMove);
 	nLength = (int)strlen(&aStr[0]);
 
 	switch (s_Debug)
