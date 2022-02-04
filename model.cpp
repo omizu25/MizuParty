@@ -21,7 +21,8 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define START_POS_Y		(300.0f)		// スタートの高さ	
+#define START_POS_Y		(300.0f)		// スタートの高さ
+#define START_POS_Z		(-15.0f)		// スタートの奥行き
 #define MAX_MOVE		(5.0f)			// 移動量
 #define MAX_RANDOM		(10)			// ランダムの最大値
 
@@ -46,7 +47,7 @@ void InitModel(void)
 
 	// Xファイルの読み込み
 	D3DXLoadMeshFromX(
-		"data\\MODEL\\プリン.x",
+		"data\\MODEL\\sword.x",
 		D3DXMESH_SYSTEMMEM,
 		pDevice,
 		NULL,
@@ -111,7 +112,7 @@ void InitModel(void)
 		}
 	}
 
-	s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, 0.0f);
+	s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, START_POS_Z);
 	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
@@ -121,6 +122,7 @@ void InitModel(void)
 	int nRand = (rand() % MAX_RANDOM);
 
 	s_model.fMove = MAX_MOVE + (nRand * 0.1f);
+	s_model.bUse = true;
 
 	// 影の設定
 	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
@@ -192,43 +194,46 @@ void DrawModel(void)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-	// ワールドマトリックスの初期化
-	D3DXMatrixIdentity(&s_model.mtxWorld);
+	if (s_model.bUse)
+	{// 使用している
+		// ワールドマトリックスの初期化
+		D3DXMatrixIdentity(&s_model.mtxWorld);
 
-	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
-	D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
+		// 向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
+		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
 
-	// 位置を反映
-	D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
-	D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
+		// 位置を反映
+		D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
+		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
 
-	// ワールドマトリックスの設定
-	pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
 
-	// 現在のマテリアル保持
-	pDevice->GetMaterial(&matDef);
+		// 現在のマテリアル保持
+		pDevice->GetMaterial(&matDef);
 
-	// マテリアルデータへのポインタを取得
-	pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
+		// マテリアルデータへのポインタを取得
+		pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
 
-	for (int i = 0; i < (int)s_model.nNumMat; i++)
-	{
-		// マテリアルの設定
-		pDevice->SetMaterial(&pMat[i].MatD3D);
+		for (int i = 0; i < (int)s_model.nNumMat; i++)
+		{
+			// マテリアルの設定
+			pDevice->SetMaterial(&pMat[i].MatD3D);
+
+			// テクスチャの設定
+			pDevice->SetTexture(0, s_model.pTexture[i]);
+
+			// モデルパーツの描画
+			s_model.pMesh->DrawSubset(i);
+		}
+
+		// 保存していたマテリアルを戻す
+		pDevice->SetMaterial(&matDef);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, s_model.pTexture[i]);
-
-		// モデルパーツの描画
-		s_model.pMesh->DrawSubset(i);
+		pDevice->SetTexture(0, NULL);
 	}
-
-	// 保存していたマテリアルを戻す
-	pDevice->SetMaterial(&matDef);
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
 }
 
 //--------------------------------------------------
@@ -296,5 +301,18 @@ void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 		{// 上
 			pPos->y = fTop;
 		}
+	}
+}
+
+//--------------------------------------------------
+// 当たり判定 (止める)
+//--------------------------------------------------
+void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
+{
+	float fBottom = s_model.pos.y + s_model.vtxMin.y;
+
+	if ((pPos->y + size.y > fBottom))
+	{// 下
+		s_model.bUse = false;
 	}
 }

@@ -307,6 +307,9 @@ void UpdatePlayer(void)
 	// ƒ‚ƒfƒ‹‚Æ‚Ì“–‚½‚è”»’è
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
+	// Ž~‚ß‚é‚Ì“–‚½‚è”»’è
+	CollisionStop(&pPlayer->pos, size);
+
 	// •Ç‚Æ‚Ì“–‚½‚è”»’è
 	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 

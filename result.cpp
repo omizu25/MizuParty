@@ -6,6 +6,7 @@
 //==================================================
 #include "fade.h"
 #include "input.h"
+#include "model.h"
 #include "number.h"
 #include "player.h"
 #include "result.h"
@@ -26,7 +27,9 @@
 #define MINUS_HEIGHT		(40.0f)			// マイナスの高さ
 #define NUMBER_WIDTH		(140.0f)		// 数の幅
 #define NUMBER_HEIGHT		(250.0f)		// 数の高さ
-#define WIDTH_INTERVAL		(40.0f)			// 幅の間隔
+#define WIDTH_INTERVAL		(0.0f)			// 幅の間隔
+#define MAX_RESULT			(3)				// リザルトの最大数
+#define MIN_RESULT			(2)				// リザルトの最小数
 
 //--------------------------------------------------
 // スタティック変数
@@ -208,7 +211,7 @@ void DrawResult(void)
 	// テクスチャの設定
 	pDevice->SetTexture(0, NULL);
 
-	if (GetPlayer()->pos.x <= 0.0f)
+	if (GetPlayer()->pos.x <= -30.0f)
 	{// マイナス
 		// ポリゴンの描画
 		pDevice->DrawPrimitive(
@@ -227,6 +230,7 @@ static void InitPosNumber(void)
 	D3DXVECTOR3 posNumber = D3DXVECTOR3(SCREEN_WIDTH * 0.85f, SCREEN_HEIGHT * 0.75f, 0.0f);
 
 	int nPos = 0;
+	float fModel = 0.0f, fPlayer = 0.0f;
 
 	switch (GetTitle())
 	{
@@ -242,6 +246,11 @@ static void InitPosNumber(void)
 		break;
 
 	case MENU_STOP:			// 止める
+		
+		fModel = GetModel()->pos.y + GetModel()->vtxMin.y;
+		fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+		nPos = (int)(fModel - fPlayer);
 
 		break;
 
@@ -254,9 +263,32 @@ static void InitPosNumber(void)
 		break;
 	}
 
-	int aNumber[MAX_TIME];
+	int nNumber = nPos, nDigit = 0;
 
-	for (int i = 0; i < MAX_TIME; i++)
+	while (1)
+	{
+		
+		if (nNumber >= 10)
+		{
+			nNumber /= 10;
+			nDigit++;
+		}
+		else
+		{
+			nDigit++;
+
+			if (nDigit < MIN_RESULT)
+			{
+				nDigit = MIN_RESULT;
+			}
+
+			break;
+		}
+	}
+
+	int aNumber[MAX_RESULT];
+
+	for (int i = 0; i < nDigit; i++)
 	{// １桁ずつに分ける
 		aNumber[i] = nPos % 10;
 		nPos /= 10;
