@@ -102,11 +102,8 @@ void InitGame(void)
 	// 線の初期化
 	//InitLine();
 
-	if (GetTitle() == MENU_STOP)
-	{// 止める
-		// モデルの初期化
-		InitModel();
-	}
+	// モデルの初期化
+	InitModel();
 
 	// プレイヤーの読み込み
 	LoadPlayer();
@@ -144,6 +141,9 @@ void InitGame(void)
 	s_game.gameState = GAMESTATE_START;
 
 	s_nTime = 0;
+
+	// リザルトの設定
+	SetResult(RESULT_NONE);
 }
 
 //--------------------------------------------------
@@ -302,17 +302,8 @@ void UpdateGame(void)
 					UpdateBillboard();
 				}
 
-				// パーティクルの更新
-				UpdateParticle();
-
-				// エフェクトの更新
-				UpdateEffect();
-
-				if (GetTitle() == MENU_STOP)
-				{// 止める
-					// モデルの更新
-					UpdateModel();
-				}
+				// モデルの更新
+				UpdateModel();
 
 				// 線の更新
 				//UpdateLine();
@@ -362,6 +353,9 @@ void UpdateGame(void)
 		{
 			s_nTime = 0;
 
+			// リザルトの初期化
+			InitResult();
+
 			// ゲームの設定
 			SetGameState(GAMESTATE_RESULT);
 
@@ -388,6 +382,12 @@ void UpdateGame(void)
 		assert(false);
 		break;
 	}
+
+	// パーティクルの更新
+	UpdateParticle();
+
+	// エフェクトの更新
+	UpdateEffect();
 
 	// 数の更新
 	UpdateNumber();
@@ -428,11 +428,8 @@ void DrawGame(void)
 	// メッシュフィールドの描画
 	//DrawMeshField();
 
-	if (GetTitle() == MENU_STOP)
-	{// 止める
-		// モデルの描画
-		DrawModel();
-	}
+	// モデルの描画
+	DrawModel();
 
 	// プレイヤーの描画
 	DrawPlayer();
@@ -515,12 +512,6 @@ void DrawGame(void)
 void SetGameState(GAMESTATE state)
 {
 	s_game.gameState = state;
-
-	if (state == GAMESTATE_END)
-	{
-		// リザルトの初期化
-		InitResult();
-	}
 }
 
 //--------------------------------------------------

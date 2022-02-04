@@ -70,6 +70,7 @@ static void LoadMotion(int nCnt);
 static void Move(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
+static void MotionBlend(Player *pPlayer);
 
 //--------------------------------------------------
 // 初期化
@@ -268,7 +269,7 @@ void UpdatePlayer(void)
 			break;
 
 		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
-			
+
 			pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 			break;
@@ -277,13 +278,13 @@ void UpdatePlayer(void)
 			assert(false);
 			break;
 		}
-		
+
 		break;
 
 	case MENU_STOP:			// 止める
 
 		/* 移動しない */
-		
+
 		break;
 
 	default:
@@ -307,8 +308,11 @@ void UpdatePlayer(void)
 	// モデルとの当たり判定
 	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
-	// 止めるの当たり判定
-	CollisionStop(&pPlayer->pos, size);
+	if (!GetCollision())
+	{
+		// 止めるの当たり判定
+		CollisionStop(&pPlayer->pos, size);
+	}
 
 	// 壁との当たり判定
 	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
@@ -316,8 +320,32 @@ void UpdatePlayer(void)
 	// メッシュフィールドとの当たり判定
 	//CollisionMeshField(&pPlayer->pos);
 
-	// モーション
-	Motion(pPlayer);
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_RANKING:		// ランキング
+
+		// モーション
+		Motion(pPlayer);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		if (s_bMotionBlend)
+		{// モーションブレンド中
+			s_nFrame++;
+
+			// モーションブレンド
+			MotionBlend(pPlayer);
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// 影の位置の設定
 	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
@@ -992,28 +1020,7 @@ static void Motion(Player * pPlayer)
 
 	if (s_bMotionBlend)
 	{// モーションブレンド中
-		MotionSet *pMotion = &pPlayer->Motion[s_IdxMotion];
-
-		for (int i = 0; i < pPlayer->nNumParts; i++)
-		{
-			D3DXVECTOR3 posNew = pPlayer->parts[i].posSet + pMotion->keySet[s_nIdxKey].key[i].pos;
-			D3DXVECTOR3 rotNew = pPlayer->parts[i].rotSet + pMotion->keySet[s_nIdxKey].key[i].rot;
-
-			D3DXVECTOR3 pos = posNew - pPlayer->parts[i].posOld;
-			D3DXVECTOR3 rot = rotNew - pPlayer->parts[i].rotOld;
-
-			pos /= MAX_BLEND;
-			rot /= MAX_BLEND;
-
-			pPlayer->parts[i].pos += pos;
-			pPlayer->parts[i].rot += rot;
-		}
-
-		if (s_nFrame >= MAX_BLEND)
-		{// フレーム数が超えた
-			s_bMotionBlend = false;
-			s_nFrame = 0;
-		}
+		MotionBlend(pPlayer);
 	}
 	else
 	{
@@ -1093,4 +1100,33 @@ static void SetMotion(Player * pPlayer)
 	}
 	
 	s_bMotionBlend = true;
+}
+
+//--------------------------------------------------
+// モーションブレンド
+//--------------------------------------------------
+static void MotionBlend(Player *pPlayer)
+{
+	MotionSet *pMotion = &pPlayer->Motion[s_IdxMotion];
+
+	for (int i = 0; i < pPlayer->nNumParts; i++)
+	{
+		D3DXVECTOR3 posNew = pPlayer->parts[i].posSet + pMotion->keySet[s_nIdxKey].key[i].pos;
+		D3DXVECTOR3 rotNew = pPlayer->parts[i].rotSet + pMotion->keySet[s_nIdxKey].key[i].rot;
+
+		D3DXVECTOR3 pos = posNew - pPlayer->parts[i].posOld;
+		D3DXVECTOR3 rot = rotNew - pPlayer->parts[i].rotOld;
+
+		pos /= MAX_BLEND;
+		rot /= MAX_BLEND;
+
+		pPlayer->parts[i].pos += pos;
+		pPlayer->parts[i].rot += rot;
+	}
+
+	if (s_nFrame >= MAX_BLEND)
+	{// フレーム数が超えた
+		s_bMotionBlend = false;
+		s_nFrame = 0;
+	}
 }

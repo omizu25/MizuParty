@@ -9,7 +9,7 @@ SCRIPT			# この行は絶対消さないこと！
 #--------------------------------------------------
 # テクスチャの使用数
 #--------------------------------------------------
-NUM_TEXTURE = 17
+NUM_TEXTURE = 19
 
 #--------------------------------------------------
 # テクスチャファイル名
@@ -23,6 +23,7 @@ TEXTURE_FILENAME = data/TEXTURE/METER/50m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/60m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/70m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/80m.png
+TEXTURE_FILENAME = data/TEXTURE/METER/90m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-10m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-20m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-30m.png
@@ -31,11 +32,12 @@ TEXTURE_FILENAME = data/TEXTURE/METER/-50m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-60m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-70m.png
 TEXTURE_FILENAME = data/TEXTURE/METER/-80m.png
+TEXTURE_FILENAME = data/TEXTURE/METER/-90m.png
 
 #--------------------------------------------------
 # ビルボードの使用数
 #--------------------------------------------------
-NUM_MODEL = 17
+NUM_MODEL = 19
 
 #--------------------------------------------------
 # ビルボードの情報
@@ -122,7 +124,16 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 9					# -10
+	TEXIDX = 9					# 90
+	YROT = 0					# Y回転をするかどうか
+	RESULT = 1					# リザルトで表示する
+	WIDTH = 20.0				# 幅
+	HEIGHT = 20.0				# 高さ
+	POS = 2700.0 20.0 30.0		# 位置
+END_BILLBOARD_SET
+
+BILLBOARD_SET
+	TEXIDX = 10					# -10
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 0					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -131,7 +142,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 10					# -20
+	TEXIDX = 11					# -20
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -140,7 +151,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 11					# -30
+	TEXIDX = 12					# -30
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -149,7 +160,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 12					# -40
+	TEXIDX = 13					# -40
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -158,7 +169,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 13					# -50
+	TEXIDX = 14					# -50
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -167,7 +178,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 14					# -60
+	TEXIDX = 15					# -60
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -176,7 +187,7 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 15					# -70
+	TEXIDX = 16					# -70
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
@@ -185,12 +196,21 @@ BILLBOARD_SET
 END_BILLBOARD_SET
 
 BILLBOARD_SET
-	TEXIDX = 16					# -80
+	TEXIDX = 17					# -80
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -2400.0 20.0 30.0		# 位置
+END_BILLBOARD_SET
+
+BILLBOARD_SET
+	TEXIDX = 18					# -90
+	YROT = 0					# Y回転をするかどうか
+	RESULT = 1					# リザルトで表示する
+	WIDTH = 20.0				# 幅
+	HEIGHT = 20.0				# 高さ
+	POS = -2700.0 20.0 30.0		# 位置
 END_BILLBOARD_SET
 
 END_SCRIPT		# この行は絶対消さないこと！

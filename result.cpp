@@ -25,6 +25,8 @@
 #define METER_HEIGHT		(160.0f)		// メートルの高さ
 #define MINUS_WIDTH			(60.0f)			// マイナスの幅
 #define MINUS_HEIGHT		(40.0f)			// マイナスの高さ
+#define GAMEOVER_WIDTH		(1000.0f)		// ゲームオーバーの幅
+#define GAMEOVER_HEIGHT		(300.0f)		// ゲームオーバーの高さ
 #define NUMBER_WIDTH		(140.0f)		// 数の幅
 #define NUMBER_HEIGHT		(250.0f)		// 数の高さ
 #define WIDTH_INTERVAL		(0.0f)			// 幅の間隔
@@ -34,24 +36,177 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;		// メートルのテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMeter = NULL;		// メートルの頂点バッファのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMinus = NULL;		// マイナスの頂点バッファのポインタ
-static int							s_nTime;					// タイム
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;				// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;			// メートルのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMeter = NULL;			// メートルの頂点バッファのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMinus = NULL;			// マイナスの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureGameOver = NULL;		// ゲームオーバーのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameOver = NULL;		// ゲームオーバーの頂点バッファのポインタ
+static int							s_nTime;						// タイム
+static RESULT						s_result;						// リザルト
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void InitClear(void);
+static void InitGameOver(void);
 static void InitPosNumber(void);
 static void InitMeter(void);
 static void InitMinus(void);
+static void DrawClear(void);
+static void DrawGameOver(void);
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitResult(void)
+{
+	switch (s_result)
+	{
+	case RESULT_CLEAR:			// クリア
+
+		// クリア
+		InitClear();
+
+		break;
+
+	case RESULT_GAMEOVER:		// ゲームオーバー
+
+		// ゲームオーバー
+		InitGameOver();
+
+		break;
+
+	case RESULT_NONE:			// まだ決まってない
+
+		/* 処理なし */
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// 終了
+//--------------------------------------------------
+void UninitResult(void)
+{
+	if (s_pTexture != NULL)
+	{// テクスチャの破棄
+		s_pTexture->Release();
+		s_pTexture = NULL;
+	}
+
+	if (s_pVtxBuff != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuff->Release();
+		s_pVtxBuff = NULL;
+	}
+
+	if (s_pTextureMeter != NULL)
+	{// テクスチャの破棄
+		s_pTextureMeter->Release();
+		s_pTextureMeter = NULL;
+	}
+
+	if (s_pVtxBuffMeter != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffMeter->Release();
+		s_pVtxBuffMeter = NULL;
+	}
+
+	if (s_pVtxBuffMinus != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffMinus->Release();
+		s_pVtxBuffMinus = NULL;
+	}
+
+	if (s_pTextureGameOver != NULL)
+	{// テクスチャの破棄
+		s_pTextureGameOver->Release();
+		s_pTextureGameOver = NULL;
+	}
+
+	if (s_pVtxBuffGameOver != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffGameOver->Release();
+		s_pVtxBuffGameOver = NULL;
+	}
+}
+
+//--------------------------------------------------
+// 更新
+//--------------------------------------------------
+void UpdateResult(void)
+{
+	if (GetKeyboardTrigger(DIK_RETURN) ||
+		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
+	{// 決定キー(ENTERキー)が押されたかどうか
+		// モード処理
+		SetFade(MODE_TITLE);
+	}
+
+	s_nTime++;
+
+	if (s_nTime >= 900)
+	{// 15秒経ちました
+		// モード処理
+		SetFade(MODE_TITLE);
+	}
+}
+
+//--------------------------------------------------
+// 描画
+//--------------------------------------------------
+void DrawResult(void)
+{
+	switch (s_result)
+	{
+	case RESULT_CLEAR:			// クリア
+
+		// クリア
+		DrawClear();
+
+		break;
+
+	case RESULT_GAMEOVER:		// ゲームオーバー
+
+		// ゲームオーバー
+		DrawGameOver();
+
+		break;
+
+	case RESULT_NONE:			// まだ決まってない
+
+		/* 処理なし */
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// 設定
+//--------------------------------------------------
+void SetResult(RESULT result)
+{
+	if (s_result == RESULT_NONE || result == RESULT_NONE || result == RESULT_GAMEOVER)
+	{
+		s_result = result;
+	}
+}
+
+//--------------------------------------------------
+// クリア
+//--------------------------------------------------
+static void InitClear(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -108,117 +263,51 @@ void InitResult(void)
 }
 
 //--------------------------------------------------
-// 終了
+// ゲームオーバー
 //--------------------------------------------------
-void UninitResult(void)
-{
-	if (s_pTexture != NULL)
-	{// テクスチャの破棄
-		s_pTexture->Release();
-		s_pTexture = NULL;
-	}
-
-	if (s_pVtxBuff != NULL)
-	{// 頂点バッファの破棄
-		s_pVtxBuff->Release();
-		s_pVtxBuff = NULL;
-	}
-
-	if (s_pTextureMeter != NULL)
-	{// テクスチャの破棄
-		s_pTextureMeter->Release();
-		s_pTextureMeter = NULL;
-	}
-
-	if (s_pVtxBuffMeter != NULL)
-	{// 頂点バッファの破棄
-		s_pVtxBuffMeter->Release();
-		s_pVtxBuffMeter = NULL;
-	}
-
-	if (s_pVtxBuffMinus != NULL)
-	{// 頂点バッファの破棄
-		s_pVtxBuffMinus->Release();
-		s_pVtxBuffMinus = NULL;
-	}
-}
-
-//--------------------------------------------------
-// 更新
-//--------------------------------------------------
-void UpdateResult(void)
-{
-	if (GetKeyboardTrigger(DIK_RETURN) ||
-		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
-	{// 決定キー(ENTERキー)が押されたかどうか
-		// モード処理
-		SetFade(MODE_TITLE);
-	}
-
-	s_nTime++;
-
-	if (s_nTime >= 900)
-	{// 15秒経ちました
-		// モード処理
-		SetFade(MODE_TITLE);
-	}
-}
-
-//--------------------------------------------------
-// 描画
-//--------------------------------------------------
-void DrawResult(void)
+static void InitGameOver(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/gameover.png",
+		&s_pTextureGameOver);
 
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffGameOver,
+		NULL);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
 
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点インデックス
-		2);							// プリミティブ(ポリゴン)数
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffGameOver->Lock(0, 0, (void**)&pVtx, 0);
 
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuffMeter, 0, sizeof(VERTEX_2D));
+	float fWidth = GAMEOVER_WIDTH * 0.5f;
+	float fHeight = GAMEOVER_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.5f, 0.0f);
 
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
+	// 頂点座標の設定処理
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTextureMeter);
+	// rhwの初期化処理
+	Initrhw(pVtx);
 
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点インデックス
-		2);							// プリミティブ(ポリゴン)数
+	// 頂点カラーの設定処理
+	Setcol(pVtx, D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f));
 
-	// 頂点バッファをデータストリームに設定
-	pDevice->SetStreamSource(0, s_pVtxBuffMinus, 0, sizeof(VERTEX_2D));
+	// テクスチャ座標の初期化処理
+	Inittex(pVtx);
 
-	// 頂点フォーマットの設定
-	pDevice->SetFVF(FVF_VERTEX_2D);
-
-	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
-
-	if (GetPlayer()->pos.x <= -30.0f)
-	{// マイナス
-		// ポリゴンの描画
-		pDevice->DrawPrimitive(
-			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-			0,							// 描画する最初の頂点インデックス
-			2);							// プリミティブ(ポリゴン)数
-	}
+	// 頂点バッファをアンロックする
+	s_pVtxBuffGameOver->Unlock();
 }
 
 //--------------------------------------------------
@@ -388,4 +477,85 @@ static void InitMinus(void)
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuffMinus->Unlock();
+}
+
+//--------------------------------------------------
+// クリア
+//--------------------------------------------------
+static void DrawClear(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, s_pTexture);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuffMeter, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, s_pTextureMeter);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuffMinus, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, NULL);
+
+	if (GetPlayer()->pos.x <= -30.0f)
+	{// マイナス
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+			0,							// 描画する最初の頂点インデックス
+			2);							// プリミティブ(ポリゴン)数
+	}
+}
+
+//--------------------------------------------------
+// ゲームオーバー
+//--------------------------------------------------
+static void DrawGameOver(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuffGameOver, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, s_pTextureGameOver);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
 }

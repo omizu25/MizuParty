@@ -16,6 +16,9 @@
 #include "model.h"
 #include "setup.h"
 #include "shadow.h"
+#include "particle.h"
+#include "result.h"
+#include "title.h"
 
 #include <time.h>
 //--------------------------------------------------
@@ -29,105 +32,109 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static Model		s_model;		// モデルの情報
-static int			s_nRand;		// ランダム
-static bool			s_bStop;		// 止めるかどうか
+static Model		s_model;			// モデルの情報
+static int			s_nRand;			// ランダム
+static bool			s_bStop;			// 止めるかどうか
+static bool			s_bCollision;		// 当たったかどうか
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitModel(void)
 {
-	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	if (GetTitle() == MENU_STOP)
+	{// 止める
+		// デバイスへのポインタの取得
+		LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	int nNumVtx;		// 頂点数
-	DWORD SizeFVF;		// 頂点フォーマットのサイズ
-	BYTE *pVexBuff;		// 頂点バッファへのポインタ
+		int nNumVtx;		// 頂点数
+		DWORD SizeFVF;		// 頂点フォーマットのサイズ
+		BYTE *pVexBuff;		// 頂点バッファへのポインタ
 
-	// Xファイルの読み込み
-	D3DXLoadMeshFromX(
-		"data\\MODEL\\sword.x",
-		D3DXMESH_SYSTEMMEM,
-		pDevice,
-		NULL,
-		&s_model.pBuffMat,
-		NULL,
-		&s_model.nNumMat,
-		&s_model.pMesh);
+		// Xファイルの読み込み
+		D3DXLoadMeshFromX(
+			"data\\MODEL\\Hammer.x",
+			D3DXMESH_SYSTEMMEM,
+			pDevice,
+			NULL,
+			&s_model.pBuffMat,
+			NULL,
+			&s_model.nNumMat,
+			&s_model.pMesh);
 
-	s_model.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
-	s_model.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+		s_model.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+		s_model.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-	// 頂点数を取得
-	nNumVtx = s_model.pMesh->GetNumVertices();
+		// 頂点数を取得
+		nNumVtx = s_model.pMesh->GetNumVertices();
 
-	// フォーマットのサイズを取得
-	SizeFVF = D3DXGetFVFVertexSize(s_model.pMesh->GetFVF());
+		// フォーマットのサイズを取得
+		SizeFVF = D3DXGetFVFVertexSize(s_model.pMesh->GetFVF());
 
-	// 頂点バッファのロック
-	s_model.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+		// 頂点バッファのロック
+		s_model.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
 
-	for (int i = 0; i < nNumVtx; i++)
-	{
-		// 頂点情報の代入
-		D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
+		for (int i = 0; i < nNumVtx; i++)
+		{
+			// 頂点情報の代入
+			D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
 
-		// 小さい・大きい [x]
-		VtxSmallBig(&s_model.vtxMin.x, &s_model.vtxMax.x, pos.x);
+			// 小さい・大きい [x]
+			VtxSmallBig(&s_model.vtxMin.x, &s_model.vtxMax.x, pos.x);
 
-		// 小さい・大きい [y]
-		VtxSmallBig(&s_model.vtxMin.y, &s_model.vtxMax.y, pos.y);
+			// 小さい・大きい [y]
+			VtxSmallBig(&s_model.vtxMin.y, &s_model.vtxMax.y, pos.y);
 
-		// 小さい・大きい [z]
-		VtxSmallBig(&s_model.vtxMin.z, &s_model.vtxMax.z, pos.z);
+			// 小さい・大きい [z]
+			VtxSmallBig(&s_model.vtxMin.z, &s_model.vtxMax.z, pos.z);
 
-		// 頂点フォーマットのサイズ分ポインタを進める
-		pVexBuff += SizeFVF;
-	}
-
-	// 頂点バッファのアンロック
-	s_model.pMesh->UnlockVertexBuffer();
-
-	// メッシュに使用されているテクスチャ用の配列を用意する
-	s_model.pTexture = new LPDIRECT3DTEXTURE9[s_model.nNumMat];
-
-	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
-
-	// 各メッシュのマテリアル情報を取得する
-	for (int i = 0; i < (int)s_model.nNumMat; i++)
-	{
-		s_model.pTexture[i] = NULL;
-
-		if (pMat[i].pTextureFilename != NULL)
-		{// マテリアルで設定されているテクスチャ読み込み
-			D3DXCreateTextureFromFileA(pDevice,
-				pMat[i].pTextureFilename,
-				&s_model.pTexture[i]);
+			// 頂点フォーマットのサイズ分ポインタを進める
+			pVexBuff += SizeFVF;
 		}
-		else
+
+		// 頂点バッファのアンロック
+		s_model.pMesh->UnlockVertexBuffer();
+
+		// メッシュに使用されているテクスチャ用の配列を用意する
+		s_model.pTexture = new LPDIRECT3DTEXTURE9[s_model.nNumMat];
+
+		// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
+		D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
+
+		// 各メッシュのマテリアル情報を取得する
+		for (int i = 0; i < (int)s_model.nNumMat; i++)
 		{
 			s_model.pTexture[i] = NULL;
+
+			if (pMat[i].pTextureFilename != NULL)
+			{// マテリアルで設定されているテクスチャ読み込み
+				D3DXCreateTextureFromFileA(pDevice,
+					pMat[i].pTextureFilename,
+					&s_model.pTexture[i]);
+			}
+			else
+			{
+				s_model.pTexture[i] = NULL;
+			}
 		}
+
+		s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, START_POS_Z);
+		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+		//世界の種子の初期化
+		srand((unsigned)time(NULL));
+
+		int nRand = (rand() % MAX_RANDOM);
+
+		s_model.fMove = MAX_MOVE + (nRand * 0.1f);
+
+		// 影の設定
+		s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
 	}
 
-	s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, START_POS_Z);
-	s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-	//世界の種子の初期化
-	srand((unsigned)time(NULL));
-
-	int nRand = (rand() % MAX_RANDOM);
-
-	s_model.fMove = MAX_MOVE + (nRand * 0.1f);
-	s_model.bUse = true;
-
-	// 影の設定
-	s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
-
 	s_bStop = false;
+	s_bCollision = false;
 }
 
 //--------------------------------------------------
@@ -168,17 +175,26 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-	if (!s_bStop)
-	{// 止まらない
-		s_model.pos.y -= MAX_MOVE;
+	if (GetTitle() == MENU_STOP)
+	{// 止める
+		if (!s_bCollision)
+		{
+			if (!s_bStop)
+			{// 止まらない
+				s_model.pos.y -= MAX_MOVE;
 
-		if (GetKeyboardTrigger(DIK_SPACE) || 
-			GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
-		{// F4キーが押された
-			s_bStop = true;
+				if (GetKeyboardTrigger(DIK_SPACE) ||
+					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
+				{// F4キーが押された
+					s_bStop = true;
 
-			// ゲームの設定
-			SetGameState(GAMESTATE_END);
+					// リザルトの設定
+					SetResult(RESULT_CLEAR);
+
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
+				}
+			}
 		}
 	}
 }
@@ -188,51 +204,54 @@ void UpdateModel(void)
 //--------------------------------------------------
 void DrawModel(void)
 {
+	if (GetTitle() == MENU_STOP)
+	{// 止める
 	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
-	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
-	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
+		LPDIRECT3DDEVICE9 pDevice = GetDevice();
+		D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
+		D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
+		D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-	if (s_model.bUse)
-	{// 使用している
-		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&s_model.mtxWorld);
+		if (!s_bCollision)
+		{// 当たってない
+			// ワールドマトリックスの初期化
+			D3DXMatrixIdentity(&s_model.mtxWorld);
 
-		// 向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
-		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
+			// 向きを反映
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
+			D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
 
-		// 位置を反映
-		D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
-		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
+			// 位置を反映
+			D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
+			D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
 
-		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
+			// ワールドマトリックスの設定
+			pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
 
-		// 現在のマテリアル保持
-		pDevice->GetMaterial(&matDef);
+			// 現在のマテリアル保持
+			pDevice->GetMaterial(&matDef);
 
-		// マテリアルデータへのポインタを取得
-		pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
+			// マテリアルデータへのポインタを取得
+			pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
 
-		for (int i = 0; i < (int)s_model.nNumMat; i++)
-		{
-			// マテリアルの設定
-			pDevice->SetMaterial(&pMat[i].MatD3D);
+			for (int i = 0; i < (int)s_model.nNumMat; i++)
+			{
+				// マテリアルの設定
+				pDevice->SetMaterial(&pMat[i].MatD3D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, s_model.pTexture[i]);
+
+				// モデルパーツの描画
+				s_model.pMesh->DrawSubset(i);
+			}
+
+			// 保存していたマテリアルを戻す
+			pDevice->SetMaterial(&matDef);
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, s_model.pTexture[i]);
-
-			// モデルパーツの描画
-			s_model.pMesh->DrawSubset(i);
+			pDevice->SetTexture(0, NULL);
 		}
-
-		// 保存していたマテリアルを戻す
-		pDevice->SetMaterial(&matDef);
-
-		// テクスチャの設定
-		pDevice->SetTexture(0, NULL);
 	}
 }
 
@@ -250,6 +269,14 @@ Model *GetModel(void)
 bool GetStop(void)
 {
 	return s_bStop;
+}
+
+//--------------------------------------------------
+// 取得 (当たったかどうか)
+//--------------------------------------------------
+bool GetCollision(void)
+{
+	return s_bCollision;
 }
 
 //--------------------------------------------------
@@ -309,10 +336,22 @@ void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 //--------------------------------------------------
 void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
 {
-	float fBottom = s_model.pos.y + s_model.vtxMin.y;
+	if (GetTitle() == MENU_STOP)
+	{// 止める
+		float fBottom = s_model.pos.y + s_model.vtxMin.y;
 
-	if ((pPos->y + size.y > fBottom))
-	{// 下
-		s_model.bUse = false;
+		if ((pPos->y + size.y > fBottom))
+		{// 下
+			s_bCollision = true;
+
+			// パーティクルの設定
+			SetParticle(s_model.pos, 20.0f, true);
+
+			// リザルトの設定
+			SetResult(RESULT_GAMEOVER);
+
+			// ゲームの設定
+			SetGameState(GAMESTATE_END);
+		}
 	}
 }

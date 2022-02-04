@@ -24,7 +24,6 @@ typedef struct
 	DWORD					nNumMat;		// マテリアル情報の数
 	float					fMove;			// 移動量
 	int						nIdxShadow;		// 使用している影の番号
-	bool					bUse;			// 使用しているかどうか
 }Model;
 
 //--------------------------------------------------
@@ -36,6 +35,7 @@ void UpdateModel(void);
 void DrawModel(void);
 Model *GetModel(void);
 bool GetStop(void);
+bool GetCollision(void);
 void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
 void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size);
 

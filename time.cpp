@@ -11,6 +11,7 @@
 #include "main.h"
 #include "game.h"
 #include "number.h"
+#include "result.h"
 #include "time.h"
 
 //--------------------------------------------------
@@ -88,6 +89,9 @@ void SubTime(int nValue)
 	}
 	else if (s_nTime <= 0)
 	{// §ŒÀŽžŠÔ‚ª—ˆ‚½
+		// ƒŠƒUƒ‹ƒg‚ÌÝ’è
+		SetResult(RESULT_CLEAR);
+
 		// ƒQ[ƒ€‚ÌÝ’è
 		SetGameState(GAMESTATE_END);
 	}

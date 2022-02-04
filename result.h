@@ -10,11 +10,22 @@
 #include "main.h"
 
 //--------------------------------------------------
+// 列挙型
+//--------------------------------------------------
+typedef enum
+{
+	RESULT_NONE = 0,		// まだ決まってない
+	RESULT_CLEAR,			// クリア
+	RESULT_GAMEOVER,		// ゲームオーバー
+}RESULT;
+
+//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 void InitResult(void);
 void UninitResult(void);
 void UpdateResult(void);
 void DrawResult(void);
+void SetResult(RESULT result);
 
 #endif // !_RESULT_H_

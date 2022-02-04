@@ -18,7 +18,7 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_PARTICLE		(4096)		// パーティクルの最大数
-#define MAX_STAR			(50)		// スターの最大数
+#define MAX_STAR			(150)		// スターの最大数
 
 //--------------------------------------------------
 // 構造体
@@ -79,9 +79,9 @@ void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd)
 			pParticle->pos.y = (float)((rand() % 1601) - 800) / 30.0f + pos.y;
 			pParticle->pos.z = (float)((rand() % 1601) - 800) / 30.0f + pos.z;
 
-			pParticle->move.x = (float)((rand() % 161) - 80) / 10.0f;
-			pParticle->move.y = (float)((rand() % 161) - 80) / 10.0f;
-			pParticle->move.z = (float)((rand() % 161) - 80) / 10.0f;
+			pParticle->move.x = (float)((rand() % 201) - 100) / 10.0f;
+			pParticle->move.y = (float)((rand() % 201) - 100) / 10.0f;
+			pParticle->move.z = (float)((rand() % 201) - 100) / 10.0f;
 
 			pParticle->col.r = (float)(rand() % 101) / 100.0f;
 			pParticle->col.g = (float)(rand() % 101) / 100.0f;
@@ -91,7 +91,7 @@ void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd)
 			pParticle->fWidth = (float)(rand() % 51) / 100.0f + fSize;
 			pParticle->fHeight = pParticle->fWidth;
 
-			pParticle->nLife = (rand() % 11) + 10;
+			pParticle->nLife = (rand() % 31) + 20;
 
 			//エフェクトの設定
 			SetEffect(pParticle->pos, pParticle->move, pParticle->col, pParticle->fWidth, pParticle->fHeight, pParticle->nLife, bAdd);
