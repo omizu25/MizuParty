@@ -11,6 +11,7 @@
 #include "main.h"
 #include "billboard.h"
 #include "effect.h"
+#include "field.h"
 #include "particle.h"
 #include "setup.h"
 #include "wall.h"
@@ -21,10 +22,12 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_BILLBOARD		(256)		// ビルボードの最大数
-#define MAX_TEXTURE			(256)		// テクスチャの最大数
-#define DO_NOT_ROT_Y		(0)			// Y軸回転をしない数値
-#define DO_NOT_RESULT		(0)			// リザルトで表示しない
+#define MAX_BILLBOARD		(256)			// ビルボードの最大数
+#define MAX_TEXTURE			(256)			// テクスチャの最大数
+#define DO_NOT_ROT_Y		(0)				// Y軸回転をしない数値
+#define DO_NOT_RESULT		(0)				// リザルトで表示しない
+#define SLOPE_WIDTH			(100.0f)		// 幅
+#define SLOPE_HEIGHT		(300.0f)		// 高さ
 
 //--------------------------------------------------
 // 構造体
@@ -63,6 +66,7 @@ typedef struct
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			*s_pTexture;					// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// 坂のテクスチャへのポインタ
 static Billboard					s_billboard[MAX_BILLBOARD];		// ビルボードの情報
 static int							s_nUseTex;						// テクスチャの使用数
 
@@ -134,6 +138,12 @@ void UninitBillboard(void)
 		s_pVtxBuff->Release();
 		s_pVtxBuff = NULL;
 	}
+
+	if (s_pTextureSlope != NULL)
+	{// テクスチャの解放
+		s_pTextureSlope->Release();
+		s_pTextureSlope = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -141,25 +151,7 @@ void UninitBillboard(void)
 //--------------------------------------------------
 void UpdateBillboard(void)
 {
-	for (int i = 0; i < MAX_BILLBOARD; i++)
-	{
-		Billboard *pBillboard = &s_billboard[i];
-
-		if (!pBillboard->bUse)
-		{//使用されていない
-			continue;
-		}
-
-		/*↓ 使用されている ↓*/
-
-		pBillboard->pos += pBillboard->move;
-
-		if (pBillboard->move.x != 0.0f || pBillboard->move.z != 0.0f)
-		{// 動いてる
-			// エフェクトの設定
-			SetEffect(pBillboard->pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), D3DXCOLOR(0.615f, 0.215f, 0.341f, 1.0f), pBillboard->fWidth, pBillboard->fHeight, 25, true);
-		}
-	}
+	
 }
 
 //--------------------------------------------------
@@ -510,4 +502,30 @@ static void Load(FILE *pFile)
 	{// ファイルが開かない場合
 		assert(false);
 	}
+}
+
+//--------------------------------------------------
+// 坂
+//--------------------------------------------------
+void InitBillboardSlope(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/target.png",
+		&s_pTextureSlope);
+
+	float fWidth = SLOPE_WIDTH * 0.5f;
+	float fHeight = SLOPE_HEIGHT * 0.5f;
+
+	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
+	
+	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, fHeight + 100.0f, 30.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, move, fWidth, fHeight, false, false, &s_pTextureSlope);
 }

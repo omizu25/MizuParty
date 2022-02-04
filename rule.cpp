@@ -65,7 +65,7 @@ void InitRule(void)
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
+	case MENU_SLOPE:		// 坂
 
 		// 移動
 		InitMove();
@@ -209,7 +209,7 @@ void DrawRule(void)
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
+	case MENU_SLOPE:		// 坂
 
 		// 頂点バッファをデータストリームに設定
 		pDevice->SetStreamSource(0, s_pVtxBuff, 0, sizeof(VERTEX_2D));

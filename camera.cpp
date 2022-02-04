@@ -10,6 +10,7 @@
 //--------------------------------------------------
 #include "camera.h"
 #include "countdown.h"
+#include "field.h"
 #include "game.h"
 #include "input.h"
 #include "model.h"
@@ -34,8 +35,11 @@
 #define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
 #define START_STOP_Y		(180.0f)		// Yの位置の最初の値
 #define START_STOP_Z		(-500.0f)		// Zの位置の最初の値
+#define START_SLOPE_X		(100.0f)		// Yの位置の最初の値
+#define START_SLOPE_Y		(100.0f)		// Yの位置の最初の値
+#define START_SLOPE_Z		(-700.0f)		// Zの位置の最初の値
 #define MOVE_Y				(5.0f)			// Yの移動量
-#define MOVE_Z				(-3.0f	)		// Zの移動量
+#define MOVE_Z				(-3.0f)			// Zの移動量
 #define STOP_POS_Y			(100.0f)		// Yの位置の止まる場所
 
 //--------------------------------------------------
@@ -57,10 +61,11 @@ static void Overlap(float fPosX);
 //--------------------------------------------------
 void InitCamera(void)
 {
+	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x) * 0.75f;
+
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
 
 		s_camera.posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
 		s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
@@ -72,6 +77,14 @@ void InitCamera(void)
 
 		s_camera.posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
 		s_camera.posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
+		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		s_camera.posV = D3DXVECTOR3(fPosX, START_SLOPE_Y, START_SLOPE_Z);
+		s_camera.posR = D3DXVECTOR3(fPosX, START_SLOPE_Y, 0.0f);
 		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 
 		break;
@@ -156,7 +169,7 @@ void UpdateCamera(void)
 		break;
 
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
+	case MENU_SLOPE:		// 坂
 
 		switch (GetGame().gameState)
 		{

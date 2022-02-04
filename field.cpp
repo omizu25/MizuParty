@@ -40,93 +40,90 @@ static int			s_nRand;			// ランダム
 //--------------------------------------------------
 void InitField(void)
 {
-	if (GetTitle() == MENU_STOP)
-	{// 止める
-	 // デバイスへのポインタの取得
-		LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-		int nNumVtx;		// 頂点数
-		DWORD SizeFVF;		// 頂点フォーマットのサイズ
-		BYTE *pVexBuff;		// 頂点バッファへのポインタ
+	int nNumVtx;		// 頂点数
+	DWORD SizeFVF;		// 頂点フォーマットのサイズ
+	BYTE *pVexBuff;		// 頂点バッファへのポインタ
 
-		// Xファイルの読み込み
-		D3DXLoadMeshFromX(
-			"data\\MODEL\\field.x",
-			D3DXMESH_SYSTEMMEM,
-			pDevice,
-			NULL,
-			&s_field.pBuffMat,
-			NULL,
-			&s_field.nNumMat,
-			&s_field.pMesh);
+	// Xファイルの読み込み
+	D3DXLoadMeshFromX(
+		"data\\MODEL\\field.x",
+		D3DXMESH_SYSTEMMEM,
+		pDevice,
+		NULL,
+		&s_field.pBuffMat,
+		NULL,
+		&s_field.nNumMat,
+		&s_field.pMesh);
 
-		s_field.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
-		s_field.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	s_field.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+	s_field.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-		// 頂点数を取得
-		nNumVtx = s_field.pMesh->GetNumVertices();
+	// 頂点数を取得
+	nNumVtx = s_field.pMesh->GetNumVertices();
 
-		// フォーマットのサイズを取得
-		SizeFVF = D3DXGetFVFVertexSize(s_field.pMesh->GetFVF());
+	// フォーマットのサイズを取得
+	SizeFVF = D3DXGetFVFVertexSize(s_field.pMesh->GetFVF());
 
-		// 頂点バッファのロック
-		s_field.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+	// 頂点バッファのロック
+	s_field.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
 
-		for (int i = 0; i < nNumVtx; i++)
-		{
-			// 頂点情報の代入
-			D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
+	for (int i = 0; i < nNumVtx; i++)
+	{
+		// 頂点情報の代入
+		D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
 
-			// 小さい・大きい [x]
-			VtxSmallBig(&s_field.vtxMin.x, &s_field.vtxMax.x, pos.x);
+		// 小さい・大きい [x]
+		VtxSmallBig(&s_field.vtxMin.x, &s_field.vtxMax.x, pos.x);
 
-			// 小さい・大きい [y]
-			VtxSmallBig(&s_field.vtxMin.y, &s_field.vtxMax.y, pos.y);
+		// 小さい・大きい [y]
+		VtxSmallBig(&s_field.vtxMin.y, &s_field.vtxMax.y, pos.y);
 
-			// 小さい・大きい [z]
-			VtxSmallBig(&s_field.vtxMin.z, &s_field.vtxMax.z, pos.z);
+		// 小さい・大きい [z]
+		VtxSmallBig(&s_field.vtxMin.z, &s_field.vtxMax.z, pos.z);
 
-			// 頂点フォーマットのサイズ分ポインタを進める
-			pVexBuff += SizeFVF;
+		// 頂点フォーマットのサイズ分ポインタを進める
+		pVexBuff += SizeFVF;
+	}
+
+	// 頂点バッファのアンロック
+	s_field.pMesh->UnlockVertexBuffer();
+
+	// メッシュに使用されているテクスチャ用の配列を用意する
+	s_field.pTexture = new LPDIRECT3DTEXTURE9[s_field.nNumMat];
+
+	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
+	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_field.pBuffMat->GetBufferPointer();
+
+	// 各メッシュのマテリアル情報を取得する
+	for (int i = 0; i < (int)s_field.nNumMat; i++)
+	{
+		s_field.pTexture[i] = NULL;
+
+		if (pMat[i].pTextureFilename != NULL)
+		{// マテリアルで設定されているテクスチャ読み込み
+			D3DXCreateTextureFromFileA(pDevice,
+				pMat[i].pTextureFilename,
+				&s_field.pTexture[i]);
 		}
-
-		// 頂点バッファのアンロック
-		s_field.pMesh->UnlockVertexBuffer();
-
-		// メッシュに使用されているテクスチャ用の配列を用意する
-		s_field.pTexture = new LPDIRECT3DTEXTURE9[s_field.nNumMat];
-
-		// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-		D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_field.pBuffMat->GetBufferPointer();
-
-		// 各メッシュのマテリアル情報を取得する
-		for (int i = 0; i < (int)s_field.nNumMat; i++)
+		else
 		{
 			s_field.pTexture[i] = NULL;
-
-			if (pMat[i].pTextureFilename != NULL)
-			{// マテリアルで設定されているテクスチャ読み込み
-				D3DXCreateTextureFromFileA(pDevice,
-					pMat[i].pTextureFilename,
-					&s_field.pTexture[i]);
-			}
-			else
-			{
-				s_field.pTexture[i] = NULL;
-			}
 		}
-
-		s_field.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_field.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-		s_field.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
-		//世界の種子の初期化
-		srand((unsigned)time(NULL));
-
-		int nRand = (rand() % MAX_RANDOM);
-
-		s_field.fMove = MAX_MOVE + (nRand * 0.1f);
 	}
+
+	s_field.pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_field.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_field.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	//世界の種子の初期化
+	srand((unsigned)time(NULL));
+
+	int nRand = (rand() % MAX_RANDOM);
+
+	s_field.fMove = MAX_MOVE + (nRand * 0.1f);
 }
 
 //--------------------------------------------------
@@ -175,52 +172,49 @@ void UpdateField(void)
 //--------------------------------------------------
 void DrawField(void)
 {
-	if (GetTitle() == MENU_RANKING)
-	{// 止める
-		// デバイスへのポインタの取得
-		LPDIRECT3DDEVICE9 pDevice = GetDevice();
-		D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
-		D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
-		D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
+	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
+	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-		// ワールドマトリックスの初期化
-		D3DXMatrixIdentity(&s_field.mtxWorld);
+	// ワールドマトリックスの初期化
+	D3DXMatrixIdentity(&s_field.mtxWorld);
 
-		// 向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_field.rot.y, s_field.rot.x, s_field.rot.z);
-		D3DXMatrixMultiply(&s_field.mtxWorld, &s_field.mtxWorld, &mtxRot);
+	// 向きを反映
+	D3DXMatrixRotationYawPitchRoll(&mtxRot, s_field.rot.y, s_field.rot.x, s_field.rot.z);
+	D3DXMatrixMultiply(&s_field.mtxWorld, &s_field.mtxWorld, &mtxRot);
 
-		// 位置を反映
-		D3DXMatrixTranslation(&mtxTrans, s_field.pos.x, s_field.pos.y, s_field.pos.z);
-		D3DXMatrixMultiply(&s_field.mtxWorld, &s_field.mtxWorld, &mtxTrans);
+	// 位置を反映
+	D3DXMatrixTranslation(&mtxTrans, s_field.pos.x, s_field.pos.y, s_field.pos.z);
+	D3DXMatrixMultiply(&s_field.mtxWorld, &s_field.mtxWorld, &mtxTrans);
 
-		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &s_field.mtxWorld);
+	// ワールドマトリックスの設定
+	pDevice->SetTransform(D3DTS_WORLD, &s_field.mtxWorld);
 
-		// 現在のマテリアル保持
-		pDevice->GetMaterial(&matDef);
+	// 現在のマテリアル保持
+	pDevice->GetMaterial(&matDef);
 
-		// マテリアルデータへのポインタを取得
-		pMat = (D3DXMATERIAL*)s_field.pBuffMat->GetBufferPointer();
+	// マテリアルデータへのポインタを取得
+	pMat = (D3DXMATERIAL*)s_field.pBuffMat->GetBufferPointer();
 
-		for (int i = 0; i < (int)s_field.nNumMat; i++)
-		{
-			// マテリアルの設定
-			pDevice->SetMaterial(&pMat[i].MatD3D);
-
-			// テクスチャの設定
-			pDevice->SetTexture(0, s_field.pTexture[i]);
-
-			// モデルパーツの描画
-			s_field.pMesh->DrawSubset(i);
-		}
-
-		// 保存していたマテリアルを戻す
-		pDevice->SetMaterial(&matDef);
+	for (int i = 0; i < (int)s_field.nNumMat; i++)
+	{
+		// マテリアルの設定
+		pDevice->SetMaterial(&pMat[i].MatD3D);
 
 		// テクスチャの設定
-		pDevice->SetTexture(0, NULL);
+		pDevice->SetTexture(0, s_field.pTexture[i]);
+
+		// モデルパーツの描画
+		s_field.pMesh->DrawSubset(i);
 	}
+
+	// 保存していたマテリアルを戻す
+	pDevice->SetMaterial(&matDef);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, NULL);
 }
 
 //--------------------------------------------------

@@ -80,7 +80,26 @@ void InitPlayer(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	s_nSelectPlayer = 0;
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_STOP:			// 止める
+
+		s_nSelectPlayer = 0;
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		s_nSelectPlayer = 1;
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	s_nSelectParts = 0;
 	s_nSelectMotion = 0;
 	s_nFrame = 0;
@@ -129,10 +148,12 @@ void InitPlayer(void)
 		pPlayer->posOld = pPlayer->pos;
 		pPlayer->rotDest = pPlayer->rot;
 		pPlayer->nStopTime = 0;
-
-		// 影の設定
-		pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot, pPlayer->fSize);
 	}
+
+	Player *pPlayer = &s_player[s_nSelectPlayer];
+
+	// 影の設定
+	pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot, pPlayer->fSize);
 }
 
 //--------------------------------------------------
@@ -248,7 +269,7 @@ void UpdatePlayer(void)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
+	case MENU_SLOPE:		// 坂
 
 		switch (GetGame().gameState)
 		{
@@ -323,7 +344,7 @@ void UpdatePlayer(void)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
-	case MENU_RANKING:		// ランキング
+	case MENU_SLOPE:		// 坂
 
 		// モーション
 		Motion(pPlayer);
@@ -363,77 +384,74 @@ void DrawPlayer(void)
 	D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 	D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-	for (int i = 0; i < s_nNumPlayer; i++)
+	Player *pPlayer = &s_player[s_nSelectPlayer];
+
+	for (int j = 0; j < pPlayer->nNumParts; j++)
 	{
-		Player *pPlayer = &s_player[i];
+		PlayerParts *pParts = &pPlayer->parts[j];
 
-		for (int j = 0; j < pPlayer->nNumParts; j++)
+		// パーツのワールドマトリックスの初期化
+		D3DXMatrixIdentity(&pParts->mtxWorld);
+
+		// パーツの向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, pParts->rot.y, pParts->rot.x, pParts->rot.z);
+		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxRot);
+
+		// パーツの位置を反映
+		D3DXMatrixTranslation(&mtxTrans, pParts->pos.x, pParts->pos.y, pParts->pos.z);
+		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxTrans);
+
+		D3DXMATRIX mtxParent;
+
+		if (pParts->nIdxParent == IDX_PARENT)
+		{// 親
+			// ワールドマトリックスの初期化
+			D3DXMatrixIdentity(&pPlayer->mtxWorld);
+
+			// 向きを反映
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, pPlayer->rot.y, pPlayer->rot.x, pPlayer->rot.z);
+			D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxRot);
+
+			// 位置を反映
+			D3DXMatrixTranslation(&mtxTrans, pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
+			D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxTrans);
+
+			mtxParent = pPlayer->mtxWorld;
+		}
+		else
+		{// 子
+			mtxParent = pPlayer->parts[pParts->nIdxParent].mtxWorld;
+		}
+
+		// 親モデルとのマトリックスの掛け算
+		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxParent);
+
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, &pParts->mtxWorld);
+
+		// 現在のマテリアル保持
+		pDevice->GetMaterial(&matDef);
+
+		// マテリアルデータへのポインタを取得
+		pMat = (D3DXMATERIAL*)pParts->pBuffMat->GetBufferPointer();
+
+		for (int k = 0; k < (int)pParts->nNumMat; k++)
 		{
-			PlayerParts *pParts = &pPlayer->parts[j];
-
-			// パーツのワールドマトリックスの初期化
-			D3DXMatrixIdentity(&pParts->mtxWorld);
-
-			// パーツの向きを反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, pParts->rot.y, pParts->rot.x, pParts->rot.z);
-			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxRot);
-
-			// パーツの位置を反映
-			D3DXMatrixTranslation(&mtxTrans, pParts->pos.x, pParts->pos.y, pParts->pos.z);
-			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxTrans);
-
-			D3DXMATRIX mtxParent;
-
-			if (pParts->nIdxParent == IDX_PARENT)
-			{// 親
-				// ワールドマトリックスの初期化
-				D3DXMatrixIdentity(&pPlayer->mtxWorld);
-
-				// 向きを反映
-				D3DXMatrixRotationYawPitchRoll(&mtxRot, pPlayer->rot.y, pPlayer->rot.x, pPlayer->rot.z);
-				D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxRot);
-
-				// 位置を反映
-				D3DXMatrixTranslation(&mtxTrans, pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
-				D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxTrans);
-
-				mtxParent = pPlayer->mtxWorld;
-			}
-			else
-			{// 子
-				mtxParent = pPlayer->parts[pParts->nIdxParent].mtxWorld;
-			}
-
-			// 親モデルとのマトリックスの掛け算
-			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxParent);
-
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &pParts->mtxWorld);
-
-			// 現在のマテリアル保持
-			pDevice->GetMaterial(&matDef);
-
-			// マテリアルデータへのポインタを取得
-			pMat = (D3DXMATERIAL*)pParts->pBuffMat->GetBufferPointer();
-
-			for (int k = 0; k < (int)pParts->nNumMat; k++)
-			{
-				// マテリアルの設定
-				pDevice->SetMaterial(&pMat[k].MatD3D);
-
-				// テクスチャの設定
-				pDevice->SetTexture(0, pParts->pTexture[k]);
-
-				// パーツの描画
-				pParts->pMesh->DrawSubset(k);
-			}
-
-			// 保存していたマテリアルを戻す
-			pDevice->SetMaterial(&matDef);
+			// マテリアルの設定
+			pDevice->SetMaterial(&pMat[k].MatD3D);
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, NULL);
+			pDevice->SetTexture(0, pParts->pTexture[k]);
+
+			// パーツの描画
+			pParts->pMesh->DrawSubset(k);
 		}
+
+		// 保存していたマテリアルを戻す
+		pDevice->SetMaterial(&matDef);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, NULL);
 	}
 }
 
@@ -982,6 +1000,14 @@ static void Move(Player *pPlayer)
 		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
 		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
 	}
+
+	if (GetTitle() == MENU_SLOPE)
+	{
+		if (pPlayer->pos.x >= 0.0f)
+		{// 移動制限
+			pPlayer->pos.x = 0.0f;
+		}
+	}
 }
 
 //--------------------------------------------------
@@ -996,7 +1022,7 @@ static void Motion(Player * pPlayer)
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
-		case MENU_RANKING:		// ランキング
+		case MENU_SLOPE:		// 坂
 
 			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
 			{// ←, →, ↑, ↓キーが押された

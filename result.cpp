@@ -344,7 +344,7 @@ static void InitPosNumber(void)
 
 		break;
 
-	case MENU_RANKING:		// ƒ‰ƒ“ƒLƒ“ƒO
+	case MENU_SLOPE:		// â
 
 		break;
 

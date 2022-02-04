@@ -15,6 +15,7 @@
 #include "countdown.h"
 #include "effect.h"
 #include "fade.h"
+#include "field.h"
 #include "game.h"
 #include "input.h"
 #include "light.h"
@@ -48,8 +49,27 @@ static int		s_nTime;		// タイム
 //--------------------------------------------------
 void InitGame(void)
 {
-	// ポリゴンの初期化
-	InitPolygon();
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_STOP:			// 止める
+
+		// ポリゴンの初期化
+		InitPolygon();
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// フィールドの初期化
+		InitField();
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// メッシュフィールドの初期化
 	//InitMeshField();
@@ -81,15 +101,6 @@ void InitGame(void)
 	// 壁の設置
 	//InstallationWall();
 
-	if (GetTitle() == MENU_WALKING)
-	{// ウォーキング
-		// ビルボードの初期化
-		InitBillboard();
-
-		// ビルボードの読み込み
-		LoadBillboard();
-	}
-
 	// パーティクルの初期化
 	InitParticle();
 
@@ -110,6 +121,36 @@ void InitGame(void)
 
 	// プレイヤーの初期化
 	InitPlayer();
+
+	// ビルボードの初期化
+	InitBillboard();
+
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+
+		// ビルボードの読み込み
+		LoadBillboard();
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		/* 処理なし */
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// 坂のビルボードの初期化
+		InitBillboardSlope();
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// 弾の初期化
 	//InitBullet();
@@ -153,6 +194,9 @@ void UninitGame(void)
 {
 	// ポリゴンの終了
 	UninitPolygon();
+
+	// フィールドの終了
+	UninitField();
 
 	// メッシュフィールドの終了
 	//UninitMeshField();
@@ -243,7 +287,7 @@ void UpdateGame(void)
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
-		case MENU_RANKING:		// ランキング
+		case MENU_SLOPE:		// 坂
 
 			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
 			{// ←, →, ↑, ↓キーが押された
@@ -278,8 +322,27 @@ void UpdateGame(void)
 		{
 			if (!s_game.bPause)
 			{
-				// ポリゴンの更新
-				UpdatePolygon();
+				switch (GetTitle())
+				{// どのゲーム？
+				case MENU_WALKING:		// ウォーキング
+				case MENU_STOP:			// 止める
+
+					// ポリゴンの更新
+					UpdatePolygon();
+
+					break;
+
+				case MENU_SLOPE:		// 坂
+
+					// フィールドの更新
+					UpdateField();
+
+					break;
+
+				default:
+					assert(false);
+					break;
+				}
 
 				// メッシュフィールドの更新
 				//UpdateMeshField();
@@ -296,10 +359,25 @@ void UpdateGame(void)
 				// 壁の更新
 				//UpdateWall();
 
-				if (GetTitle() == MENU_WALKING)
-				{// ウォーキング
+				switch (GetTitle())
+				{// どのゲーム？
+				case MENU_WALKING:		// ウォーキング
+				case MENU_SLOPE:		// 坂
+
 					// ビルボードの更新
 					UpdateBillboard();
+
+					break;
+
+				case MENU_STOP:			// 止める
+
+					/* 処理なし */
+
+					break;
+
+				default:
+					assert(false);
+					break;
 				}
 
 				// モデルの更新
@@ -419,8 +497,27 @@ void DrawGame(void)
 	// カメラの設定
 	SetCamera();
 
-	// ポリゴンの描画
-	DrawPolygon();
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_STOP:			// 止める
+
+		// ポリゴンの描画
+		DrawPolygon();
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// フィールドの描画
+		DrawField();
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// メッシュ空の描画
 	//DrawMeshSky();
@@ -446,10 +543,25 @@ void DrawGame(void)
 	// メッシュ円柱の描画
 	//DrawMeshCylinder();
 
-	if (GetTitle() == MENU_WALKING)
-	{// ウォーキング
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_SLOPE:		// 坂
+
 		// ビルボードの描画
 		DrawBillboard(false);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		/* 処理なし */
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 
 	// 壁の描画
@@ -486,10 +598,25 @@ void DrawGame(void)
 
 	if (s_game.gameState == GAMESTATE_RESULT)
 	{
-		if (GetTitle() == MENU_WALKING)
-		{// ウォーキング
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_WALKING:		// ウォーキング
+		case MENU_SLOPE:		// 坂
+
 			// ビルボードの描画
 			DrawBillboard(true);
+
+			break;
+
+		case MENU_STOP:			// 止める
+
+			/* 処理なし */
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 
 		if (GetOverlap())

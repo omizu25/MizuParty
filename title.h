@@ -14,7 +14,7 @@ typedef enum
 {
 	MENU_WALKING = 0,		// ウォーキング
 	MENU_STOP,				// 止める
-	MENU_RANKING,			// ランキング
+	MENU_SLOPE,				// 坂
 	MENU_MAX
 }MENU;
 

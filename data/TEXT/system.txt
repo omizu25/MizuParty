@@ -20,4 +20,13 @@ PLAYER_SET
 	ROT = 0.0 0.0 0.0
 END_PLAYER_SET
 
+#--------------------------------------------------
+# プレイヤーの情報
+#--------------------------------------------------
+PLAYER_SET
+	PLAYER_FILENAME = data/TEXT/model.txt
+	POS = 0.0 0.0 0.0
+	ROT = 0.0 1.57 0.0
+END_PLAYER_SET
+
 END_SCRIPT		# この行は絶対消さないこと！

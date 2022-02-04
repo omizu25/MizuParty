@@ -105,7 +105,7 @@ void InitTitle(void)
 	D3DXCreateTextureFromFile(
 		pDevice,
 		"Data\\TEXTURE\\title004.png",
-		&s_pTextureMenu[MENU_RANKING]);
+		&s_pTextureMenu[MENU_SLOPE]);
 
 	s_Menu = MENU_WALKING;
 	s_state = MENUSTATE_IN;
@@ -439,7 +439,7 @@ static void UpdateMenu(void)
 		{
 		case MENU_WALKING:		// ゲーム
 		case MENU_STOP:			// 止める
-		case MENU_RANKING:		// ランキング
+		case MENU_SLOPE:		// 坂
 			// フェードの設定
 			SetFade(MODE_GAME);
 			break;
