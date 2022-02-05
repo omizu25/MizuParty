@@ -33,6 +33,7 @@
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
 #define MAX_BLEND			(30)			// ブレンドの最大値
+#define SLOPE_LIMIT			(30.0f)			// 坂の移動制限
 
 //--------------------------------------------------
 // 構造体
@@ -313,21 +314,22 @@ void UpdatePlayer(void)
 		break;
 	}
 
-	float fAngle = pPlayer->rotDest.y - pPlayer->rot.y;
+	float fAngleY = pPlayer->rotDest.y - pPlayer->rot.y;
+	float fAngleX = pPlayer->rotDest.x - pPlayer->rot.x;
 
 	// 角度の正規化
-	NormalizeRot(&fAngle);
+	NormalizeRot(&fAngleY);
+	NormalizeRot(&fAngleX);
 
 	//慣性・向きを更新 (減衰させる)
-	pPlayer->rot.y += fAngle * MAX_ATTENUATION;
+	pPlayer->rot.y += fAngleY * MAX_ATTENUATION;
+	pPlayer->rot.x += fAngleX * MAX_ATTENUATION;
 
 	// 角度の正規化
 	NormalizeRot(&pPlayer->rot.y);
+	NormalizeRot(&pPlayer->rot.x);
 
 	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
-
-	// モデルとの当たり判定
-	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
 	if (!GetCollision())
 	{
@@ -338,8 +340,30 @@ void UpdatePlayer(void)
 	// 壁との当たり判定
 	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 
-	// メッシュフィールドとの当たり判定
-	//CollisionMeshField(&pPlayer->pos);
+	// モデルとの当たり判定
+	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+	if (GetTitle() == MENU_SLOPE)
+	{
+		// メッシュフィールドとの当たり判定
+		if (CollisionMeshField(&pPlayer->pos))
+		{// 当たってる
+			if (pPlayer->rot.y >= 0.0f)
+			{// 左向き
+				pPlayer->rotDest.x = D3DX_PI * 0.1f;
+				pPlayer->rot.x = D3DX_PI * 0.1f;
+			}
+			else if (pPlayer->rot.y <= 0.0f)
+			{// 右向き
+				pPlayer->rotDest.x = -D3DX_PI * 0.1f;
+				pPlayer->rot.x = -D3DX_PI * 0.1f;
+			}
+		}
+		else
+		{// 当たってない
+			pPlayer->rotDest.x = 0.0f;
+		}
+	}
 
 	switch (GetTitle())
 	{// どのゲーム？
@@ -460,7 +484,7 @@ void DrawPlayer(void)
 //--------------------------------------------------
 Player *GetPlayer(void)
 {
-	return s_player;
+	return &s_player[s_nSelectPlayer];
 }
 
 //--------------------------------------------------
@@ -1003,9 +1027,15 @@ static void Move(Player *pPlayer)
 
 	if (GetTitle() == MENU_SLOPE)
 	{
-		if (pPlayer->pos.x >= 0.0f)
+		float fWidth = GetMeshField()->fWidth;
+
+		if (pPlayer->pos.x >= -SLOPE_LIMIT)
 		{// 移動制限
-			pPlayer->pos.x = 0.0f;
+			pPlayer->pos.x = -SLOPE_LIMIT;
+		}
+		else if (pPlayer->pos.x <= fWidth + SLOPE_LIMIT)
+		{
+			pPlayer->pos.x = fWidth + SLOPE_LIMIT;
 		}
 	}
 }

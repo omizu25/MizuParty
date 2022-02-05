@@ -14,13 +14,14 @@
 #include "setup.h"
 #include "title.h"
 
+#include <assert.h>
 #include <time.h>
 //--------------------------------------------------
 // ƒ}ƒNƒ’è‹`
 //--------------------------------------------------
 #define MAX_DIGITS					(2)				// Œ…”‚ÌÅ‘å’l
 #define MIN_TARGET					(37)			// –Ú•W‚ÌÅ¬’l
-#define MAX_RANDOM					(30)			// ƒ‰ƒ“ƒ_ƒ€‚ÌÅ‘å’l
+#define MAX_RANDOM					(130)			// ƒ‰ƒ“ƒ_ƒ€‚ÌÅ‘å’l
 #define START_NUMBER_WIDTH			(120.0f)		// ƒXƒ^[ƒg‚Ì”‚Ì•
 #define START_NUMBER_HEIGHT			(200.0f)		// ƒXƒ^[ƒg‚Ì”‚Ì‚‚³
 #define START_WIDTH_INTERVAL		(5.0f)			// ƒXƒ^[ƒg‚Ì”‚Ì•‚ÌŠÔŠu
@@ -35,6 +36,10 @@
 #define GAME_METER_HEIGHT			(140.0f)		// ƒQ[ƒ€‚Ìƒ[ƒgƒ‹‚Ì‚‚³
 #define STOP_WIDTH					(1000.0f)		// ƒXƒgƒbƒv‚Ì•
 #define STOP_HEIGHT					(600.0f)		// ƒXƒgƒbƒv‚Ì‚‚³
+#define JUST_WIDTH					(1000.0f)		// ‚Ò‚Á‚½‚è‚Ì•
+#define JUST_HEIGHT					(400.0f)		// ‚Ò‚Á‚½‚è‚Ì‚‚³
+#define SLOPE_WIDTH					(400.0f)		// â‚Ì•
+#define SLOPE_HEIGHT				(200.0f)		// â‚Ì‚‚³
 
 //--------------------------------------------------
 // ƒXƒ^ƒeƒBƒbƒN•Ï”
@@ -46,6 +51,10 @@ static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStartMeter = NULL;		// ƒXƒ^[ƒg‚Ìƒ[ƒ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameMeter = NULL;			// ƒQ[ƒ€‚Ìƒ[ƒgƒ‹‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DTEXTURE9			s_pTextureStop = NULL;				// ƒXƒgƒbƒv‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffStop = NULL;				// ƒXƒgƒbƒv‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureJust = NULL;				// ‚Ò‚Á‚½‚è‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffJust = NULL;				// ‚Ò‚Á‚½‚è‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureSlope = NULL;				// â‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffSlope = NULL;				// â‚Ì’¸“_ƒoƒbƒtƒ@‚Ìƒ|ƒCƒ“ƒ^
 static int							s_nTarget;							// –Ú•W’n“_
 
 //--------------------------------------------------
@@ -59,19 +68,20 @@ static void InitGameMeter(void);
 static void DrawStartMeter(void);
 static void DrawGameMeter(void);
 static void InitStop(void);
+static void InitJust(void);
+static void InitSlope(void);
+static void DrawStartSlope(void);
+static void DrawGameSlope(void);
 
 //--------------------------------------------------
 // ‰Šú‰»
 //--------------------------------------------------
 void InitTarget(void)
 {
-	if (GetTitle() == MENU_STOP)
+	switch (GetTitle())
 	{
-		// ~‚ß‚é
-		InitStop();
-	}
-	else
-	{
+	case MENU_WALKING:		// ƒEƒH[ƒLƒ“ƒO
+
 		//¢ŠE‚Ìíq‚Ì‰Šú‰»
 		srand((unsigned)time(NULL));
 
@@ -91,6 +101,29 @@ void InitTarget(void)
 
 		// ƒQ[ƒ€‚Ìƒ[ƒgƒ‹‚Ì‰Šú‰»
 		InitGameMeter();
+
+		break;
+
+	case MENU_STOP:			// ƒXƒgƒbƒv
+
+		// ~‚ß‚é
+		InitStop();
+
+		break;
+
+	case MENU_SLOPE:		// â
+
+		// ‚Ò‚Á‚½‚è
+		InitJust();
+
+		// â
+		InitSlope();
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 }
 
@@ -140,6 +173,30 @@ void UninitTarget(void)
 		s_pVtxBuffStop->Release();
 		s_pVtxBuffStop = NULL;
 	}
+
+	if (s_pTextureJust != NULL)
+	{// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
+		s_pTextureJust->Release();
+		s_pTextureJust = NULL;
+	}
+
+	if (s_pVtxBuffJust != NULL)
+	{// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
+		s_pVtxBuffJust->Release();
+		s_pVtxBuffJust = NULL;
+	}
+
+	if (s_pTextureSlope != NULL)
+	{// ƒeƒNƒXƒ`ƒƒ‚Ì”jŠü
+		s_pTextureSlope->Release();
+		s_pTextureSlope = NULL;
+	}
+
+	if (s_pVtxBuffSlope != NULL)
+	{// ’¸“_ƒoƒbƒtƒ@‚Ì”jŠü
+		s_pVtxBuffSlope->Release();
+		s_pVtxBuffSlope = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -155,8 +212,25 @@ void UpdateTarget(void)
 //--------------------------------------------------
 void DrawTarget(void)
 {
-	if (GetTitle() == MENU_STOP)
+	switch (GetTitle())
 	{
+	case MENU_WALKING:		// ƒEƒH[ƒLƒ“ƒO
+
+		if (GetGame().gameState == GAMESTATE_START)
+		{// ƒXƒ^[ƒgó‘Ô
+			// ƒXƒ^[ƒg‚Ì•`‰æ
+			DrawStartMeter();
+		}
+		else if (GetGame().gameState != GAMESTATE_START)
+		{// ƒQ[ƒ€ó‘Ô
+			// ƒQ[ƒ€‚Ì•`‰æ
+			DrawGameMeter();
+		}
+		
+		break;
+
+	case MENU_STOP:			// ƒXƒgƒbƒv
+
 		if (GetGame().gameState == GAMESTATE_START)
 		{// ƒXƒ^[ƒgó‘Ô
 			// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
@@ -177,19 +251,27 @@ void DrawTarget(void)
 				0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
 				2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
 		}
-	}
-	else
-	{
+
+		break;
+
+	case MENU_SLOPE:		// â
+
 		if (GetGame().gameState == GAMESTATE_START)
 		{// ƒXƒ^[ƒgó‘Ô
 			// ƒXƒ^[ƒg‚Ì•`‰æ
-			DrawStartMeter();
+			DrawStartSlope();
 		}
 		else if (GetGame().gameState != GAMESTATE_START)
 		{// ƒQ[ƒ€ó‘Ô
 			// ƒQ[ƒ€‚Ì•`‰æ
-			DrawGameMeter();
+			DrawGameSlope();
 		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 }
 
@@ -506,4 +588,149 @@ static void InitStop(void)
 
 	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
 	s_pVtxBuffStop->Unlock();
+}
+
+//--------------------------------------------------
+// ‚Ò‚Á‚½‚è
+//--------------------------------------------------
+static void InitJust(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/game002.png",
+		&s_pTextureJust);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffJust,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuffJust->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = JUST_WIDTH * 0.5f;
+	float fHeight = JUST_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.5f, SCREEN_HEIGHT * 0.75f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’èˆ—
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»ˆ—
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuffJust->Unlock();
+
+}
+
+//--------------------------------------------------
+// â
+//--------------------------------------------------
+static void InitSlope(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/game003.png",
+		&s_pTextureSlope);
+
+	// ’¸“_ƒoƒbƒtƒ@‚Ì¶¬
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffSlope,
+		NULL);
+
+	VERTEX_2D *pVtx;		// ’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+
+	// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
+	s_pVtxBuffSlope->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = SLOPE_WIDTH * 0.5f;
+	float fHeight = SLOPE_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.2f, SCREEN_HEIGHT * 0.15f, 0.0f);
+
+	// ’¸“_À•W‚Ìİ’èˆ—
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhw‚Ì‰Šú‰»ˆ—
+	Initrhw(pVtx);
+
+	// ’¸“_ƒJƒ‰[‚Ì‰Šú‰»
+	Initcol(pVtx);
+
+	// ƒeƒNƒXƒ`ƒƒÀ•W‚Ì‰Šú‰»ˆ—
+	Inittex(pVtx);
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒAƒ“ƒƒbƒN‚·‚é
+	s_pVtxBuffSlope->Unlock();
+}
+
+//--------------------------------------------------
+// â
+//--------------------------------------------------
+static void DrawStartSlope(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+	pDevice->SetStreamSource(0, s_pVtxBuffJust, 0, sizeof(VERTEX_2D));
+
+	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+	pDevice->SetTexture(0, s_pTextureJust);
+
+	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
+}
+
+//--------------------------------------------------
+// â
+//--------------------------------------------------
+static void DrawGameSlope(void)
+{
+	// ƒfƒoƒCƒX‚Ö‚Ìƒ|ƒCƒ“ƒ^‚Ìæ“¾
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ’¸“_ƒoƒbƒtƒ@‚ğƒf[ƒ^ƒXƒgƒŠ[ƒ€‚Éİ’è
+	pDevice->SetStreamSource(0, s_pVtxBuffSlope, 0, sizeof(VERTEX_2D));
+
+	// ’¸“_ƒtƒH[ƒ}ƒbƒg‚Ìİ’è
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// ƒeƒNƒXƒ`ƒƒ‚Ìİ’è
+	pDevice->SetTexture(0, s_pTextureSlope);
+
+	// ƒ|ƒŠƒSƒ“‚Ì•`‰æ
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// ƒvƒŠƒ~ƒeƒBƒu‚Ìí—Ş
+		0,							// •`‰æ‚·‚éÅ‰‚Ì’¸“_ƒCƒ“ƒfƒbƒNƒX
+		2);							// ƒvƒŠƒ~ƒeƒBƒu(ƒ|ƒŠƒSƒ“)”
 }

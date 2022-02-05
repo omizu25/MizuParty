@@ -191,7 +191,7 @@ static LRESULT CALLBACK WindowProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 		}
 		break;
 	}
-
+	
 	return DefWindowProc(hWnd, uMsg, wParam, lParam);		// ‹K’è‚Ìˆ—‚ğ•Ô‚·
 }
 

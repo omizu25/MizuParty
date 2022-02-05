@@ -17,12 +17,10 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_WIDTH		(150.0f)		// 幅の最大値
-#define MAX_HEIGHT		(150.0f)		// 高さの最大値
-#define MAX_DEPTH		(150.0f)		// 奥行きの最大値
-#define MAX_SIZE		(50)			// サイズの最大値
-#define MIN_SIZE		(1)				// サイズの最小値
-#define START_SIZE		(30)			// サイズの最初の値
+#define MAX_WIDTH		(-150.0f)		// 幅の最大値
+#define MAX_HEIGHT		(45.0f)			// 高さの最大値
+#define MAX_DEPTH		(-300.0f)		// 奥行きの最大値
+#define START_SIZE		(5)				// サイズの最初の値
 
 //--------------------------------------------------
 // スタティック変数
@@ -33,12 +31,6 @@ static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;		// インデックスバッファへのポ
 static MeshField					s_mesh;					// メッシュフィールドの情報
 static MeshFieldNumber				s_Number;				// メッシュフィールドの数系の情報
 static int							*s_pIdx = { NULL };		// インデックスの配列
-
-//--------------------------------------------------
-// プロトタイプ宣言
-//--------------------------------------------------
-static void Input(void);
-static void ResetBuff(void);
 
 //--------------------------------------------------
 // 初期化
@@ -98,34 +90,7 @@ void UninitMeshField(void)
 //--------------------------------------------------
 void UpdateMeshField(void)
 {
-	if (GetDebug() == DEBUG_MESH)
-	{// デバッグ表示がメッシュの時
-		// 入力
-		Input();
 
-		if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
-			GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
-		{// A, D, W, Sキーが押された
-
-			// 指定の値以上・以下
-			Specified(&s_Number.nHorizontal, MAX_SIZE, MIN_SIZE);
-
-			// 指定の値以上・以下
-			Specified(&s_Number.nVertical, MAX_SIZE, MIN_SIZE);
-
-			// バッファのリセット
-			ResetBuff();
-
-			// 設定
-			SetMeshField();
-
-			// 壁のリセット
-			ResetWall();
-
-			// 壁の設置
-			InstallationWall();
-		}
-	}
 }
 
 //--------------------------------------------------
@@ -209,7 +174,7 @@ void SetMeshField(void)
 	memset(&s_mesh, 0, sizeof(s_mesh));
 
 	// 幅・高さ・奥行きの設定
-	s_mesh.fWidth = MAX_WIDTH * (s_Number.nHorizontal * 0.5f);
+	s_mesh.fWidth = MAX_WIDTH * s_Number.nHorizontal;
 	s_mesh.fHeight = MAX_HEIGHT;
 	s_mesh.fDepth = MAX_DEPTH * (s_Number.nVertical * 0.5f);
 
@@ -224,12 +189,12 @@ void SetMeshField(void)
 		{
 			int nVtx = j + (i * nXLine);
 
-			float fXPos = (float)(j - (s_Number.nHorizontal * 0.5f));
-			float fZPos = (float)((i - (s_Number.nVertical * 0.5f)) * -1.0f);
-			float fYPos = sinf(((j * 0.1f) * (D3DX_PI * 2.0f)));
+			float fXPos = (MAX_WIDTH * s_Number.nHorizontal) - (j * MAX_WIDTH);
+			float fZPos = (i - (s_Number.nVertical * 0.5f)) * MAX_DEPTH;
+			float fYPos = (MAX_HEIGHT * s_Number.nVertical) - (j * MAX_HEIGHT);
 
 			// 頂点座標の設定
-			pVtx[nVtx].pos = D3DXVECTOR3(MAX_WIDTH * fXPos, fYPos, MAX_DEPTH * fZPos);
+			pVtx[nVtx].pos = D3DXVECTOR3(fXPos, fYPos, fZPos);
 
 			// 各頂点の法線の設定
 			pVtx[nVtx].nor = D3DXVECTOR3(0.0f, 1.0f, 0.0f);
@@ -241,9 +206,6 @@ void SetMeshField(void)
 			pVtx[nVtx].tex = D3DXVECTOR2((float)j, (float)i);
 		}
 	}
-
-	// 頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
 
 	// インデックスバッファの生成
 	pDevice->CreateIndexBuffer(
@@ -282,18 +244,74 @@ void SetMeshField(void)
 		}
 	}
 
+	//三角の頂点数
+	const int nTri = 3;
+
+	D3DXVECTOR3 posLineVec[nTri];		//ベクトル
+
+	for (int nCnt = 0; nCnt < s_Number.nPolygon; nCnt++)
+	{// プリミティブの数だけまわす。
+		//ベクトルを求める
+		posLineVec[0] = pVtx[pIdx[nCnt + 0]].pos;
+		posLineVec[1] = pVtx[pIdx[nCnt + 1]].pos;
+		posLineVec[2] = pVtx[pIdx[nCnt + 2]].pos;
+
+		if ((pIdx[nCnt + 0] == pIdx[nCnt + 1]) ||
+			(pIdx[nCnt + 0] == pIdx[nCnt + 2]) ||
+			(pIdx[nCnt + 2] == pIdx[nCnt + 1]))
+		{
+			continue;
+		}
+
+		D3DXVECTOR3 V1 = posLineVec[1] - posLineVec[0];
+		D3DXVECTOR3 V2 = posLineVec[2] - posLineVec[0];
+
+		D3DXVECTOR3 Normal;
+
+		if (nCnt % 2 == 0)
+		{
+			//AとBの法線を求めるやつ
+			D3DXVec3Cross(&Normal, &V2, &V1);
+		}
+		else
+		{
+			//AとBの法線を求めるやつ
+			D3DXVec3Cross(&Normal, &V1, &V2);
+		}
+
+		//Normalをノーマライズして、長さ 1にする。
+		D3DXVec3Normalize(&Normal, &Normal);
+
+		for (int i = 0; i < nTri; i++)
+		{//法線計算
+			pVtx[pIdx[nCnt + i]].nor += Normal;
+		}
+	}
+
+	for (int nCnt = 0; nCnt < s_Number.nVtx; nCnt++)
+	{
+		//norをノーマライズして、長さ 1にする。
+		D3DXVec3Normalize(&pVtx[nCnt].nor, &pVtx[nCnt].nor);
+	}
+
 	// インデックスバッファをアンロックする
 	s_pIdxBuff->Unlock();
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuff->Unlock();
+
 }
 
 //--------------------------------------------------
 // 当たり判定
 //--------------------------------------------------
-void CollisionMeshField(D3DXVECTOR3 * pos)
+bool CollisionMeshField(D3DXVECTOR3 * pos)
 {
 	VERTEX_3D* pVtx = NULL;
 	D3DXVECTOR3 vecField[3];	// ポリゴンの線分
 	D3DXVECTOR3 vecModel[3];	// モデルからポリゴンの線分
+
+	bool bCollision = false;
 
 	// 頂点座標をロック
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
@@ -334,6 +352,8 @@ void CollisionMeshField(D3DXVECTOR3 * pos)
 				D3DXVec3Normalize(&N, &N);
 
 				pos->y = pVtx[s_pIdx[i]].pos.y - 1.0f / N.y * (N.x * (pos->x - pVtx[s_pIdx[i]].pos.x) + N.z * (pos->z - pVtx[s_pIdx[i]].pos.z));
+			
+				bCollision = true;
 			}
 		}
 		else
@@ -351,12 +371,16 @@ void CollisionMeshField(D3DXVECTOR3 * pos)
 				D3DXVec3Normalize(&N, &N);
 
 				pos->y = pVtx[s_pIdx[i]].pos.y - 1.0f / N.y * (N.x * (pos->x - pVtx[s_pIdx[i]].pos.x) + N.z * (pos->z - pVtx[s_pIdx[i]].pos.z));
+			
+				bCollision = true;
 			}
 		}
 	}
 
 	// 頂点座標をアンロック
 	s_pVtxBuff->Unlock();
+
+	return bCollision;
 }
 
 //--------------------------------------------------
@@ -373,52 +397,4 @@ MeshField *GetMeshField(void)
 MeshFieldNumber *GetMeshFieldNumber(void)
 {
 	return &s_Number;
-}
-
-//--------------------------------------------------
-// 入力
-//--------------------------------------------------
-static void Input(void)
-{
-	if (GetKeyboardTrigger(DIK_A))
-	{// Aキーが押された
-		s_Number.nHorizontal++;
-	}
-	else if (GetKeyboardTrigger(DIK_D))
-	{// Dキーが押された
-		s_Number.nHorizontal--;
-	}
-
-	if (GetKeyboardTrigger(DIK_W))
-	{// Wキーが押された
-		s_Number.nVertical++;
-	}
-	else if (GetKeyboardTrigger(DIK_S))
-	{// Sキーが押された
-		s_Number.nVertical--;
-	}
-}
-
-//--------------------------------------------------
-// バッファのリセット
-//--------------------------------------------------
-static void ResetBuff(void)
-{
-	if (s_pVtxBuff != NULL)
-	{// 頂点バッファの解放
-		s_pVtxBuff->Release();
-		s_pVtxBuff = NULL;
-	}
-
-	if (s_pIdxBuff != NULL)
-	{// インデックスバッファの解放
-		s_pIdxBuff->Release();
-		s_pIdxBuff = NULL;
-	}
-
-	if (s_pIdx != NULL)
-	{// インデックスの配列の開放
-		delete[] s_pIdx;
-		s_pIdx = NULL;
-	}
 }

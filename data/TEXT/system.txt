@@ -25,7 +25,7 @@ END_PLAYER_SET
 #--------------------------------------------------
 PLAYER_SET
 	PLAYER_FILENAME = data/TEXT/model.txt
-	POS = 0.0 0.0 0.0
+	POS = -30.0 0.0 0.0
 	ROT = 0.0 1.57 0.0
 END_PLAYER_SET
 

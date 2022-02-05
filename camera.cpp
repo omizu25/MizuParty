@@ -173,11 +173,17 @@ void UpdateCamera(void)
 
 		switch (GetGame().gameState)
 		{
-		case GAMESTATE_NORMAL:		// ゲーム中
-		case GAMESTATE_END:			// 終わり
+		case GAMESTATE_NORMAL:			// ゲーム中
+		case GAMESTATE_END:				// 終わり
+		case GAMESTATE_COUNTDOWN:		// カウントダウン
 
 			// 追従の移動
 			FollowMove();
+
+			if (GetTitle() == MENU_SLOPE)
+			{
+				s_camera.posV.y = GetPlayer()->pos.y + START_SLOPE_Y;
+			}
 
 			break;
 
@@ -189,7 +195,6 @@ void UpdateCamera(void)
 
 		case GAMESTATE_NONE:			// 何もなし
 		case GAMESTATE_START:			// 始まり
-		case GAMESTATE_COUNTDOWN:		// カウントダウン
 
 			/* 処理なし */
 

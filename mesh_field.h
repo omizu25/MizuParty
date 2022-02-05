@@ -42,7 +42,7 @@ void UninitMeshField(void);
 void UpdateMeshField(void);
 void DrawMeshField(void);
 void SetMeshField(void);
-void CollisionMeshField(D3DXVECTOR3	*pos);
+bool CollisionMeshField(D3DXVECTOR3	*pos);
 MeshField *GetMeshField(void);
 MeshFieldNumber *GetMeshFieldNumber(void);
 

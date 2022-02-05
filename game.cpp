@@ -64,18 +64,18 @@ void InitGame(void)
 		// フィールドの初期化
 		InitField();
 
+		// メッシュフィールドの初期化
+		InitMeshField();
+
+		// メッシュフィールドの設定
+		SetMeshField();
+
 		break;
 
 	default:
 		assert(false);
 		break;
 	}
-
-	// メッシュフィールドの初期化
-	//InitMeshField();
-
-	// メッシュフィールドの設定
-	//SetMeshField();
 
 	// メッシュ円柱の初期化
 	//InitMeshCylinder();
@@ -199,7 +199,7 @@ void UninitGame(void)
 	UninitField();
 
 	// メッシュフィールドの終了
-	//UninitMeshField();
+	UninitMeshField();
 
 	// メッシュ円柱の終了
 	//UninitMeshCylinder();
@@ -337,15 +337,15 @@ void UpdateGame(void)
 					// フィールドの更新
 					UpdateField();
 
+					// メッシュフィールドの更新
+					UpdateMeshField();
+
 					break;
 
 				default:
 					assert(false);
 					break;
 				}
-
-				// メッシュフィールドの更新
-				//UpdateMeshField();
 
 				// メッシュ円柱の更新
 				//UpdateMeshCylinder();
@@ -512,6 +512,9 @@ void DrawGame(void)
 		// フィールドの描画
 		DrawField();
 
+		// メッシュフィールドの描画
+		DrawMeshField();
+
 		break;
 
 	default:
@@ -521,9 +524,6 @@ void DrawGame(void)
 
 	// メッシュ空の描画
 	//DrawMeshSky();
-
-	// メッシュフィールドの描画
-	//DrawMeshField();
 
 	// モデルの描画
 	DrawModel();
