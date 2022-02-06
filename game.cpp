@@ -70,6 +70,12 @@ void InitGame(void)
 		// メッシュフィールドの設定
 		SetMeshField();
 
+		// 壁の初期化
+		InitWall();
+
+		// 壁の設置
+		InstallationWall();
+
 		break;
 
 	default:
@@ -94,12 +100,6 @@ void InitGame(void)
 
 	// メッシュ空の設定
 	//SetMeshSky();
-
-	// 壁の初期化
-	//InitWall();
-
-	// 壁の設置
-	//InstallationWall();
 
 	// パーティクルの初期化
 	InitParticle();
@@ -211,7 +211,7 @@ void UninitGame(void)
 	//UninitMeshSky();
 
 	// 壁の終了
-	//UninitWall();
+	UninitWall();
 
 	// ビルボードの終了
 	UninitBillboard();
@@ -340,6 +340,9 @@ void UpdateGame(void)
 					// メッシュフィールドの更新
 					UpdateMeshField();
 
+					// 壁の更新
+					UpdateWall();
+
 					break;
 
 				default:
@@ -355,9 +358,6 @@ void UpdateGame(void)
 
 				// メッシュ空の更新
 				//UpdateMeshSky();
-
-				// 壁の更新
-				//UpdateWall();
 
 				switch (GetTitle())
 				{// どのゲーム？
@@ -425,23 +425,42 @@ void UpdateGame(void)
 
 	case GAMESTATE_END:		// 終了状態(ゲーム終了時)
 
-		s_nTime++;
 
-		if (s_nTime >= 120)
-		{
-			s_nTime = 0;
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_SLOPE:		// 坂
 
-			// リザルトの初期化
-			InitResult();
+			/* 処理なし */
 
-			// ゲームの設定
-			SetGameState(GAMESTATE_RESULT);
+			break;
 
-			if (GetTitle() == MENU_WALKING)
-			{// 止める
-				// カメラの初期化
-				InitCamera();
+		case MENU_WALKING:		// ウォーキング
+		case MENU_STOP:			// 止める
+
+			s_nTime++;
+
+			if (s_nTime >= 120)
+			{
+				s_nTime = 0;
+
+				// リザルトの初期化
+				InitResult();
+
+				// ゲームの設定
+				SetGameState(GAMESTATE_RESULT);
+
+				if (GetTitle() == MENU_WALKING)
+				{// 止める
+					// カメラの初期化
+					InitCamera();
+				}
 			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 
 		break;
@@ -515,6 +534,9 @@ void DrawGame(void)
 		// メッシュフィールドの描画
 		DrawMeshField();
 
+		// 壁の描画
+		DrawWall();
+
 		break;
 
 	default:
@@ -563,9 +585,6 @@ void DrawGame(void)
 		assert(false);
 		break;
 	}
-
-	// 壁の描画
-	//DrawWall();
 
 	// エフェクトの描画
 	DrawEffect();

@@ -43,7 +43,7 @@ void InitMeshField(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\block009.png",
+		"data\\TEXTURE\\block011.png",
 		&s_pTexture);
 
 	// メモリのクリア
@@ -379,7 +379,7 @@ bool CollisionMeshField(D3DXVECTOR3 * pos)
 
 	// 頂点座標をアンロック
 	s_pVtxBuff->Unlock();
-
+	
 	return bCollision;
 }
 

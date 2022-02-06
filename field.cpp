@@ -228,8 +228,10 @@ Field *GetField(void)
 //--------------------------------------------------
 // “–‚½‚è”»’è
 //--------------------------------------------------
-void CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
+bool CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 {
+	bool bCollision = false;
+
 	float fLeft = s_field.pos.x + s_field.vtxMin.x;
 	float fRight = s_field.pos.x + s_field.vtxMax.x;
 	float fBottom = s_field.pos.y + s_field.vtxMin.y;
@@ -273,6 +275,9 @@ void CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 		if ((pPosOld->y >= fTop) && (pPos->y < fTop))
 		{// ã
 			pPos->y = fTop;
+			bCollision = true;
 		}
 	}
+
+	return bCollision;
 }

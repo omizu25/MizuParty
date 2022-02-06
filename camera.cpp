@@ -23,6 +23,7 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
+#define MAX_CAMERA			(2)				// カメラの最大数
 #define MAX_NEAR			(10.0f)			// ニアの最大値
 #define MAX_FAR				(1500.0f)		// ファーの最大
 #define MAX_ROTATION		(0.035f)		// 回転の最大値
@@ -45,9 +46,9 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static Camera		s_camera;			// カメラの情報
-static bool			s_bOverlap;			// プレイヤーと重なったかどうか
-static bool			s_bStop;			// 止まるかどうか
+static Camera		s_camera[MAX_CAMERA];		// カメラの情報
+static bool			s_bOverlap;					// プレイヤーと重なったかどうか
+static bool			s_bStop;					// 止まるかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -67,25 +68,25 @@ void InitCamera(void)
 	{
 	case MENU_WALKING:		// ウォーキング
 
-		s_camera.posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
-		s_camera.posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
-		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		s_camera[0].posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
+		s_camera[0].posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 
 		break;
 
 	case MENU_STOP:			// 止める
 
-		s_camera.posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
-		s_camera.posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
-		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		s_camera[0].posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
+		s_camera[0].posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 
 		break;
 
 	case MENU_SLOPE:		// 坂
 
-		s_camera.posV = D3DXVECTOR3(fPosX, START_SLOPE_Y, START_SLOPE_Z);
-		s_camera.posR = D3DXVECTOR3(fPosX, START_SLOPE_Y, 0.0f);
-		s_camera.rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		s_camera[0].posV = D3DXVECTOR3(fPosX, START_SLOPE_Y, START_SLOPE_Z);
+		s_camera[0].posR = D3DXVECTOR3(fPosX, START_SLOPE_Y, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 
 		break;
 
@@ -95,25 +96,25 @@ void InitCamera(void)
 	}
 
 	// 視点・注視点・上方向・向き・距離を設定する
-	s_camera.posVDest = s_camera.posV;
-	s_camera.posRDest = s_camera.posR;
-	s_camera.vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
-	s_camera.rotDest = s_camera.rot;
+	s_camera[0].posVDest = s_camera[0].posV;
+	s_camera[0].posRDest = s_camera[0].posR;
+	s_camera[0].vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
+	s_camera[0].rotDest = s_camera[0].rot;
 
 	float fDisX, fDisZ;
 
-	fDisX = s_camera.posV.x - s_camera.posR.x;
-	fDisZ = s_camera.posV.z - s_camera.posR.z;
+	fDisX = s_camera[0].posV.x - s_camera[0].posR.x;
+	fDisZ = s_camera[0].posV.z - s_camera[0].posR.z;
 
-	s_camera.fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
-	s_camera.fDisPlayer = START_DISTANCE;
+	s_camera[0].fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
+	s_camera[0].fDisPlayer = START_DISTANCE;
 
-	s_camera.viewport.X = (DWORD)0.0f;
-	s_camera.viewport.Y = (DWORD)0.0f;
-	s_camera.viewport.Width = SCREEN_WIDTH;
-	s_camera.viewport.Height = SCREEN_HEIGHT;
-	s_camera.viewport.MinZ = 0.0f;
-	s_camera.viewport.MaxZ = 1.0f;
+	s_camera[0].viewport.X = (DWORD)0.0f;
+	s_camera[0].viewport.Y = (DWORD)0.0f;
+	s_camera[0].viewport.Width = (DWORD)(SCREEN_WIDTH * 0.5f);
+	s_camera[0].viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.5f);
+	s_camera[0].viewport.MinZ = 0.0f;
+	s_camera[0].viewport.MaxZ = 1.0f;
 
 	if (GetTitle() == MENU_WALKING)
 	{
@@ -152,13 +153,13 @@ void UpdateCamera(void)
 				{// 止まらない
 					if (GetGame().gameState == GAMESTATE_NORMAL)
 					{
-						s_camera.posV.z += MOVE_Y;
-						s_camera.posR.z += MOVE_Y;
-						s_camera.posV.y += MOVE_Z;
-						s_camera.posR.y += MOVE_Z;
+						s_camera[0].posV.z += MOVE_Y;
+						s_camera[0].posR.z += MOVE_Y;
+						s_camera[0].posV.y += MOVE_Z;
+						s_camera[0].posR.y += MOVE_Z;
 					}
 
-					if (s_camera.posV.y <= STOP_POS_Y)
+					if (s_camera[0].posV.y <= STOP_POS_Y)
 					{
 						s_bStop = true;
 					}
@@ -182,7 +183,10 @@ void UpdateCamera(void)
 
 			if (GetTitle() == MENU_SLOPE)
 			{
-				s_camera.posV.y = GetPlayer()->pos.y + START_SLOPE_Y;
+				if (GetPlayer()->pos.y >= 0.0f)
+				{
+					s_camera[0].posV.y = GetPlayer()->pos.y + START_SLOPE_Y;
+				}
 			}
 
 			break;
@@ -220,6 +224,9 @@ void DrawCamera(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ビューポートの設定
+	pDevice->SetViewport(&s_camera[0].viewport);
 
 	// ライトを無効にする
 	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
@@ -261,31 +268,31 @@ void SetCamera(void)
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
 	// ビューマトリックスの初期化
-	D3DXMatrixIdentity(&s_camera.mtxView);
+	D3DXMatrixIdentity(&s_camera[0].mtxView);
 
 	// ビューマトリックスの作成
 	D3DXMatrixLookAtLH(
-		&s_camera.mtxView,
-		&s_camera.posV,
-		&s_camera.posR,
-		&s_camera.vecU);
+		&s_camera[0].mtxView,
+		&s_camera[0].posV,
+		&s_camera[0].posR,
+		&s_camera[0].vecU);
 
 	// ビューマトリックスの設定
-	pDevice->SetTransform(D3DTS_VIEW, &s_camera.mtxView);
+	pDevice->SetTransform(D3DTS_VIEW, &s_camera[0].mtxView);
 
 	// プロジェクションマトリックスの初期化
-	D3DXMatrixIdentity(&s_camera.mtxProjection);
+	D3DXMatrixIdentity(&s_camera[0].mtxProjection);
 
 	// プロジェクションマトリックスの作成
 	D3DXMatrixPerspectiveFovLH(
-		&s_camera.mtxProjection,
+		&s_camera[0].mtxProjection,
 		D3DXToRadian(45.0f),
 		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
 		MAX_NEAR,
 		MAX_FAR);
 
 	// プロジェクションマトリックスの設定
-	pDevice->SetTransform(D3DTS_PROJECTION, &s_camera.mtxProjection);
+	pDevice->SetTransform(D3DTS_PROJECTION, &s_camera[0].mtxProjection);
 }
 
 //--------------------------------------------------
@@ -293,7 +300,7 @@ void SetCamera(void)
 //--------------------------------------------------
 Camera *GetCamera(void)
 {
-	return &s_camera;
+	return &s_camera[0];
 }
 
 //--------------------------------------------------
@@ -311,26 +318,26 @@ static void FollowMove(void)
 {
 	Player *pPlayer = GetPlayer();		// プレイヤーの情報
 
-	float fAngle = s_camera.rot.y - pPlayer->rot.y;
+	float fAngle = s_camera[0].rot.y - pPlayer->rot.y;
 
 	// 角度の正規化
 	NormalizeRot(&fAngle);
 
 	// 目的の注視点
-	s_camera.posRDest.x = pPlayer->pos.x + sinf(fAngle) * s_camera.fDisPlayer;
-	s_camera.posRDest.z = pPlayer->pos.z - cosf(fAngle) * s_camera.fDisPlayer;
+	s_camera[0].posRDest.x = pPlayer->pos.x + sinf(fAngle) * s_camera[0].fDisPlayer;
+	s_camera[0].posRDest.z = pPlayer->pos.z - cosf(fAngle) * s_camera[0].fDisPlayer;
 
 	// 目的の視点
-	s_camera.posVDest.x = pPlayer->pos.x + sinf(s_camera.rot.y) * s_camera.fDistance;
-	s_camera.posVDest.z = pPlayer->pos.z - cosf(s_camera.rot.y) * s_camera.fDistance;
+	s_camera[0].posVDest.x = pPlayer->pos.x + sinf(s_camera[0].rot.y) * s_camera[0].fDistance;
+	s_camera[0].posVDest.z = pPlayer->pos.z - cosf(s_camera[0].rot.y) * s_camera[0].fDistance;
 
 	// 注視点の移動
-	s_camera.posR.x += (s_camera.posRDest.x - s_camera.posR.x) * MAX_POS_FACTOR;
-	s_camera.posR.z += (s_camera.posRDest.z - s_camera.posR.z) * MAX_POS_FACTOR;
+	s_camera[0].posR.x += (s_camera[0].posRDest.x - s_camera[0].posR.x) * MAX_POS_FACTOR;
+	s_camera[0].posR.z += (s_camera[0].posRDest.z - s_camera[0].posR.z) * MAX_POS_FACTOR;
 
 	// 視点の移動
-	s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
-	s_camera.posV.z += (s_camera.posVDest.z - s_camera.posV.z) * MAX_POS_FACTOR;
+	s_camera[0].posV.x += (s_camera[0].posVDest.x - s_camera[0].posV.x) * MAX_POS_FACTOR;
+	s_camera[0].posV.z += (s_camera[0].posVDest.z - s_camera[0].posV.z) * MAX_POS_FACTOR;
 }
 
 //--------------------------------------------------
@@ -351,20 +358,20 @@ static void ResultMove(void)
 		}
 
 		// 目的の注視点
-		s_camera.posRDest.x += fMove;
+		s_camera[0].posRDest.x += fMove;
 
 		// 目的の視点
-		s_camera.posVDest.x += fMove;
+		s_camera[0].posVDest.x += fMove;
 
 		// 注視点の移動
-		s_camera.posR.x += (s_camera.posRDest.x - s_camera.posR.x) * MAX_POS_FACTOR;
+		s_camera[0].posR.x += (s_camera[0].posRDest.x - s_camera[0].posR.x) * MAX_POS_FACTOR;
 
 		// 視点の移動
-		s_camera.posV.x += (s_camera.posVDest.x - s_camera.posV.x) * MAX_POS_FACTOR;
+		s_camera[0].posV.x += (s_camera[0].posVDest.x - s_camera[0].posV.x) * MAX_POS_FACTOR;
 
 		if (bDirection)
 		{// 右向き
-			if (pos.x <= s_camera.posR.x)
+			if (pos.x <= s_camera[0].posR.x)
 			{
 				// 重ねる
 				Overlap(pos.x);
@@ -372,7 +379,7 @@ static void ResultMove(void)
 		}
 		else
 		{// 左向き
-			if (pos.x >= s_camera.posR.x)
+			if (pos.x >= s_camera[0].posR.x)
 			{
 				// 重ねる
 				Overlap(pos.x);
@@ -387,16 +394,16 @@ static void ResultMove(void)
 static void Overlap(float fPosX)
 {
 	// 目的の注視点
-	s_camera.posRDest.x = fPosX;
+	s_camera[0].posRDest.x = fPosX;
 
 	// 目的の視点
-	s_camera.posVDest.x = fPosX;
+	s_camera[0].posVDest.x = fPosX;
 
 	// 注視点の移動
-	s_camera.posR.x = fPosX;
+	s_camera[0].posR.x = fPosX;
 
 	// 視点の移動
-	s_camera.posV.x = fPosX;
+	s_camera[0].posV.x = fPosX;
 
 	s_bOverlap = true;
 }

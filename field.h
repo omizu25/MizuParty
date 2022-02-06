@@ -34,6 +34,6 @@ void UninitField(void);
 void UpdateField(void);
 void DrawField(void);
 Field *GetField(void);
-void CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
+bool CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
 
 #endif // !_FIELD_H_

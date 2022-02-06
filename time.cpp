@@ -11,8 +11,10 @@
 #include "main.h"
 #include "game.h"
 #include "number.h"
+#include "player.h"
 #include "result.h"
 #include "time.h"
+#include "title.h"
 
 //--------------------------------------------------
 // マクロ定義
@@ -89,11 +91,20 @@ void SubTime(int nValue)
 	}
 	else if (s_nTime <= 0)
 	{// 制限時間が来た
-		// リザルトの設定
-		SetResult(RESULT_CLEAR);
+		if (GetTitle() != MENU_SLOPE)
+		{
+			// リザルトの設定
+			SetResult(RESULT_CLEAR);
+		}
 
 		// ゲームの設定
 		SetGameState(GAMESTATE_END);
+
+		if (GetTitle() == MENU_SLOPE)
+		{
+			// プレイヤーの坂の設定
+			SetSlopePlayer();
+		}
 	}
 }
 

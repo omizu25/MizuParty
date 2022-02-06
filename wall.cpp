@@ -39,7 +39,7 @@ void InitWall(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\InuiToko002.jpg",
+		"data\\TEXTURE\\block005.png",
 		&s_pTexture);
 
 	// 頂点バッファの生成
@@ -232,18 +232,21 @@ void InstallationWall(void)
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
 
 	float fWidth = pMeshField->fWidth;
-	float fHeight = pMeshField->fWidth * 0.4f;
-	float fDepth = pMeshField->fDepth;
+	float fHeight = pMeshField->fWidth;
+	//float fDepth = pMeshField->fDepth;
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(fWidth, 0.0f, 0.0f);
+	D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f);
 
 	// 壁の設定
+	SetWall(pos,rot , fWidth, fHeight, (float)pNumber->nHorizontal, true);
 
 	/*↓ 内側 ↓*/
 
-	SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
+	/*SetWall(D3DXVECTOR3(0.0f, fHeight, -fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
 	SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, true);
 	SetWall(D3DXVECTOR3(-fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
-	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (D3DX_PI * 0.5f), 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);
-
+	SetWall(D3DXVECTOR3(fWidth, fHeight, 0.0f), D3DXVECTOR3(0.0f, (D3DX_PI * 0.5f), 0.0f), fDepth, fHeight, (float)pNumber->nVertical, true);*/
 	/*↓ 外側 ↓*/
 
 	/*SetWall(D3DXVECTOR3(0.0f, fHeight, fDepth), D3DXVECTOR3(0.0f, D3DX_PI, 0.0f), fWidth, fHeight, (float)pNumber->nHorizontal, false);

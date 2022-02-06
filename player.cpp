@@ -11,11 +11,13 @@
 #include "main.h"
 #include "billboard.h"
 #include "camera.h"
+#include "field.h"
 #include "game.h"
 #include "input.h"
 #include "mesh_field.h"
 #include "model.h"
 #include "player.h"
+#include "result.h"
 #include "setup.h"
 #include "shadow.h"
 #include "wall.h"
@@ -33,7 +35,7 @@
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
 #define MAX_BLEND			(30)			// ブレンドの最大値
-#define SLOPE_LIMIT			(30.0f)			// 坂の移動制限
+#define SLOPE_LIMIT			(40.0f)			// 坂の移動制限
 
 //--------------------------------------------------
 // 構造体
@@ -60,6 +62,8 @@ static int			s_nFrame;				// フレーム数
 static int			s_nIdxKey;				// キー番号
 static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
+static float		s_fSlopeMove;			// 坂の移動量
+static int			s_nEndTime;				// エンドの時間
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -108,6 +112,8 @@ void InitPlayer(void)
 	s_nIdxKey = 0;
 	s_bMotionBlend = true;
 	s_bMotionLoop = false;
+	s_fSlopeMove = 0.0f;
+	s_nEndTime = 0;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -292,7 +298,50 @@ void UpdatePlayer(void)
 
 		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
 
-			pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			if (GetTitle() == MENU_WALKING)
+			{
+				pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			}
+			else if (GetTitle() == MENU_SLOPE)
+			{
+				s_nEndTime++;
+
+				if (s_fSlopeMove != 0.0f)
+				{
+					if (s_nEndTime >= 120)
+					{
+						pPlayer->pos.x += s_fSlopeMove;
+						pPlayer->pos.y += -10.8f;
+					}
+				}
+				else
+				{
+					if (s_nEndTime >= 120)
+					{
+						pPlayer->pos.y += -10.8f;
+
+						D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
+
+						if (CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
+						{
+							// リザルトの設定
+							SetResult(RESULT_CLEAR);
+						}
+						else
+						{
+							// リザルトの設定
+							SetResult(RESULT_GAMEOVER);
+						}
+
+
+						// リザルトの初期化
+						InitResult();
+
+						// ゲームの設定
+						SetGameState(GAMESTATE_RESULT);
+					}
+				}
+			}
 
 			break;
 
@@ -340,28 +389,78 @@ void UpdatePlayer(void)
 	// 壁との当たり判定
 	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
 
-	// モデルとの当たり判定
-	CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+
+		/* 処理なし */
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// フィールドとの当たり判定
+		CollisionField(&pPlayer->pos, &pPlayer->posOld, size);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		// モデルとの当たり判定
+		CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	if (GetTitle() == MENU_SLOPE)
 	{
 		// メッシュフィールドとの当たり判定
 		if (CollisionMeshField(&pPlayer->pos))
 		{// 当たってる
-			if (pPlayer->rot.y >= 0.0f)
-			{// 左向き
-				pPlayer->rotDest.x = D3DX_PI * 0.1f;
-				pPlayer->rot.x = D3DX_PI * 0.1f;
+			if (GetGame().gameState != GAMESTATE_END)
+			{
+				if (pPlayer->rot.y >= 0.0f)
+				{// 左向き
+					pPlayer->rotDest.x = D3DX_PI * 0.1f;
+					pPlayer->rot.x = D3DX_PI * 0.1f;
+				}
+				else if (pPlayer->rot.y <= 0.0f)
+				{// 右向き
+					pPlayer->rotDest.x = -D3DX_PI * 0.1f;
+					pPlayer->rot.x = -D3DX_PI * 0.1f;
+				}
 			}
-			else if (pPlayer->rot.y <= 0.0f)
-			{// 右向き
+			else if (GetGame().gameState == GAMESTATE_END)
+			{
+				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 				pPlayer->rotDest.x = -D3DX_PI * 0.1f;
 				pPlayer->rot.x = -D3DX_PI * 0.1f;
+
+				if (s_nEndTime >= 120)
+				{
+					s_fSlopeMove += 0.1f;
+				}
 			}
 		}
 		else
 		{// 当たってない
 			pPlayer->rotDest.x = 0.0f;
+
+			if (s_nEndTime >= 120)
+			{
+				s_fSlopeMove -= 0.1f;
+
+				if (s_fSlopeMove <= 0.0f)
+				{
+					s_fSlopeMove = 0.0f;
+
+					s_nEndTime = 0;
+				}
+			}
 		}
 	}
 
@@ -520,6 +619,15 @@ void NextMotion(MOTION motion)
 	SetMotion(&s_player[s_nSelectPlayer]);
 
 	s_IdxMotion = motion;
+}
+
+//--------------------------------------------------
+// 坂の設定
+//--------------------------------------------------
+void SetSlopePlayer(void)
+{
+	float fPosX = s_player[s_nSelectPlayer].pos.x * -0.02f;
+	s_fSlopeMove = fPosX;
 }
 
 //--------------------------------------------------
