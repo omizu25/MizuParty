@@ -444,7 +444,7 @@ static void Draw(void)
 		// フェードの描画
 		DrawFade();
 
-// #ifdef  _DEBUG
+ #ifdef  _DEBUG
 
 		if (s_bDebug)
 		{// 表示する？
@@ -452,7 +452,7 @@ static void Draw(void)
 			DrawDebug();
 		}
 
-// #endif //  _DEBUG
+ #endif //  _DEBUG
 
 		// 描画終了
 		s_pD3DDevice->EndScene();
