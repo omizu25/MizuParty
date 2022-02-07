@@ -233,44 +233,13 @@ bool CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 
 	float fLeft = s_field.pos.x + s_field.vtxMin.x;
 	float fRight = s_field.pos.x + s_field.vtxMax.x;
-	float fBottom = s_field.pos.y + s_field.vtxMin.y;
 	float fTop = s_field.pos.y + s_field.vtxMax.y;
 	float fFront = s_field.pos.z + s_field.vtxMin.z;
 	float fBack = s_field.pos.z + s_field.vtxMax.z;
 
 	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
-		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
-	{// x, y‚ª”ÍˆÍ“à
-		if ((pPosOld->z + size.z <= fFront) && (pPos->z + size.z > fFront))
-		{// ‘O
-			pPos->z = fFront - size.z;
-		}
-		else if ((pPosOld->z - size.z >= fBack) && (pPos->z - size.z < fBack))
-		{// Œã
-			pPos->z = fBack + size.z;
-		}
-	}
-
-	if ((pPos->z + size.z > fFront) && (pPos->z - size.z < fBack) &&
-		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
-	{// z, y‚ª”ÍˆÍ“à
-		if ((pPosOld->x + size.x <= fLeft) && (pPos->x + size.x > fLeft))
-		{// ¶
-			pPos->x = fLeft - size.x;
-		}
-		else if ((pPosOld->x - size.x >= fRight) && (pPos->x - size.x < fRight))
-		{// ‰E
-			pPos->x = fRight + size.x;
-		}
-	}
-
-	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
 		(pPos->z + size.z > fFront) && (pPos->z - size.z < fBack))
 	{// x, z‚ª”ÍˆÍ“à
-		if ((pPosOld->y + size.y <= fBottom) && (pPos->y + size.y > fBottom))
-		{// ‰º
-			pPos->y = fBottom - size.y;
-		}
 		if ((pPosOld->y >= fTop) && (pPos->y < fTop))
 		{// ã
 			pPos->y = fTop;

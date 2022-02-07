@@ -21,9 +21,9 @@ MODEL_FILENAME = data/MODEL/bicycle.x		# [0]自転車
 #--------------------------------------------------
 CHARACTERSET
 	NUM_PARTS = 1					# パーツ数
-	MOVE = 4.0						# 移動量
+	MOVE = 6.0						# 移動量
 	JUMP = 12.65					# ジャンプ量
-	RADIUS = 20.0					# 半径
+	RADIUS = 0.0					# 半径
 	HEIGHT = 63.0					# 高さ
 
 	PARTSSET

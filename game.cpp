@@ -543,6 +543,17 @@ void DrawGame(void)
 
 	for (int nCntCamera = 0; nCntCamera < nMax; nCntCamera++)
 	{
+		bool bCamera = false;
+
+		if (nCntCamera == 0)
+		{
+			bCamera = false;
+		}
+		else if (nCntCamera == 1)
+		{
+			bCamera = true;
+		}
+
 		// ビューボードのクリア
 		pDevice->SetViewport(&GetCamera(nCntCamera)->viewport);
 
@@ -609,7 +620,7 @@ void DrawGame(void)
 		case MENU_SLOPE:		// 坂
 
 			// ビルボードの描画
-			DrawBillboard(false);
+			DrawBillboard(false, bCamera);
 
 			break;
 
@@ -661,7 +672,7 @@ void DrawGame(void)
 			case MENU_SLOPE:		// 坂
 
 				// ビルボードの描画
-				DrawBillboard(true);
+				DrawBillboard(true, bCamera);
 
 				break;
 

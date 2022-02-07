@@ -36,7 +36,7 @@
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
 #define MAX_BLEND			(30)			// ブレンドの最大値
-#define SLOPE_LIMIT			(60.0f)			// 坂の移動制限
+#define SLOPE_LIMIT			(90.0f)			// 坂の移動制限
 
 //--------------------------------------------------
 // 構造体
@@ -65,7 +65,7 @@ static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
 static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
-static bool			s_bSlopeUse;			// 坂の時に使用するかどうか
+static bool			s_bSlopeRot;			// 坂の時に回転するかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -116,7 +116,7 @@ void InitPlayer(void)
 	s_bMotionLoop = false;
 	s_fSlopeMove = 0.0f;
 	s_nEndTime = 0;
-	s_bSlopeUse = true;
+	s_bSlopeRot = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -319,7 +319,8 @@ void UpdatePlayer(void)
 				}
 				else
 				{
-					s_bSlopeUse = false;
+					s_bSlopeRot = false;
+
 					if (s_nEndTime >= 120)
 					{
 						pPlayer->pos.y += -10.8f;
@@ -414,7 +415,7 @@ void UpdatePlayer(void)
 			if (GetGame().gameState == GAMESTATE_END &&
 				!CollisionMeshField(&pPlayer->pos))
 			{
-				if (s_bSlopeUse)
+				if (s_bSlopeRot)
 				{
 					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
 					pPlayer->rot.x += -D3DX_PI * 0.25f;
@@ -425,7 +426,7 @@ void UpdatePlayer(void)
 
 			if (pPlayer->pos.y <= -300.0f)
 			{
-				s_bSlopeUse = false;
+				s_bSlopeRot = false;
 			}
 		}
 
