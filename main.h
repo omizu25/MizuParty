@@ -39,19 +39,6 @@
 //--------------------------------------------------
 // 列挙型
 //--------------------------------------------------
-
-/*↓ デバッグ ↓*/
-
-typedef enum
-{
-	DEBUG_CAMERA = 0,		// カメラ
-	DEBUG_PLAYER,			// プレイヤー
-	DEBUG_MESH,				// メッシュ
-	DEBUG_MAX
-}DEBUG;
-
-/*↓ モード ↓*/
-
 typedef enum
 {
 	MODE_TITLE = 0,		// タイトル
@@ -95,7 +82,6 @@ typedef struct
 // プロトタイプ宣言
 //--------------------------------------------------
 LPDIRECT3DDEVICE9 GetDevice(void);
-DEBUG GetDebug(void);
 void SetMode(MODE mode);
 MODE GetMode(void);
 

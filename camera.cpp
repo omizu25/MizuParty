@@ -120,8 +120,8 @@ void InitCamera(void)
 
 	if (GetTitle() == MENU_SLOPE)
 	{
-		s_camera[1].posV = D3DXVECTOR3(GetField()->pos.x * 0.75f, 1400.0f, -1000.0f);
-		s_camera[1].posR = D3DXVECTOR3(GetField()->pos.x * 0.75f, START_STOP_Y, 0.0f);
+		s_camera[1].posV = D3DXVECTOR3(GetField()->pos.x * 0.35f, 1200.0f, -1500.0f);
+		s_camera[1].posR = D3DXVECTOR3(GetField()->pos.x * 0.35f, 300.0f, 0.0f);
 		s_camera[1].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 		s_camera[1].posVDest = s_camera[1].posV;
 		s_camera[1].posRDest = s_camera[1].posR;
@@ -135,9 +135,9 @@ void InitCamera(void)
 		s_camera[1].fDisPlayer = START_DISTANCE;
 
 		s_camera[1].viewport.X = (DWORD)0.0f;
-		s_camera[1].viewport.Y = (DWORD)(SCREEN_HEIGHT * 0.75f);
-		s_camera[1].viewport.Width = (DWORD)(SCREEN_WIDTH * 0.25f);
-		s_camera[1].viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.25f);
+		s_camera[1].viewport.Y = (DWORD)(SCREEN_HEIGHT * 0.65f);
+		s_camera[1].viewport.Width = (DWORD)(SCREEN_WIDTH * 0.35f);
+		s_camera[1].viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.35f);
 		s_camera[1].viewport.MinZ = 0.0f;
 		s_camera[1].viewport.MaxZ = 1.0f;
 	}
@@ -177,7 +177,7 @@ void UpdateCamera(void)
 			{
 				if (!s_bStop)
 				{// 止まらない
-					if (GetGame().gameState == GAMESTATE_NORMAL)
+					if (GetGame() == GAMESTATE_NORMAL)
 					{
 						s_camera[0].posV.z += MOVE_Y;
 						s_camera[0].posR.z += MOVE_Y;
@@ -198,7 +198,7 @@ void UpdateCamera(void)
 	case MENU_WALKING:		// ウォーキング
 	case MENU_SLOPE:		// 坂
 
-		switch (GetGame().gameState)
+		switch (GetGame())
 		{
 		case GAMESTATE_NORMAL:			// ゲーム中
 		case GAMESTATE_END:				// 終わり

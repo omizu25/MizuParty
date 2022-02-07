@@ -216,12 +216,12 @@ void DrawTarget(void)
 	{
 	case MENU_WALKING:		// ウォーキング
 
-		if (GetGame().gameState == GAMESTATE_START)
+		if (GetGame() == GAMESTATE_START)
 		{// スタート状態
 			// スタートの描画
 			DrawStartMeter();
 		}
-		else if (GetGame().gameState != GAMESTATE_START)
+		else if (GetGame() != GAMESTATE_START)
 		{// ゲーム状態
 			// ゲームの描画
 			DrawGameMeter();
@@ -231,7 +231,7 @@ void DrawTarget(void)
 
 	case MENU_STOP:			// ストップ
 
-		if (GetGame().gameState == GAMESTATE_START)
+		if (GetGame() == GAMESTATE_START)
 		{// スタート状態
 			// デバイスへのポインタの取得
 			LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -256,12 +256,13 @@ void DrawTarget(void)
 
 	case MENU_SLOPE:		// 坂
 
-		if (GetGame().gameState == GAMESTATE_START)
+		if (GetGame() == GAMESTATE_START)
 		{// スタート状態
 			// スタートの描画
 			DrawStartSlope();
 		}
-		else if (GetGame().gameState != GAMESTATE_START)
+		else if (GetGame() == GAMESTATE_COUNTDOWN || 
+				 GetGame() == GAMESTATE_NORMAL)
 		{// ゲーム状態
 			// ゲームの描画
 			DrawGameSlope();

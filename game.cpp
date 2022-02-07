@@ -41,8 +41,8 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static Game		s_game;			// ゲーム情報
-static int		s_nTime;		// タイム
+static GAMESTATE		s_gameState;		// ゲーム情報
+static int				s_nTime;			// タイム
 
 //--------------------------------------------------
 // 初期化
@@ -179,7 +179,7 @@ void InitGame(void)
 	// ルールの初期化
 	InitRule();
 
-	s_game.gameState = GAMESTATE_START;
+	s_gameState = GAMESTATE_START;
 
 	s_nTime = 0;
 
@@ -261,7 +261,7 @@ void UninitGame(void)
 //--------------------------------------------------
 void UpdateGame(void)
 {
-	switch (s_game.gameState)
+	switch (s_gameState)
 	{
 	case GAMESTATE_START:		// 開始状態(ゲーム開始中)
 		s_nTime++;
@@ -320,99 +320,51 @@ void UpdateGame(void)
 
 		if (GetCountdown())
 		{
-			if (!s_game.bPause)
-			{
-				switch (GetTitle())
-				{// どのゲーム？
-				case MENU_WALKING:		// ウォーキング
-				case MENU_STOP:			// 止める
+			switch (GetTitle())
+			{// どのゲーム？
+			case MENU_WALKING:		// ウォーキング
+			case MENU_STOP:			// 止める
 
-					// ポリゴンの更新
-					UpdatePolygon();
+				// ポリゴンの更新
+				UpdatePolygon();
 
-					break;
+				break;
 
-				case MENU_SLOPE:		// 坂
+			case MENU_SLOPE:		// 坂
 
-					// フィールドの更新
-					UpdateField();
+				// フィールドの更新
+				UpdateField();
 
-					// メッシュフィールドの更新
-					UpdateMeshField();
+				// メッシュフィールドの更新
+				UpdateMeshField();
 
-					// 壁の更新
-					UpdateWall();
+				// 壁の更新
+				UpdateWall();
 
-					break;
+				break;
 
-				default:
-					assert(false);
-					break;
-				}
-
-				// メッシュ円柱の更新
-				//UpdateMeshCylinder();
-
-				// メッシュ球の更新
-				//UpdateMeshSphere();
-
-				// メッシュ空の更新
-				//UpdateMeshSky();
-
-				switch (GetTitle())
-				{// どのゲーム？
-				case MENU_WALKING:		// ウォーキング
-				case MENU_SLOPE:		// 坂
-
-					// ビルボードの更新
-					UpdateBillboard();
-
-					break;
-
-				case MENU_STOP:			// 止める
-
-					/* 処理なし */
-
-					break;
-
-				default:
-					assert(false);
-					break;
-				}
-
-				// モデルの更新
-				UpdateModel();
-
-				// 線の更新
-				//UpdateLine();
-
-				// 弾の更新
-				//UpdateBullet();
+			default:
+				assert(false);
+				break;
 			}
 
-			if (GetKeyboardTrigger(DIK_F4))
-			{// F4キーが押された
-				s_game.bPause = !s_game.bPause;
-			}
+			// メッシュ円柱の更新
+			//UpdateMeshCylinder();
 
-			if (GetKeyboardTrigger(DIK_F5))
-			{// F5キーが押された
-				s_game.bWireframe = !s_game.bWireframe;
+			// メッシュ球の更新
+			//UpdateMeshSphere();
 
-				// デバイスへのポインタの取得
-				LPDIRECT3DDEVICE9 pDevice = GetDevice();
+			// メッシュ空の更新
+			//UpdateMeshSky();
 
-				if (s_game.bWireframe)
-				{// 表示
-					// レンダーステートの設定
-					pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-				}
-				else
-				{// 非表示
-					// レンダーステートを元に戻す
-					pDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID);
-				}
-			}
+			// モデルの更新
+			UpdateModel();
+
+			// 線の更新
+			//UpdateLine();
+
+			// 弾の更新
+			//UpdateBullet();
 
 			if (GetTitle() != MENU_STOP)
 			{// 止めるじゃない
@@ -480,6 +432,11 @@ void UpdateGame(void)
 		break;
 	}
 
+	if (GetTitle() == MENU_SLOPE)
+	{
+		// ビルボードの更新
+		UpdateBillboard();
+	}
 	// パーティクルの更新
 	UpdateParticle();
 
@@ -516,26 +473,39 @@ void DrawGame(void)
 	// デバイスの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	int nMax = 0;
+	int nMax = 1;
 
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
-	case MENU_STOP:			// 止める
+	if (GetTitle() == MENU_SLOPE)
+	{
+		switch (s_gameState)
+		{
+		case GAMESTATE_START:			// 開始状態(ゲーム開始中)
+		
+			/* 処理なし */
 
-		nMax = 1;
+			break;
+		
+		case GAMESTATE_END:				// 終了状態(ゲーム終了時)
 
-		break;
+			GetCamera(1)->viewport.X = (DWORD)0.0f;
+			GetCamera(1)->viewport.Y = (DWORD)(SCREEN_HEIGHT * 0.0f);
+			GetCamera(1)->viewport.Width = (DWORD)(SCREEN_WIDTH * 1.0f);
+			GetCamera(1)->viewport.Height = (DWORD)(SCREEN_HEIGHT * 1.0f);
 
-	case MENU_SLOPE:		// 坂
+			/* breakなし */
 
-		nMax = 2;
+		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+		case GAMESTATE_NORMAL:			// 通常状態(ゲーム進行中)
+		case GAMESTATE_RESULT:			// リザルト状態(ゲーム終了後)
 
-		break;
+			nMax = 2;
 
-	default:
-		assert(false);
-		break;
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
 	}
 
 	D3DVIEWPORT9 viewport;
@@ -641,30 +611,33 @@ void DrawGame(void)
 		// ターゲットの描画
 		DrawTarget();
 
-		if (s_game.gameState != GAMESTATE_START)
+		if (s_gameState != GAMESTATE_START)
 		{
 			// 数の描画
 			DrawNumber(USE_GAME);
+		}
 
+		if (s_gameState == GAMESTATE_COUNTDOWN ||
+			s_gameState == GAMESTATE_NORMAL)
+		{
 			// ルールの描画
 			DrawRule();
 		}
 
-		if (s_game.gameState == GAMESTATE_START)
+		if (s_gameState == GAMESTATE_START)
 		{
 			// 数の描画
 			DrawNumber(USE_START);
 		}
 
-		if (s_game.gameState == GAMESTATE_NORMAL ||
-			s_game.gameState == GAMESTATE_COUNTDOWN ||
-			s_game.gameState == GAMESTATE_END)
+		if (s_gameState == GAMESTATE_NORMAL ||
+			s_gameState == GAMESTATE_COUNTDOWN)
 		{
 			// 数の描画
 			DrawNumber(USE_GAME_ONLY);
 		}
 
-		if (s_game.gameState == GAMESTATE_RESULT)
+		if (s_gameState == GAMESTATE_RESULT)
 		{
 			switch (GetTitle())
 			{// どのゲーム？
@@ -710,13 +683,13 @@ void DrawGame(void)
 //--------------------------------------------------
 void SetGameState(GAMESTATE state)
 {
-	s_game.gameState = state;
+	s_gameState = state;
 }
 
 //--------------------------------------------------
 // 取得
 //--------------------------------------------------
-Game GetGame(void)
+GAMESTATE GetGame(void)
 {
-	return s_game;
+	return s_gameState;
 }

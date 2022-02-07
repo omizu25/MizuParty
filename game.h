@@ -22,16 +22,6 @@ typedef enum
 }GAMESTATE;
 
 //--------------------------------------------------
-// 構造体
-//--------------------------------------------------
-typedef struct
-{
-	GAMESTATE		gameState;		// ゲームの状態
-	bool			bWireframe;		// ワイヤーフレーム表示 [表示  : true 非表示  : false]
-	bool			bPause;			// ポーズ [する  : true しない  : false]
-}Game;
-
-//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 void InitGame(void);
@@ -39,6 +29,6 @@ void UninitGame(void);
 void UpdateGame(void);
 void DrawGame(void);
 void SetGameState(GAMESTATE state);
-Game GetGame(void);
+GAMESTATE GetGame(void);
 
 #endif // !_GAME_H_

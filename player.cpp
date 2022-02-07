@@ -281,7 +281,7 @@ void UpdatePlayer(void)
 	case MENU_WALKING:		// ウォーキング
 	case MENU_SLOPE:		// 坂
 
-		switch (GetGame().gameState)
+		switch (GetGame())
 		{
 		case GAMESTATE_NONE:			// 何もしていない状態
 		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
@@ -412,7 +412,7 @@ void UpdatePlayer(void)
 		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
 		{// フィールドとの当たり判定
 			//pPlayer->pos.y += 30.0f;
-			if (GetGame().gameState == GAMESTATE_END &&
+			if (GetGame() == GAMESTATE_END &&
 				!CollisionMeshField(&pPlayer->pos))
 			{
 				if (s_bSlopeRot)
@@ -424,7 +424,7 @@ void UpdatePlayer(void)
 				}
 			}
 
-			if (pPlayer->pos.y <= -300.0f)
+			if (pPlayer->pos.y <= -500.0f)
 			{
 				s_bSlopeRot = false;
 			}
@@ -449,7 +449,7 @@ void UpdatePlayer(void)
 		// メッシュフィールドとの当たり判定
 		if (CollisionMeshField(&pPlayer->pos))
 		{// 当たってる
-			if (GetGame().gameState != GAMESTATE_END)
+			if (GetGame() != GAMESTATE_END)
 			{
 				if (pPlayer->rot.y >= 0.0f)
 				{// 左向き
@@ -462,7 +462,7 @@ void UpdatePlayer(void)
 					pPlayer->rot.x = -D3DX_PI * 0.1f;
 				}
 			}
-			else if (GetGame().gameState == GAMESTATE_END)
+			else if (GetGame() == GAMESTATE_END)
 			{
 				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 				pPlayer->rotDest.x = -D3DX_PI * 0.1f;
@@ -1183,7 +1183,7 @@ static void Motion(Player * pPlayer)
 {
 	s_nFrame++;
 
-	if (GetGame().gameState == GAMESTATE_NORMAL)
+	if (GetGame() == GAMESTATE_NORMAL)
 	{// 通常状態 (ゲーム進行中)
 		switch (GetTitle())
 		{// どのゲーム？
@@ -1225,7 +1225,7 @@ static void Motion(Player * pPlayer)
 			s_bMotionLoop = false;
 		}
 
-		if (GetGame().gameState == GAMESTATE_NORMAL)
+		if (GetGame() == GAMESTATE_NORMAL)
 		{// 通常状態 (ゲーム進行中)
 			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
 				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))

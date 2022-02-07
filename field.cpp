@@ -119,7 +119,11 @@ void InitField(void)
 
 	float fRand = (float)(rand() % MAX_RANDOM) * 10.0f;
 
+#ifdef _DEBUG
+
 	fRand = 650.0f;
+
+#endif // !_DEBUG
 
 	s_field.pos = D3DXVECTOR3(fRand, 0.0f, 0.0f);
 	s_field.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

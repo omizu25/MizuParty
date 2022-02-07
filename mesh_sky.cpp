@@ -99,33 +99,30 @@ void UninitMeshSky(void)
 //--------------------------------------------------
 void UpdateMeshSky(void)
 {
-	if (GetDebug() == DEBUG_MESH)
-	{// デバッグ表示がメッシュの時
-		// 入力
-		Input();
+	// 入力
+	Input();
 
-		if (GetKeyboardTrigger(DIK_V) || GetKeyboardTrigger(DIK_B) ||
-			GetKeyboardTrigger(DIK_N) || GetKeyboardTrigger(DIK_M))
-		{// V, B, N, Mキーが押された
+	if (GetKeyboardTrigger(DIK_V) || GetKeyboardTrigger(DIK_B) ||
+		GetKeyboardTrigger(DIK_N) || GetKeyboardTrigger(DIK_M))
+	{// V, B, N, Mキーが押された
 
-			// 指定の値以上・以下
-			Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
+		// 指定の値以上・以下
+		Specified(&s_Number.nHorizontal, MAX_HORIZONTAL, MIN_HORIZONTAL);
 
-			// 指定の値以上・以下
-			Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
+		// 指定の値以上・以下
+		Specified(&s_Number.nVertical, MAX_VERTICAL, MIN_VERTICAL);
 
-			// バッファのリセット
-			ResetBuff();
+		// バッファのリセット
+		ResetBuff();
 
-			// 設定
-			SetMeshSky();
+		// 設定
+		SetMeshSky();
 
-			// 壁のリセット
-			ResetWall();
+		// 壁のリセット
+		ResetWall();
 
-			// 壁の設置
-			InstallationWall();
-		}
+		// 壁の設置
+		InstallationWall();
 	}
 }
 

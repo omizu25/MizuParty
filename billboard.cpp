@@ -13,6 +13,7 @@
 #include "effect.h"
 #include "field.h"
 #include "particle.h"
+#include "player.h"
 #include "setup.h"
 #include "wall.h"
 
@@ -26,8 +27,12 @@
 #define MAX_TEXTURE			(256)			// テクスチャの最大数
 #define DO_NOT_ROT_Y		(0)				// Y軸回転をしない数値
 #define DO_NOT_RESULT		(0)				// リザルトで表示しない
-#define SLOPE_WIDTH			(250.0f)		// 幅
-#define SLOPE_HEIGHT		(600.0f)		// 高さ
+#define TARGET_WIDTH		(250.0f)		// 幅
+#define TARGET_HEIGHT		(600.0f)		// 高さ
+#define CHEAT_WIDTH			(300.0f)		// 幅
+#define CHEAT_HEIGHT		(2000.0f)		// 高さ
+#define PLAYER_WIDTH		(300.0f)		// 幅
+#define PLAYER_HEIGHT		(1500.0f)		// 高さ
 
 //--------------------------------------------------
 // 構造体
@@ -68,7 +73,9 @@ typedef struct
 //--------------------------------------------------
 static LPDIRECT3DTEXTURE9			*s_pTexture;					// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファへのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// 坂のテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureTarget;				// 目標地点のテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureTargetCheat;			// ずるをした目標地点のテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTexturePlayer;				// 自転車のテクスチャへのポインタ
 static Billboard					s_billboard[MAX_BILLBOARD];		// ビルボードの情報
 static int							s_nUseTex;						// テクスチャの使用数
 
@@ -141,10 +148,22 @@ void UninitBillboard(void)
 		s_pVtxBuff = NULL;
 	}
 
-	if (s_pTextureSlope != NULL)
+	if (s_pTextureTarget != NULL)
 	{// テクスチャの解放
-		s_pTextureSlope->Release();
-		s_pTextureSlope = NULL;
+		s_pTextureTarget->Release();
+		s_pTextureTarget = NULL;
+	}
+
+	if (s_pTextureTargetCheat != NULL)
+	{// テクスチャの解放
+		s_pTextureTargetCheat->Release();
+		s_pTextureTargetCheat = NULL;
+	}
+
+	if (s_pTexturePlayer != NULL)
+	{// テクスチャの解放
+		s_pTexturePlayer->Release();
+		s_pTexturePlayer = NULL;
 	}
 }
 
@@ -153,7 +172,19 @@ void UninitBillboard(void)
 //--------------------------------------------------
 void UpdateBillboard(void)
 {
-	
+	for (int i = 0; i < MAX_BILLBOARD; i++)
+	{
+		Billboard *pBillboard = &s_billboard[i];
+
+		if (!pBillboard->bUse || pBillboard->pTexture != s_pTexturePlayer)
+		{//使用されていない
+			continue;
+		}
+
+		D3DXVECTOR3 pos = D3DXVECTOR3(GetPlayer()->pos.x, GetPlayer()->pos.y, 0.0f);
+
+		pBillboard->pos = pos;
+	}
 }
 
 //--------------------------------------------------
@@ -529,11 +560,23 @@ void InitBillboardSlope(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/target.png",
-		&s_pTextureSlope);
+		"data/TEXTURE/target000.png",
+		&s_pTextureTarget);
 
-	float fWidth = SLOPE_WIDTH * 0.5f;
-	float fHeight = SLOPE_HEIGHT * 0.5f;
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/target001.png",
+		&s_pTextureTargetCheat);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/player.png",
+		&s_pTexturePlayer);
+
+	float fWidth = TARGET_WIDTH * 0.5f;
+	float fHeight = TARGET_HEIGHT * 0.5f;
 
 	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
 	
@@ -541,8 +584,25 @@ void InitBillboardSlope(void)
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+
+	fWidth = CHEAT_WIDTH * 0.5f;
+	fHeight = CHEAT_HEIGHT * 0.5f;
+
+	fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
+
+	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
+	move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureSlope);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+	
+	fWidth = PLAYER_WIDTH * 0.5f;
+	fHeight = PLAYER_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
+	move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
 }

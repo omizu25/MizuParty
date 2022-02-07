@@ -44,7 +44,6 @@ static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
 static MODE						s_mode = MODE_TITLE;		// 現在のモード
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
-static DEBUG					s_Debug = DEBUG_CAMERA;		// デバッグ表示の内容
 
 //--------------------------------------------------
 // main関数
@@ -376,33 +375,14 @@ static void Update(void)
 	// フェードの更新
 	UpdateFade();
 
-// #ifdef  _DEBUG
+ #ifdef  _DEBUG
 
 	if (GetKeyboardTrigger(DIK_F1))
 	{// F1キーが押された
 		s_bDebug = !s_bDebug;
 	}
 
-	if (GetKeyboardTrigger(DIK_F2))
-	{// F2キーが押された
-		s_Debug = (DEBUG)(s_Debug - 1);
-
-		if (s_Debug < DEBUG_CAMERA)
-		{
-			s_Debug = DEBUG_CAMERA;
-		}
-	}
-	else if (GetKeyboardTrigger(DIK_F3))
-	{// F3キーが押された
-		s_Debug = (DEBUG)(s_Debug + 1);
-
-		if (s_Debug >= DEBUG_MAX)
-		{
-			s_Debug = (DEBUG)(DEBUG_MAX - 1);
-		}
-	}
-
-// #endif //  _DEBUG
+ #endif //  _DEBUG
 
 }
 
@@ -471,14 +451,6 @@ LPDIRECT3DDEVICE9 GetDevice(void)
 }
 
 //--------------------------------------------------
-// デバッグの取得
-//--------------------------------------------------
-DEBUG GetDebug(void)
-{
-	return s_Debug;
-}
-
-//--------------------------------------------------
 // デバッグの表示
 //--------------------------------------------------
 static void DrawDebug(void)
@@ -489,92 +461,8 @@ static void DrawDebug(void)
 
 	/* ↓文字列の代入↓ */
 
-#ifdef _DEBUG
-
 	sprintf(&aStr[nLength], "FPS  : %3d\n\n", s_nCountFPS);
 	nLength = (int)strlen(&aStr[0]);
-
-#endif // !_DEBUG
-
-	sprintf(&aStr[nLength], "[ 操作説明 ]\n\n");
-	nLength = (int)strlen(&aStr[0]);
-
-	if (GetGame().bPause)
-	{
-		sprintf(&aStr[nLength], "ポーズ            [ F4 ]  :【 ON 】\n");
-	}
-	else
-	{
-		sprintf(&aStr[nLength], "ポーズ            [ F4 ]  :【 OFF 】\n");
-	}
-	nLength = (int)strlen(&aStr[0]);
-
-	if (GetGame().bWireframe)
-	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F5 ]  :【 ON 】\n");
-	}
-	else
-	{
-		sprintf(&aStr[nLength], "ワイヤーフレーム  [ F5 ]  :【 OFF 】\n");
-	}
-	nLength = (int)strlen(&aStr[0]);
-
-	sprintf(&aStr[nLength], "F2, F3キー                : 表示項目の変更\n");
-	nLength = (int)strlen(&aStr[0]);
-	sprintf(&aStr[nLength], "\n");
-	nLength = (int)strlen(&aStr[0]);
-
-	sprintf(&aStr[nLength], "( カメラ ⇔ モデル ⇔ メッシュ )\n");
-	nLength = (int)strlen(&aStr[0]);
-
-	switch (s_Debug)
-	{
-	case DEBUG_CAMERA:		// カメラ
-
-		sprintf(&aStr[nLength], "    ↑\n\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "<< カメラ操作 >>\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		break;
-
-	case DEBUG_PLAYER:		// プレイヤー
-
-		sprintf(&aStr[nLength], "              ↑\n\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "<< プレイヤー操作 >>\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		break;
-
-	case DEBUG_MESH:		// メッシュ
-
-		sprintf(&aStr[nLength], "                        ↑\n\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		sprintf(&aStr[nLength], "<< メッシュ操作 >>\n");
-		nLength = (int)strlen(&aStr[0]);
-		sprintf(&aStr[nLength], "\n");
-		nLength = (int)strlen(&aStr[0]);
-
-		break;
-
-	default:
-		assert(false);
-		break;
-	}
 
 	// テキストの描画
 	s_pFont->DrawText(NULL, &aStr[0], -1, &rect, DT_LEFT, D3DXCOLOR(0.25f, 0.75f, 1.0f, 1.0f));
