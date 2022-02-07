@@ -46,6 +46,7 @@ BILLBOARD_SET
 	TEXIDX = 0					# 0
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 0					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 0.0 20.0 30.0			# 位置
@@ -55,6 +56,7 @@ BILLBOARD_SET
 	TEXIDX = 1					# 10
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 0					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 300.0 20.0 30.0		# 位置
@@ -64,6 +66,7 @@ BILLBOARD_SET
 	TEXIDX = 2					# 20
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 0					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 600.0 20.0 30.0		# 位置
@@ -73,6 +76,7 @@ BILLBOARD_SET
 	TEXIDX = 3					# 30
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 900.0 20.0 30.0		# 位置
@@ -82,6 +86,7 @@ BILLBOARD_SET
 	TEXIDX = 4					# 40
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 1200.0 20.0 30.0		# 位置
@@ -91,6 +96,7 @@ BILLBOARD_SET
 	TEXIDX = 5					# 50
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 1500.0 20.0 30.0		# 位置
@@ -100,6 +106,7 @@ BILLBOARD_SET
 	TEXIDX = 6					# 60
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 1800.0 20.0 30.0		# 位置
@@ -109,6 +116,7 @@ BILLBOARD_SET
 	TEXIDX = 7					# 70
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 2100.0 20.0 30.0		# 位置
@@ -118,6 +126,7 @@ BILLBOARD_SET
 	TEXIDX = 8					# 80
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 2400.0 20.0 30.0		# 位置
@@ -127,6 +136,7 @@ BILLBOARD_SET
 	TEXIDX = 9					# 90
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = 2700.0 20.0 30.0		# 位置
@@ -136,6 +146,7 @@ BILLBOARD_SET
 	TEXIDX = 10					# -10
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 0					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -300.0 20.0 30.0		# 位置
@@ -145,6 +156,7 @@ BILLBOARD_SET
 	TEXIDX = 11					# -20
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -600.0 20.0 30.0		# 位置
@@ -154,6 +166,7 @@ BILLBOARD_SET
 	TEXIDX = 12					# -30
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -900.0 20.0 30.0		# 位置
@@ -163,6 +176,7 @@ BILLBOARD_SET
 	TEXIDX = 13					# -40
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -1200.0 20.0 30.0		# 位置
@@ -172,6 +186,7 @@ BILLBOARD_SET
 	TEXIDX = 14					# -50
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -1500.0 20.0 30.0		# 位置
@@ -181,6 +196,7 @@ BILLBOARD_SET
 	TEXIDX = 15					# -60
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -1800.0 20.0 30.0		# 位置
@@ -190,6 +206,7 @@ BILLBOARD_SET
 	TEXIDX = 16					# -70
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -2100.0 20.0 30.0		# 位置
@@ -199,6 +216,7 @@ BILLBOARD_SET
 	TEXIDX = 17					# -80
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -2400.0 20.0 30.0		# 位置
@@ -208,6 +226,7 @@ BILLBOARD_SET
 	TEXIDX = 18					# -90
 	YROT = 0					# Y回転をするかどうか
 	RESULT = 1					# リザルトで表示する
+	CAMERA = 0					# カメラが何番目か
 	WIDTH = 20.0				# 幅
 	HEIGHT = 20.0				# 高さ
 	POS = -2700.0 20.0 30.0		# 位置

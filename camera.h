@@ -37,9 +37,8 @@ typedef struct
 void InitCamera(void);
 void UninitCamera(void);
 void UpdateCamera(void);
-void DrawCamera(void);
-void SetCamera(void);
-Camera *GetCamera(void);
+void SetCamera(int nData);
+Camera *GetCamera(int nData);
 bool GetOverlap(void);
 
 #endif // !_CAMERA_H_

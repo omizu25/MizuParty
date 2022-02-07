@@ -16,13 +16,11 @@ typedef struct
 	D3DXVECTOR3				vtxMin;			// 最小値
 	D3DXVECTOR3				vtxMax;			// 最大値
 	D3DXVECTOR3				rot;			// 向き
-	D3DXVECTOR3				rotDest;		// 目的の向き
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
 	LPD3DXMESH				pMesh;			// メッシュ情報へのポインタ
 	LPD3DXBUFFER			pBuffMat;		// マテリアル情報へのポインタ
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
 	DWORD					nNumMat;		// マテリアル情報の数
-	float					fMove;			// 移動量
 	int						nIdxShadow;		// 使用している影の番号
 }Field;
 

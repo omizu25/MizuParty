@@ -25,7 +25,7 @@
 //--------------------------------------------------
 #define MAX_CAMERA			(2)				// カメラの最大数
 #define MAX_NEAR			(10.0f)			// ニアの最大値
-#define MAX_FAR				(1500.0f)		// ファーの最大
+#define MAX_FAR				(2500.0f)		// ファーの最大
 #define MAX_ROTATION		(0.035f)		// 回転の最大値
 #define MAX_DISTANCE		(50.0f)			// 距離の最大値
 #define MIN_DISTANCE		(0.0f)			// 距離の最小値
@@ -36,9 +36,8 @@
 #define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
 #define START_STOP_Y		(180.0f)		// Yの位置の最初の値
 #define START_STOP_Z		(-500.0f)		// Zの位置の最初の値
-#define START_SLOPE_X		(100.0f)		// Yの位置の最初の値
-#define START_SLOPE_Y		(100.0f)		// Yの位置の最初の値
-#define START_SLOPE_Z		(-700.0f)		// Zの位置の最初の値
+#define START_SLOPE_Y		(250.0f)		// Yの位置の最初の値
+#define START_SLOPE_Z		(-1300.0f)		// Zの位置の最初の値
 #define MOVE_Y				(5.0f)			// Yの移動量
 #define MOVE_Z				(-3.0f)			// Zの移動量
 #define STOP_POS_Y			(100.0f)		// Yの位置の止まる場所
@@ -62,6 +61,9 @@ static void Overlap(float fPosX);
 //--------------------------------------------------
 void InitCamera(void)
 {
+	// クリア
+	memset(s_camera, 0, sizeof(s_camera));
+
 	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x) * 0.75f;
 
 	switch (GetTitle())
@@ -111,10 +113,34 @@ void InitCamera(void)
 
 	s_camera[0].viewport.X = (DWORD)0.0f;
 	s_camera[0].viewport.Y = (DWORD)0.0f;
-	s_camera[0].viewport.Width = (DWORD)(SCREEN_WIDTH * 0.5f);
-	s_camera[0].viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.5f);
+	s_camera[0].viewport.Width = (DWORD)SCREEN_WIDTH;
+	s_camera[0].viewport.Height = (DWORD)SCREEN_HEIGHT;
 	s_camera[0].viewport.MinZ = 0.0f;
 	s_camera[0].viewport.MaxZ = 1.0f;
+
+	if (GetTitle() == MENU_SLOPE)
+	{
+		s_camera[1].posV = D3DXVECTOR3(GetField()->pos.x * 0.75f, 1400.0f, -1000.0f);
+		s_camera[1].posR = D3DXVECTOR3(GetField()->pos.x * 0.75f, START_STOP_Y, 0.0f);
+		s_camera[1].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		s_camera[1].posVDest = s_camera[1].posV;
+		s_camera[1].posRDest = s_camera[1].posR;
+		s_camera[1].vecU = D3DXVECTOR3(0.0f, 1.0f, 0.0f);		// 固定でいい
+		s_camera[1].rotDest = s_camera[1].rot;
+
+		fDisX = s_camera[1].posV.x - s_camera[1].posR.x;
+		fDisZ = s_camera[1].posV.z - s_camera[1].posR.z;
+
+		s_camera[1].fDistance = sqrtf((fDisX * fDisX) + (fDisZ * fDisZ));
+		s_camera[1].fDisPlayer = START_DISTANCE;
+
+		s_camera[1].viewport.X = (DWORD)0.0f;
+		s_camera[1].viewport.Y = (DWORD)(SCREEN_HEIGHT * 0.75f);
+		s_camera[1].viewport.Width = (DWORD)(SCREEN_WIDTH * 0.25f);
+		s_camera[1].viewport.Height = (DWORD)(SCREEN_HEIGHT * 0.25f);
+		s_camera[1].viewport.MinZ = 0.0f;
+		s_camera[1].viewport.MaxZ = 1.0f;
+	}
 
 	if (GetTitle() == MENU_WALKING)
 	{
@@ -218,89 +244,49 @@ void UpdateCamera(void)
 }
 
 //--------------------------------------------------
-// 描画
-//--------------------------------------------------
-void DrawCamera(void)
-{
-	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	// ビューポートの設定
-	pDevice->SetViewport(&s_camera[0].viewport);
-
-	// ライトを無効にする
-	pDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-
-	// αテストを有効にする
-	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, TRUE);
-	pDevice->SetRenderState(D3DRS_ALPHAREF, 0);
-	pDevice->SetRenderState(D3DRS_ALPHAFUNC, D3DCMP_GREATER);
-
-	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_ALWAYS);		// 必ず成功する
-	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE);
-
-	// ポリゴンの描画
-	pDevice->DrawPrimitive(
-		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-		0,							// 描画する最初の頂点インデックス
-		2);							// プリミティブ(ポリゴン)数
-
-	// テクスチャの解除
-	pDevice->SetTexture(0, NULL);
-
-	// ライトを有効に戻す
-	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-
-	// Zバッファの値を元に戻す
-	pDevice->SetRenderState(D3DRS_ZFUNC, D3DCMP_LESSEQUAL);		// 新規深度値 <= Zバッファ深度値 (初期設定)
-	pDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE);
-
-	// αテストを無効に戻す
-	pDevice->SetRenderState(D3DRS_ALPHATESTENABLE, FALSE);
-}
-
-//--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetCamera(void)
+void SetCamera(int nData)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	Camera *pCamara = &s_camera[nData];
+
 	// ビューマトリックスの初期化
-	D3DXMatrixIdentity(&s_camera[0].mtxView);
+	D3DXMatrixIdentity(&pCamara->mtxView);
 
 	// ビューマトリックスの作成
 	D3DXMatrixLookAtLH(
-		&s_camera[0].mtxView,
-		&s_camera[0].posV,
-		&s_camera[0].posR,
-		&s_camera[0].vecU);
+		&pCamara->mtxView,
+		&pCamara->posV,
+		&pCamara->posR,
+		&pCamara->vecU);
 
 	// ビューマトリックスの設定
-	pDevice->SetTransform(D3DTS_VIEW, &s_camera[0].mtxView);
+	pDevice->SetTransform(D3DTS_VIEW, &pCamara->mtxView);
 
 	// プロジェクションマトリックスの初期化
-	D3DXMatrixIdentity(&s_camera[0].mtxProjection);
+	D3DXMatrixIdentity(&pCamara->mtxProjection);
 
 	// プロジェクションマトリックスの作成
 	D3DXMatrixPerspectiveFovLH(
-		&s_camera[0].mtxProjection,
+		&pCamara->mtxProjection,
 		D3DXToRadian(45.0f),
 		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
 		MAX_NEAR,
 		MAX_FAR);
 
 	// プロジェクションマトリックスの設定
-	pDevice->SetTransform(D3DTS_PROJECTION, &s_camera[0].mtxProjection);
+	pDevice->SetTransform(D3DTS_PROJECTION, &pCamara->mtxProjection);
 }
 
 //--------------------------------------------------
 // 取得
 //--------------------------------------------------
-Camera *GetCamera(void)
+Camera *GetCamera(int nData)
 {
-	return &s_camera[0];
+	return &s_camera[nData];
 }
 
 //--------------------------------------------------

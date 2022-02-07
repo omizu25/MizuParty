@@ -233,13 +233,13 @@ void InstallationWall(void)
 
 	float fWidth = pMeshField->fWidth;
 	float fHeight = pMeshField->fWidth;
-	//float fDepth = pMeshField->fDepth;
+	float fDepth = pMeshField->fDepth;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(fWidth, 0.0f, 0.0f);
 	D3DXVECTOR3 rot = D3DXVECTOR3(0.0f, (-D3DX_PI * 0.5f), 0.0f);
 
 	// •Ç‚Ìİ’è
-	SetWall(pos,rot , fWidth, fHeight, (float)pNumber->nHorizontal, true);
+	SetWall(pos,rot , fDepth, fHeight, (float)pNumber->nHorizontal, true);
 
 	/*« “à‘¤ «*/
 

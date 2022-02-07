@@ -513,29 +513,23 @@ void UpdateGame(void)
 //--------------------------------------------------
 void DrawGame(void)
 {
-	// カメラの設定
-	SetCamera();
+	// デバイスの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	int nMax = 0;
 
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
 	case MENU_STOP:			// 止める
 
-		// ポリゴンの描画
-		DrawPolygon();
+		nMax = 1;
 
 		break;
 
 	case MENU_SLOPE:		// 坂
 
-		// フィールドの描画
-		DrawField();
-
-		// メッシュフィールドの描画
-		DrawMeshField();
-
-		// 壁の描画
-		DrawWall();
+		nMax = 2;
 
 		break;
 
@@ -544,86 +538,78 @@ void DrawGame(void)
 		break;
 	}
 
-	// メッシュ空の描画
-	//DrawMeshSky();
+	D3DVIEWPORT9 viewport;
+	pDevice->GetViewport(&viewport);
 
-	// モデルの描画
-	DrawModel();
-
-	// プレイヤーの描画
-	DrawPlayer();
-
-	// 線の描画
-	//DrawLine();
-
-	// 影の描画
-	DrawShadow();
-
-	// メッシュ球の描画
-	//DrawMeshSphere();
-
-	// メッシュ円柱の描画
-	//DrawMeshCylinder();
-
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
-	case MENU_SLOPE:		// 坂
-
-		// ビルボードの描画
-		DrawBillboard(false);
-
-		break;
-
-	case MENU_STOP:			// 止める
-
-		/* 処理なし */
-
-		break;
-
-	default:
-		assert(false);
-		break;
-	}
-
-	// エフェクトの描画
-	DrawEffect();
-
-	// ターゲットの描画
-	DrawTarget();
-
-	if (s_game.gameState != GAMESTATE_START)
+	for (int nCntCamera = 0; nCntCamera < nMax; nCntCamera++)
 	{
-		// 数の描画
-		DrawNumber(USE_GAME);
+		// ビューボードのクリア
+		pDevice->SetViewport(&GetCamera(nCntCamera)->viewport);
 
-		// ルールの描画
-		DrawRule();
-	}
+		// 画面クリア(バックバッファ＆Zバッファのクリア)
+		pDevice->Clear(0, NULL,
+			(D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER),
+			D3DCOLOR_RGBA(0, 0, 0, 0), 1.0f, 0);
 
-	if (s_game.gameState == GAMESTATE_START)
-	{
-		// 数の描画
-		DrawNumber(USE_START);
-	}
+		// カメラの設定
+		SetCamera(nCntCamera);
 
-	if (s_game.gameState == GAMESTATE_NORMAL ||
-		s_game.gameState == GAMESTATE_COUNTDOWN ||
-		s_game.gameState == GAMESTATE_END)
-	{
-		// 数の描画
-		DrawNumber(USE_GAME_ONLY);
-	}
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_WALKING:		// ウォーキング
+		case MENU_STOP:			// 止める
 
-	if (s_game.gameState == GAMESTATE_RESULT)
-	{
+			// ポリゴンの描画
+			DrawPolygon();
+
+			break;
+
+		case MENU_SLOPE:		// 坂
+
+			// フィールドの描画
+			DrawField();
+
+			// メッシュフィールドの描画
+			DrawMeshField();
+
+			// 壁の描画
+			DrawWall();
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		// メッシュ空の描画
+		//DrawMeshSky();
+
+		// モデルの描画
+		DrawModel();
+
+		// プレイヤーの描画
+		DrawPlayer();
+
+		// 線の描画
+		//DrawLine();
+
+		// 影の描画
+		DrawShadow();
+
+		// メッシュ球の描画
+		//DrawMeshSphere();
+
+		// メッシュ円柱の描画
+		//DrawMeshCylinder();
+
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
 		case MENU_SLOPE:		// 坂
 
 			// ビルボードの描画
-			DrawBillboard(true);
+			DrawBillboard(false);
 
 			break;
 
@@ -638,18 +624,74 @@ void DrawGame(void)
 			break;
 		}
 
-		if (GetOverlap())
-		{// 重なった
-			// リザルトの描画
-			DrawResult();
+		// エフェクトの描画
+		DrawEffect();
 
+		// ターゲットの描画
+		DrawTarget();
+
+		if (s_game.gameState != GAMESTATE_START)
+		{
 			// 数の描画
-			DrawNumber(USE_RESULT);
+			DrawNumber(USE_GAME);
+
+			// ルールの描画
+			DrawRule();
 		}
+
+		if (s_game.gameState == GAMESTATE_START)
+		{
+			// 数の描画
+			DrawNumber(USE_START);
+		}
+
+		if (s_game.gameState == GAMESTATE_NORMAL ||
+			s_game.gameState == GAMESTATE_COUNTDOWN ||
+			s_game.gameState == GAMESTATE_END)
+		{
+			// 数の描画
+			DrawNumber(USE_GAME_ONLY);
+		}
+
+		if (s_game.gameState == GAMESTATE_RESULT)
+		{
+			switch (GetTitle())
+			{// どのゲーム？
+			case MENU_WALKING:		// ウォーキング
+			case MENU_SLOPE:		// 坂
+
+				// ビルボードの描画
+				DrawBillboard(true);
+
+				break;
+
+			case MENU_STOP:			// 止める
+
+				/* 処理なし */
+
+				break;
+
+			default:
+				assert(false);
+				break;
+			}
+
+			if (GetOverlap())
+			{// 重なった
+				// リザルトの描画
+				DrawResult();
+
+				// 数の描画
+				DrawNumber(USE_RESULT);
+			}
+		}
+
+		//カウントダウンの描画
+		DrawCountdown();
 	}
 
-	//カウントダウンの描画
-	DrawCountdown();
+	// ビューボードのクリア
+	pDevice->SetViewport(&viewport);
 }
 
 //--------------------------------------------------

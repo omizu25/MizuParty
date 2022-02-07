@@ -26,8 +26,8 @@
 #define MAX_TEXTURE			(256)			// テクスチャの最大数
 #define DO_NOT_ROT_Y		(0)				// Y軸回転をしない数値
 #define DO_NOT_RESULT		(0)				// リザルトで表示しない
-#define SLOPE_WIDTH			(100.0f)		// 幅
-#define SLOPE_HEIGHT		(300.0f)		// 高さ
+#define SLOPE_WIDTH			(250.0f)		// 幅
+#define SLOPE_HEIGHT		(600.0f)		// 高さ
 
 //--------------------------------------------------
 // 構造体
@@ -45,6 +45,7 @@ typedef struct
 	bool					bUse;			// 使用しているかどうか
 	bool					bYRot;			// Y軸回転をするかどうか
 	bool					bResult;		// リザルトだけで表示する
+	bool					bCamera;		// カメラ何番目か
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Billboard;
 
@@ -58,6 +59,7 @@ typedef struct
 	int						nTexIdx;		// テクスチャ番号
 	int						nYRot;			// Y軸回転をするかどうか
 	int						nResult;		// リザルトで表示する
+	int						nCamera;		// カメラ何番目か
 	LPDIRECT3DTEXTURE9		pTexture;		// テクスチャ
 }Text;
 
@@ -157,7 +159,7 @@ void UpdateBillboard(void)
 //--------------------------------------------------
 // 描画
 //--------------------------------------------------
-void DrawBillboard(bool bResult)
+void DrawBillboard(bool bResult, bool bCamera)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -181,7 +183,7 @@ void DrawBillboard(bool bResult)
 	{
 		Billboard *pBillboard = &s_billboard[i];
 
-		if (!pBillboard->bUse || pBillboard->bResult != bResult)
+		if (!pBillboard->bUse || pBillboard->bResult != bResult || pBillboard->bCamera != bCamera)
 		{//使用されていない
 			continue;
 		}
@@ -247,7 +249,7 @@ void DrawBillboard(bool bResult)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, bool bResult, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -269,6 +271,7 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 		pBillboard->pTexture = *pTexture;
 		pBillboard->bYRot = bYRot;
 		pBillboard->bResult = bResult;
+		pBillboard->bCamera = bCamera;
 		pBillboard->bUse = true;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
@@ -448,6 +451,11 @@ static void Load(FILE *pFile)
 						fscanf(pFile, "%s", &aRead);
 						fscanf(pFile, "%d", &pText[nText].nResult);
 					}
+					else if (strcmp(&aRead[0], "CAMERA") == 0)
+					{// カメラが何番目か
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%d", &pText[nText].nCamera);
+					}
 					else if (strcmp(&aRead[0], "WIDTH") == 0)
 					{// 幅
 						fscanf(pFile, "%s", &aRead);
@@ -479,6 +487,7 @@ static void Load(FILE *pFile)
 
 			bool bYRot = true;
 			bool bResult = true;
+			bool bCamera = true;
 
 			if (pText[i].nYRot == DO_NOT_ROT_Y)
 			{// Y軸回転をしない数値の時
@@ -490,8 +499,13 @@ static void Load(FILE *pFile)
 				bResult = false;
 			}
 
+			if (pText[i].nCamera == 0)
+			{// Y軸回転をしない数値の時
+				bCamera = false;
+			}
+
 			// 設定
-			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, bResult, &pText[i].pTexture);
+			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
 		}
 
 		delete[] pText;
@@ -527,5 +541,8 @@ void InitBillboardSlope(void)
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, false, false, &s_pTextureSlope);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+
+	// ビルボードの設定
+	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureSlope);
 }

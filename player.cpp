@@ -16,6 +16,7 @@
 #include "input.h"
 #include "mesh_field.h"
 #include "model.h"
+#include "particle.h"
 #include "player.h"
 #include "result.h"
 #include "setup.h"
@@ -35,7 +36,7 @@
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
 #define MAX_BLEND			(30)			// ブレンドの最大値
-#define SLOPE_LIMIT			(40.0f)			// 坂の移動制限
+#define SLOPE_LIMIT			(60.0f)			// 坂の移動制限
 
 //--------------------------------------------------
 // 構造体
@@ -64,6 +65,7 @@ static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
 static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
+static bool			s_bSlopeUse;			// 坂の時に使用するかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -114,6 +116,7 @@ void InitPlayer(void)
 	s_bMotionLoop = false;
 	s_fSlopeMove = 0.0f;
 	s_nEndTime = 0;
+	s_bSlopeUse = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -316,6 +319,7 @@ void UpdatePlayer(void)
 				}
 				else
 				{
+					s_bSlopeUse = false;
 					if (s_nEndTime >= 120)
 					{
 						pPlayer->pos.y += -10.8f;
@@ -332,7 +336,6 @@ void UpdatePlayer(void)
 							// リザルトの設定
 							SetResult(RESULT_GAMEOVER);
 						}
-
 
 						// リザルトの初期化
 						InitResult();
@@ -363,20 +366,26 @@ void UpdatePlayer(void)
 		break;
 	}
 
-	float fAngleY = pPlayer->rotDest.y - pPlayer->rot.y;
-	float fAngleX = pPlayer->rotDest.x - pPlayer->rot.x;
+	D3DXVECTOR3 angle;
 
 	// 角度の正規化
-	NormalizeRot(&fAngleY);
-	NormalizeRot(&fAngleX);
+	NormalizeRot(&pPlayer->rotDest.x);
+	NormalizeRot(&pPlayer->rotDest.y);
 
+	angle.x = pPlayer->rotDest.x - pPlayer->rot.x;
+	angle.y = pPlayer->rotDest.y - pPlayer->rot.y;
+
+	// 角度の正規化
+	NormalizeRot(&angle.x);
+	NormalizeRot(&angle.y);
+	
 	//慣性・向きを更新 (減衰させる)
-	pPlayer->rot.y += fAngleY * MAX_ATTENUATION;
-	pPlayer->rot.x += fAngleX * MAX_ATTENUATION;
+	pPlayer->rot.x += angle.x * MAX_ATTENUATION;
+	pPlayer->rot.y += angle.y * MAX_ATTENUATION;
 
 	// 角度の正規化
-	NormalizeRot(&pPlayer->rot.y);
 	NormalizeRot(&pPlayer->rot.x);
+	NormalizeRot(&pPlayer->rot.y);
 
 	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
 
@@ -398,9 +407,27 @@ void UpdatePlayer(void)
 		break;
 
 	case MENU_SLOPE:		// 坂
+		
+		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
+		{// フィールドとの当たり判定
+			//pPlayer->pos.y += 30.0f;
+			if (GetGame().gameState == GAMESTATE_END &&
+				!CollisionMeshField(&pPlayer->pos))
+			{
+				if (s_bSlopeUse)
+				{
+					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
+					pPlayer->rot.x += -D3DX_PI * 0.25f;
+					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
+					pPlayer->rot.y += -D3DX_PI * 0.25f;
+				}
+			}
 
-		// フィールドとの当たり判定
-		CollisionField(&pPlayer->pos, &pPlayer->posOld, size);
+			if (pPlayer->pos.y <= -300.0f)
+			{
+				s_bSlopeUse = false;
+			}
+		}
 
 		break;
 
