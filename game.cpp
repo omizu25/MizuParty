@@ -10,7 +10,6 @@
 //--------------------------------------------------
 #include "main.h"
 #include "billboard.h"
-#include "bullet.h"
 #include "camera.h"
 #include "countdown.h"
 #include "effect.h"
@@ -19,11 +18,7 @@
 #include "game.h"
 #include "input.h"
 #include "light.h"
-#include "line.h"
-#include "mesh_cylinder.h"
 #include "mesh_field.h"
-#include "mesh_sky.h"
-#include "mesh_sphere.h"
 #include "model.h"
 #include "number.h"
 #include "player.h"
@@ -83,24 +78,6 @@ void InitGame(void)
 		break;
 	}
 
-	// メッシュ円柱の初期化
-	//InitMeshCylinder();
-
-	// メッシュ円柱の設定
-	//SetMeshCylinder();
-
-	// メッシュ球の初期化
-	//InitMeshSphere();
-
-	// メッシュ球の設定
-	//SetMeshSphere();
-
-	// メッシュ空の初期化
-	//InitMeshSky();
-
-	// メッシュ空の設定
-	//SetMeshSky();
-
 	// パーティクルの初期化
 	InitParticle();
 
@@ -109,9 +86,6 @@ void InitGame(void)
 
 	// 影の初期化
 	InitShadow();
-
-	// 線の初期化
-	//InitLine();
 
 	// モデルの初期化
 	InitModel();
@@ -151,9 +125,6 @@ void InitGame(void)
 		assert(false);
 		break;
 	}
-
-	// 弾の初期化
-	//InitBullet();
 
 	// カメラの初期化
 	InitCamera();
@@ -201,15 +172,6 @@ void UninitGame(void)
 	// メッシュフィールドの終了
 	UninitMeshField();
 
-	// メッシュ円柱の終了
-	//UninitMeshCylinder();
-
-	// メッシュ球の終了
-	//UninitMeshSphere();
-
-	// メッシュ空の終了
-	//UninitMeshSky();
-
 	// 壁の終了
 	UninitWall();
 
@@ -222,17 +184,11 @@ void UninitGame(void)
 	// 影の終了
 	UninitShadow();
 
-	// 線の終了
-	//UninitLine();
-
 	// モデルの終了
 	UninitModel();
 
 	// プレイヤーの終了
 	UninitPlayer();
-
-	// 弾の終了
-	//UninitBullet();
 
 	// カメラの終了
 	UninitCamera();
@@ -437,6 +393,7 @@ void UpdateGame(void)
 		// ビルボードの更新
 		UpdateBillboard();
 	}
+
 	// パーティクルの更新
 	UpdateParticle();
 
@@ -563,26 +520,14 @@ void DrawGame(void)
 			break;
 		}
 
-		// メッシュ空の描画
-		//DrawMeshSky();
-
 		// モデルの描画
 		DrawModel();
 
 		// プレイヤーの描画
 		DrawPlayer();
 
-		// 線の描画
-		//DrawLine();
-
 		// 影の描画
 		DrawShadow();
-
-		// メッシュ球の描画
-		//DrawMeshSphere();
-
-		// メッシュ円柱の描画
-		//DrawMeshCylinder();
 
 		switch (GetTitle())
 		{// どのゲーム？

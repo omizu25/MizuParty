@@ -74,7 +74,11 @@ static void System(void);
 static void LoadNew(int nCnt);
 static void LoadParts(int nCnt);
 static void LoadMotion(int nCnt);
+static void UpdateTitle(Player *pPlayer);
+static void UpdateGame(Player *pPlayer);
+static void TitleMove(Player *pPlayer);
 static void Move(Player *pPlayer);
+static void Rot(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
 static void MotionBlend(Player *pPlayer);
@@ -270,262 +274,19 @@ void UpdatePlayer(void)
 {
 	Player *pPlayer = &s_player[s_nSelectPlayer];
 
-	pPlayer->nStopTime++;
-
-	// 前回の位置を保存
-	pPlayer->posOld = pPlayer->pos;
-
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
-	case MENU_SLOPE:		// 坂
-
-		switch (GetGame())
-		{
-		case GAMESTATE_NONE:			// 何もしていない状態
-		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
-		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
-		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
-
-			/* 処理なし */
-
-			break;
-
-		case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
-
-			// 移動
-			Move(pPlayer);
-
-			break;
-
-		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
-
-			if (GetTitle() == MENU_WALKING)
-			{
-				pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-			}
-			else if (GetTitle() == MENU_SLOPE)
-			{
-				s_nEndTime++;
-
-				if (s_fSlopeMove != 0.0f)
-				{
-					if (s_nEndTime >= 120)
-					{
-						pPlayer->pos.x += s_fSlopeMove;
-						pPlayer->pos.y += -10.8f;
-					}
-				}
-				else
-				{
-					pPlayer->pos.y += -10.8f;
-
-					if (s_nEndTime >= 120)
-					{
-						if (CollisionField(&pPlayer->pos, &pPlayer->posOld))
-						{
-							// リザルトの設定
-							SetResult(RESULT_CLEAR);
-						}
-						else
-						{
-							// リザルトの設定
-							SetResult(RESULT_GAMEOVER);
-						}
-
-						pPlayer->pos.y += -10.8f;
-
-						// リザルトの初期化
-						InitResult();
-
-						// ゲームの設定
-						SetGameState(GAMESTATE_RESULT);
-					}
-				}
-			}
-
-			break;
-
-		default:
-			assert(false);
-			break;
-		}
-
-		break;
-
-	case MENU_STOP:			// 止める
-
-		/* 移動しない */
-
-		break;
-
-	default:
-		assert(false);
-		break;
-	}
-
-	D3DXVECTOR3 angle;
-
-	// 角度の正規化
-	NormalizeRot(&pPlayer->rotDest.x);
-	NormalizeRot(&pPlayer->rotDest.y);
-
-	angle.x = pPlayer->rotDest.x - pPlayer->rot.x;
-	angle.y = pPlayer->rotDest.y - pPlayer->rot.y;
-
-	// 角度の正規化
-	NormalizeRot(&angle.x);
-	NormalizeRot(&angle.y);
-	
-	//慣性・向きを更新 (減衰させる)
-	pPlayer->rot.x += angle.x * MAX_ATTENUATION;
-	pPlayer->rot.y += angle.y * MAX_ATTENUATION;
-
-	// 角度の正規化
-	NormalizeRot(&pPlayer->rot.x);
-	NormalizeRot(&pPlayer->rot.y);
-
-	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
-
-	if (!GetCollision())
+	switch (GetMode())
 	{
-		// 止めるの当たり判定
-		CollisionStop(&pPlayer->pos, size);
-	}
+	case MODE_TITLE:		// タイトル
 
-	// 壁との当たり判定
-	//CollisionWall(&pPlayer->pos, &pPlayer->posOld, size);
-
-	switch (GetTitle())
-	{
-	case MENU_WALKING:		// ウォーキング
-
-		/* 処理なし */
+		// タイトルの時の更新
+		UpdateTitle(pPlayer);
 
 		break;
 
-	case MENU_SLOPE:		// 坂
-		
-		if (GetGame() == GAMESTATE_RESULT)
-		{
-			pPlayer->pos.y += -10.8f;
-		}
+	case MODE_GAME:			// ゲーム
 
-		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld))
-		{// フィールドとの当たり判定
-			if (!CollisionMeshField(&pPlayer->pos))
-			{
-				if (GetGame() == GAMESTATE_END ||
-					GetGame() == GAMESTATE_RESULT)
-				{
-					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
-					pPlayer->rot.x += -D3DX_PI * 0.25f;
-					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
-					pPlayer->rot.y += -D3DX_PI * 0.25f;
-				}
-			}
-		}
-
-		break;
-
-	case MENU_STOP:			// 止める
-
-		// モデルとの当たり判定
-		CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
-
-		break;
-
-	default:
-		assert(false);
-		break;
-	}
-
-	if (GetTitle() == MENU_SLOPE)
-	{
-		// メッシュフィールドとの当たり判定
-		if (CollisionMeshField(&pPlayer->pos))
-		{// 当たってる
-			if (GetGame() != GAMESTATE_END)
-			{
-				if (pPlayer->rot.y >= 0.0f)
-				{// 左向き
-					pPlayer->rotDest.x = D3DX_PI * 0.1f;
-					pPlayer->rot.x = D3DX_PI * 0.1f;
-				}
-				else if (pPlayer->rot.y <= 0.0f)
-				{// 右向き
-					pPlayer->rotDest.x = -D3DX_PI * 0.1f;
-					pPlayer->rot.x = -D3DX_PI * 0.1f;
-				}
-			}
-			else if (GetGame() == GAMESTATE_END)
-			{
-				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-				pPlayer->rotDest.x = -D3DX_PI * 0.1f;
-				pPlayer->rot.x = -D3DX_PI * 0.1f;
-
-				if (s_nEndTime >= 120)
-				{
-					s_fSlopeMove += 0.1f;
-				}
-			}
-		}
-		else
-		{// 当たってない
-			pPlayer->rotDest.x = 0.0f;
-
-			if (s_nEndTime >= 120)
-			{
-				float fField = GetField()->pos.x + GetField()->vtxMax.x;
-
-				if (pPlayer->pos.x + SLOPE_LIMIT <= fField)
-				{
-					s_fSlopeMove -= 0.1f;
-
-					if (s_fSlopeMove <= 0.0f)
-					{
-						s_fSlopeMove = 0.0f;
-
-						s_nEndTime = 0;
-					}
-				}
-				else
-				{
-					if (pPlayer->pos.y < -SLOPE_RESULT && pPlayer->posOld.y >= -SLOPE_RESULT)
-					{
-						// リザルトの設定
-						SetResult(RESULT_GAMEOVER);
-
-						// リザルトの初期化
-						InitResult();
-
-						// ゲームの設定
-						SetGameState(GAMESTATE_RESULT);
-					}
-				}
-			}
-		}
-	}
-
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
-	case MENU_SLOPE:		// 坂
-
-		// モーション
-		Motion(pPlayer);
-
-		break;
-
-	case MENU_STOP:			// 止める
-
-		if (s_bMotionBlend)
-		{// モーションブレンド中
-			s_nFrame++;
-
-			// モーションブレンド
-			MotionBlend(pPlayer);
-		}
+		// ゲームの時の更新
+		UpdateGame(pPlayer);
 
 		break;
 
@@ -1149,6 +910,342 @@ static void LoadMotion(int nCnt)
 }
 
 //--------------------------------------------------
+// タイトルの時の更新
+//--------------------------------------------------
+static void UpdateTitle(Player *pPlayer)
+{
+	// 移動
+	TitleMove(pPlayer);
+
+	// 回転
+	Rot(pPlayer);
+
+	// モーション
+	Motion(pPlayer);
+}
+
+//--------------------------------------------------
+// ゲームの時の更新
+//--------------------------------------------------
+static void UpdateGame(Player *pPlayer)
+{
+	pPlayer->nStopTime++;
+
+	// 前回の位置を保存
+	pPlayer->posOld = pPlayer->pos;
+
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_SLOPE:		// 坂
+
+		switch (GetGame())
+		{
+		case GAMESTATE_NONE:			// 何もしていない状態
+		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
+		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+
+			/* 処理なし */
+
+			break;
+
+		case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
+
+			// 移動
+			Move(pPlayer);
+
+			break;
+
+		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
+
+			if (GetTitle() == MENU_WALKING)
+			{
+				pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+			}
+			else if (GetTitle() == MENU_SLOPE)
+			{
+				s_nEndTime++;
+
+				if (s_fSlopeMove != 0.0f)
+				{
+					if (s_nEndTime >= 120)
+					{
+						pPlayer->pos.x += s_fSlopeMove;
+						pPlayer->pos.y += -10.8f;
+					}
+				}
+				else
+				{
+					pPlayer->pos.y += -10.8f;
+
+					if (s_nEndTime >= 120)
+					{
+						if (CollisionField(&pPlayer->pos, &pPlayer->posOld))
+						{
+							// リザルトの設定
+							SetResult(RESULT_CLEAR);
+						}
+						else
+						{
+							// リザルトの設定
+							SetResult(RESULT_GAMEOVER);
+						}
+
+						pPlayer->pos.y += -10.8f;
+
+						// リザルトの初期化
+						InitResult();
+
+						// ゲームの設定
+						SetGameState(GAMESTATE_RESULT);
+					}
+				}
+			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		/* 移動しない */
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	// 回転
+	Rot(pPlayer);
+
+	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
+
+	if (!GetCollision())
+	{
+		// 止めるの当たり判定
+		CollisionStop(&pPlayer->pos, size);
+	}
+
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+
+		/* 処理なし */
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		if (GetGame() == GAMESTATE_RESULT)
+		{
+			pPlayer->pos.y += -10.8f;
+		}
+
+		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld))
+		{// フィールドとの当たり判定
+			if (!CollisionMeshField(&pPlayer->pos))
+			{
+				if (GetGame() == GAMESTATE_END ||
+					GetGame() == GAMESTATE_RESULT)
+				{
+					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
+					pPlayer->rot.x += -D3DX_PI * 0.25f;
+					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
+					pPlayer->rot.y += -D3DX_PI * 0.25f;
+				}
+			}
+		}
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		// モデルとの当たり判定
+		CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	if (GetTitle() == MENU_SLOPE)
+	{
+		// メッシュフィールドとの当たり判定
+		if (CollisionMeshField(&pPlayer->pos))
+		{// 当たってる
+			if (GetGame() != GAMESTATE_END)
+			{
+				if (pPlayer->rot.y >= 0.0f)
+				{// 左向き
+					pPlayer->rotDest.x = D3DX_PI * 0.1f;
+					pPlayer->rot.x = D3DX_PI * 0.1f;
+				}
+				else if (pPlayer->rot.y <= 0.0f)
+				{// 右向き
+					pPlayer->rotDest.x = -D3DX_PI * 0.1f;
+					pPlayer->rot.x = -D3DX_PI * 0.1f;
+				}
+			}
+			else if (GetGame() == GAMESTATE_END)
+			{
+				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+				pPlayer->rotDest.x = -D3DX_PI * 0.1f;
+				pPlayer->rot.x = -D3DX_PI * 0.1f;
+
+				if (s_nEndTime >= 120)
+				{
+					s_fSlopeMove += 0.1f;
+				}
+			}
+		}
+		else
+		{// 当たってない
+			pPlayer->rotDest.x = 0.0f;
+
+			if (s_nEndTime >= 120)
+			{
+				float fField = GetField()->pos.x + GetField()->vtxMax.x;
+
+				if (pPlayer->pos.x + SLOPE_LIMIT <= fField)
+				{
+					s_fSlopeMove -= 0.1f;
+
+					if (s_fSlopeMove <= 0.0f)
+					{
+						s_fSlopeMove = 0.0f;
+
+						s_nEndTime = 0;
+					}
+				}
+				else
+				{
+					if (pPlayer->pos.y < -SLOPE_RESULT && pPlayer->posOld.y >= -SLOPE_RESULT)
+					{
+						// リザルトの設定
+						SetResult(RESULT_GAMEOVER);
+
+						// リザルトの初期化
+						InitResult();
+
+						// ゲームの設定
+						SetGameState(GAMESTATE_RESULT);
+					}
+				}
+			}
+		}
+	}
+
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_SLOPE:		// 坂
+
+		// モーション
+		Motion(pPlayer);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		if (s_bMotionBlend)
+		{// モーションブレンド中
+			s_nFrame++;
+
+			// モーションブレンド
+			MotionBlend(pPlayer);
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// タイトルの時の移動
+//--------------------------------------------------
+static void TitleMove(Player *pPlayer)
+{
+	float fRot = 0.0f;
+
+	/* ↓モデルの移動↓ */
+
+	if (GetKeyboardPress(DIK_A))
+	{// ←キーが押された
+		if (GetKeyboardPress(DIK_W))
+		{// ↑キーが押された
+			fRot = -D3DX_PI * 0.25f;
+
+			pPlayer->rotDest.y = D3DX_PI * 0.75f;
+		}
+		else if (GetKeyboardPress(DIK_S))
+		{// ↓キーが押された
+			fRot = -D3DX_PI * 0.75f;
+
+			pPlayer->rotDest.y = D3DX_PI * 0.25f;
+		}
+		else
+		{
+			fRot = -D3DX_PI * 0.5f;
+
+			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+		}
+	}
+	else if (GetKeyboardPress(DIK_D))
+	{// →キーが押された
+		if (GetKeyboardPress(DIK_W))
+		{// ↑キーが押された
+			fRot = D3DX_PI * 0.25f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.75f;
+		}
+		else if (GetKeyboardPress(DIK_S))
+		{// ↓キーが押された
+			fRot = D3DX_PI * 0.75f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.25f;
+		}
+		else
+		{
+			fRot = D3DX_PI * 0.5f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+		}
+	}
+	else if (GetKeyboardPress(DIK_W))
+	{// ↑キーが押された
+		fRot = 0.0f;
+
+		pPlayer->rotDest.y = D3DX_PI;
+	}
+	else if (GetKeyboardPress(DIK_S))
+	{// ↓キーが押された
+		fRot = D3DX_PI;
+
+		pPlayer->rotDest.y = 0.0f;
+	}
+
+	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
+		GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
+	{// ←, →, ↑, ↓キーが押された
+		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
+		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
+	}
+}
+
+//--------------------------------------------------
 // 移動
 //--------------------------------------------------
 static void Move(Player *pPlayer)
@@ -1192,37 +1289,86 @@ static void Move(Player *pPlayer)
 }
 
 //--------------------------------------------------
+// 回転
+//--------------------------------------------------
+static void Rot(Player *pPlayer)
+{
+	D3DXVECTOR3 angle;
+
+	// 角度の正規化
+	NormalizeRot(&pPlayer->rotDest.x);
+	NormalizeRot(&pPlayer->rotDest.y);
+
+	angle.x = pPlayer->rotDest.x - pPlayer->rot.x;
+	angle.y = pPlayer->rotDest.y - pPlayer->rot.y;
+
+	// 角度の正規化
+	NormalizeRot(&angle.x);
+	NormalizeRot(&angle.y);
+
+	//慣性・向きを更新 (減衰させる)
+	pPlayer->rot.x += angle.x * MAX_ATTENUATION;
+	pPlayer->rot.y += angle.y * MAX_ATTENUATION;
+
+	// 角度の正規化
+	NormalizeRot(&pPlayer->rot.x);
+	NormalizeRot(&pPlayer->rot.y);
+}
+
+//--------------------------------------------------
 // モーション
 //--------------------------------------------------
 static void Motion(Player * pPlayer)
 {
 	s_nFrame++;
 
-	if (GetGame() == GAMESTATE_NORMAL)
-	{// 通常状態 (ゲーム進行中)
-		switch (GetTitle())
-		{// どのゲーム？
-		case MENU_WALKING:		// ウォーキング
-		case MENU_SLOPE:		// 坂
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
 
-			if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
-			{// ←, →, ↑, ↓キーが押された
-				// 次のモーション
-				NextMotion(MOTION_MOVE);
-			}
-
-			break;
-
-		case MENU_STOP:			// 止める
-
-			/* 処理なし */
-
-			break;
-
-		default:
-			assert(false);
-			break;
+		if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
+			GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
+		{// ←, →, ↑, ↓キーが押された
+			// 次のモーション
+			NextMotion(MOTION_MOVE);
 		}
+
+		break;
+
+	case MODE_GAME:			// ゲーム
+
+		if (GetGame() == GAMESTATE_NORMAL)
+		{// 通常状態 (ゲーム進行中)
+			switch (GetTitle())
+			{// どのゲーム？
+			case MENU_WALKING:		// ウォーキング
+			case MENU_SLOPE:		// 坂
+
+				if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
+				{// ←, →, ↑, ↓キーが押された
+					// 次のモーション
+					NextMotion(MOTION_MOVE);
+				}
+
+				break;
+
+			case MENU_STOP:			// 止める
+
+				/* 処理なし */
+
+				break;
+
+			default:
+				assert(false);
+				break;
+			}
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 
 	if (s_bMotionBlend)
@@ -1240,13 +1386,33 @@ static void Motion(Player * pPlayer)
 			s_bMotionLoop = false;
 		}
 
-		if (GetGame() == GAMESTATE_NORMAL)
-		{// 通常状態 (ゲーム進行中)
+		switch (GetMode())
+		{
+		case MODE_TITLE:		// タイトル
+
 			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
 				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 			{// ←, →, ↑, ↓キーが押された
 				s_bMotionLoop = false;
 			}
+
+			break;
+
+		case MODE_GAME:			// ゲーム
+
+			if (GetGame() == GAMESTATE_NORMAL)
+			{// 通常状態 (ゲーム進行中)
+				if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
+				{// ←, →, ↑, ↓キーが押された
+					s_bMotionLoop = false;
+				}
+			}
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 
 		if (s_bMotionLoop)
