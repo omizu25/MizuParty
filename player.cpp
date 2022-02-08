@@ -322,9 +322,7 @@ void UpdatePlayer(void)
 
 					if (s_nEndTime >= 120)
 					{
-						D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
-
-						if (CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
+						if (CollisionField(&pPlayer->pos, &pPlayer->posOld))
 						{
 							// リザルトの設定
 							SetResult(RESULT_CLEAR);
@@ -413,7 +411,7 @@ void UpdatePlayer(void)
 			pPlayer->pos.y += -10.8f;
 		}
 
-		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
+		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld))
 		{// フィールドとの当たり判定
 			if (!CollisionMeshField(&pPlayer->pos))
 			{
