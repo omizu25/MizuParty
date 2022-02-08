@@ -5,6 +5,7 @@
 // 
 //==================================================
 #include "fade.h"
+#include "field.h"
 #include "input.h"
 #include "model.h"
 #include "number.h"
@@ -244,8 +245,27 @@ static void InitClear(void)
 	// rhwの初期化処理
 	Initrhw(pVtx);
 
-	// 頂点カラーの設定処理
-	Setcol(pVtx, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+	switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+	case MENU_STOP:			// 止める
+
+		// 頂点カラーの設定処理
+		Setcol(pVtx, D3DXCOLOR(0.0f, 0.0f, 0.0f, 1.0f));
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// 頂点カラーの初期化
+		Initcol(pVtx);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// テクスチャ座標の初期化処理
 	Inittex(pVtx);
@@ -345,6 +365,11 @@ static void InitPosNumber(void)
 		break;
 
 	case MENU_SLOPE:		// 坂
+
+		fModel = GetField()->pos.x + GetField()->vtxMax.x;
+		fPlayer = GetPlayer()->pos.x + GetPlayer()->fSize;
+
+		nPos = (int)((fModel - fPlayer) * 0.1f);
 
 		break;
 

@@ -121,7 +121,7 @@ void InitCamera(void)
 	if (GetTitle() == MENU_SLOPE)
 	{
 		s_camera[1].posV = D3DXVECTOR3(GetField()->pos.x * 0.35f, 1200.0f, -1500.0f);
-		s_camera[1].posR = D3DXVECTOR3(GetField()->pos.x * 0.35f, 300.0f, 0.0f);
+		s_camera[1].posR = D3DXVECTOR3(GetField()->pos.x * 0.35f, 350.0f, 0.0f);
 		s_camera[1].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
 		s_camera[1].posVDest = s_camera[1].posV;
 		s_camera[1].posRDest = s_camera[1].posR;

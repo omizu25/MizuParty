@@ -37,6 +37,7 @@
 #define IDX_PARENT			(-1)			// 親の番号
 #define MAX_BLEND			(30)			// ブレンドの最大値
 #define SLOPE_LIMIT			(90.0f)			// 坂の移動制限
+#define SLOPE_RESULT		(1500.0f)		// 坂のリザルトへの判定
 
 //--------------------------------------------------
 // 構造体
@@ -65,7 +66,6 @@ static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
 static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
-static bool			s_bSlopeRot;			// 坂の時に回転するかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -116,7 +116,6 @@ void InitPlayer(void)
 	s_bMotionLoop = false;
 	s_fSlopeMove = 0.0f;
 	s_nEndTime = 0;
-	s_bSlopeRot = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -319,12 +318,10 @@ void UpdatePlayer(void)
 				}
 				else
 				{
-					s_bSlopeRot = false;
+					pPlayer->pos.y += -10.8f;
 
 					if (s_nEndTime >= 120)
 					{
-						pPlayer->pos.y += -10.8f;
-
 						D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
 
 						if (CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
@@ -337,6 +334,8 @@ void UpdatePlayer(void)
 							// リザルトの設定
 							SetResult(RESULT_GAMEOVER);
 						}
+
+						pPlayer->pos.y += -10.8f;
 
 						// リザルトの初期化
 						InitResult();
@@ -409,24 +408,23 @@ void UpdatePlayer(void)
 
 	case MENU_SLOPE:		// 坂
 		
+		if (GetGame() == GAMESTATE_RESULT)
+		{
+			pPlayer->pos.y += -10.8f;
+		}
+
 		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld, size))
 		{// フィールドとの当たり判定
-			//pPlayer->pos.y += 30.0f;
-			if (GetGame() == GAMESTATE_END &&
-				!CollisionMeshField(&pPlayer->pos))
+			if (!CollisionMeshField(&pPlayer->pos))
 			{
-				if (s_bSlopeRot)
+				if (GetGame() == GAMESTATE_END ||
+					GetGame() == GAMESTATE_RESULT)
 				{
 					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
 					pPlayer->rot.x += -D3DX_PI * 0.25f;
 					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
 					pPlayer->rot.y += -D3DX_PI * 0.25f;
 				}
-			}
-
-			if (pPlayer->pos.y <= -500.0f)
-			{
-				s_bSlopeRot = false;
 			}
 		}
 
@@ -480,13 +478,32 @@ void UpdatePlayer(void)
 
 			if (s_nEndTime >= 120)
 			{
-				s_fSlopeMove -= 0.1f;
+				float fField = GetField()->pos.x + GetField()->vtxMax.x;
 
-				if (s_fSlopeMove <= 0.0f)
+				if (pPlayer->pos.x + SLOPE_LIMIT <= fField)
 				{
-					s_fSlopeMove = 0.0f;
+					s_fSlopeMove -= 0.1f;
 
-					s_nEndTime = 0;
+					if (s_fSlopeMove <= 0.0f)
+					{
+						s_fSlopeMove = 0.0f;
+
+						s_nEndTime = 0;
+					}
+				}
+				else
+				{
+					if (pPlayer->pos.y < -SLOPE_RESULT && pPlayer->posOld.y >= -SLOPE_RESULT)
+					{
+						// リザルトの設定
+						SetResult(RESULT_GAMEOVER);
+
+						// リザルトの初期化
+						InitResult();
+
+						// ゲームの設定
+						SetGameState(GAMESTATE_RESULT);
+					}
 				}
 			}
 		}

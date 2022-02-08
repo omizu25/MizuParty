@@ -232,7 +232,7 @@ void InstallationWall(void)
 	MeshFieldNumber *pNumber = GetMeshFieldNumber();		//メッシュフィールドの数系の取得
 
 	float fWidth = pMeshField->fWidth;
-	float fHeight = pMeshField->fWidth;
+	float fHeight = pMeshField->fDepth;
 	float fDepth = pMeshField->fDepth;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(fWidth, 0.0f, 0.0f);

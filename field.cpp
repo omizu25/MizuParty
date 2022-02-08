@@ -119,12 +119,6 @@ void InitField(void)
 
 	float fRand = (float)(rand() % MAX_RANDOM) * 10.0f;
 
-#ifdef _DEBUG
-
-	fRand = 650.0f;
-
-#endif // !_DEBUG
-
 	s_field.pos = D3DXVECTOR3(fRand, 0.0f, 0.0f);
 	s_field.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 }
@@ -241,8 +235,8 @@ bool CollisionField(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 	float fFront = s_field.pos.z + s_field.vtxMin.z;
 	float fBack = s_field.pos.z + s_field.vtxMax.z;
 
-	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
-		(pPos->z + size.z > fFront) && (pPos->z - size.z < fBack))
+	if ((pPos->x > fLeft) && (pPos->x < fRight) &&
+		(pPos->z > fFront) && (pPos->z < fBack))
 	{// x, z‚ª”ÍˆÍ“à
 		if ((pPosOld->y >= fTop) && (pPos->y < fTop))
 		{// ã

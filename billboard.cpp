@@ -32,7 +32,7 @@
 #define CHEAT_WIDTH			(300.0f)		// ïù
 #define CHEAT_HEIGHT		(2000.0f)		// çÇÇ≥
 #define PLAYER_WIDTH		(300.0f)		// ïù
-#define PLAYER_HEIGHT		(1500.0f)		// çÇÇ≥
+#define PLAYER_HEIGHT		(2000.0f)		// çÇÇ≥
 
 //--------------------------------------------------
 // ç\ë¢ëÃ
