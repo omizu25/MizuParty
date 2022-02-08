@@ -21,6 +21,8 @@ void UpdateBillboard(void);
 void DrawBillboard(bool bResult, bool bCamera);
 void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture);
 void LoadBillboard(void);
+void CollisionBillboard(void);
 void InitBillboardSlope(void);
+void InitBillboardTitle(void);
 
 #endif // !_BILLBOARD_H_

@@ -47,6 +47,9 @@ void InitTitle(void)
 	// ビルボードの初期化
 	InitBillboard();
 
+	// タイトルの時の読み込みs
+	InitBillboardTitle();
+
 	// カメラの初期化
 	InitCamera();
 
@@ -85,6 +88,12 @@ void UpdateTitle(void)
 {
 	// プレイヤーの更新
 	UpdatePlayer();
+
+	if (GetKeyboardTrigger(DIK_RETURN))
+	{// スペースキーが押された
+		// ビルボードの当たり判定
+		CollisionBillboard();
+	}
 }
 
 //--------------------------------------------------
@@ -115,14 +124,22 @@ void DrawTitle(void)
 	// プレイヤーの描画
 	DrawPlayer();
 
-	// 影の描画
-	DrawShadow();
-
 	// ビルボードの描画
 	DrawBillboard(false, false);
 
+	// 影の描画
+	DrawShadow();
+
 	// ビューボードのクリア
 	pDevice->SetViewport(&viewport);
+}
+
+//--------------------------------------------------
+// 設定
+//--------------------------------------------------
+void SetTitle(MENU menu)
+{
+	s_Menu = menu;
 }
 
 //--------------------------------------------------

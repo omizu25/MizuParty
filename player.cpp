@@ -11,6 +11,7 @@
 #include "main.h"
 #include "billboard.h"
 #include "camera.h"
+#include "fade.h"
 #include "field.h"
 #include "game.h"
 #include "input.h"
@@ -38,6 +39,8 @@
 #define MAX_BLEND			(30)			// ブレンドの最大値
 #define SLOPE_LIMIT			(90.0f)			// 坂の移動制限
 #define SLOPE_RESULT		(1500.0f)		// 坂のリザルトへの判定
+#define TITLE_WIDTH			(255.0f)		// タイトルの移動制限
+#define TITLE_DEPTH			(135.0f)		// タイトルの移動制限
 
 //--------------------------------------------------
 // 構造体
@@ -914,11 +917,14 @@ static void LoadMotion(int nCnt)
 //--------------------------------------------------
 static void UpdateTitle(Player *pPlayer)
 {
-	// 移動
-	TitleMove(pPlayer);
+	if (GetFade() == FADE_NONE)
+	{
+		// 移動
+		TitleMove(pPlayer);
 
-	// 回転
-	Rot(pPlayer);
+		// 回転
+		Rot(pPlayer);
+	}
 
 	// モーション
 	Motion(pPlayer);
@@ -1242,6 +1248,24 @@ static void TitleMove(Player *pPlayer)
 	{// ←, →, ↑, ↓キーが押された
 		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
 		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
+	}
+
+	if (pPlayer->pos.x <= -TITLE_WIDTH)
+	{// 移動制限
+		pPlayer->pos.x = -TITLE_WIDTH;
+	}
+	else if (pPlayer->pos.x >= TITLE_WIDTH)
+	{
+		pPlayer->pos.x = TITLE_WIDTH;
+	}
+
+	if (pPlayer->pos.z <= -TITLE_DEPTH)
+	{// 移動制限
+		pPlayer->pos.z = -TITLE_DEPTH;
+	}
+	else if (pPlayer->pos.z >= TITLE_DEPTH)
+	{
+		pPlayer->pos.z = TITLE_DEPTH;
 	}
 }
 

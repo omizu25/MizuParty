@@ -489,6 +489,8 @@ void SetMode(MODE mode)
 		break;
 	}
 
+	s_mode = mode;		// 現在の画面(モード)を切り替える
+
 	// 新しい画面(モード)の終了処理
 	switch (mode)
 	{// どのモード？
@@ -504,8 +506,6 @@ void SetMode(MODE mode)
 		assert(false);
 		break;
 	}
-
-	s_mode = mode;		// 現在の画面(モード)を切り替える
 }
 
 //--------------------------------------------------

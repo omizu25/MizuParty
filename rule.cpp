@@ -18,14 +18,14 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define RESULT_WIDTH		(180.0f)		// 幅
-#define RESULT_HEIGHT		(120.0f)		// 高さ
-#define A_OR_D_WIDTH		(200.0f)		// AorDの幅
-#define A_OR_D_HEIGHT		(80.0f)			// AorDの高さ
-#define STICK_WIDTH			(200.0f)		// スティックの幅
-#define STICK_HEIGHT		(80.0f)			// スティックの高さ
-#define HINT_WIDTH			(250.0f)		// ヒントの幅
-#define HINT_HEIGHT			(60.0f)			// ヒントの高さ
+#define RULE_WIDTH			(160.0f)		// 説明の幅
+#define RULE_HEIGHT			(100.0f)		// 説明の高さ
+#define A_OR_D_WIDTH		(170.0f)		// AorDの幅
+#define A_OR_D_HEIGHT		(70.0f)			// AorDの高さ
+#define STICK_WIDTH			(170.0f)		// スティックの幅
+#define STICK_HEIGHT		(70.0f)			// スティックの高さ
+#define HINT_WIDTH			(300.0f)		// ヒントの幅
+#define HINT_HEIGHT			(80.0f)			// ヒントの高さ
 
 //--------------------------------------------------
 // スタティック変数
@@ -299,9 +299,9 @@ static void InitMove(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	float fWidth = RESULT_WIDTH * 0.5f;
-	float fHeight = RESULT_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
+	float fWidth = RULE_WIDTH * 0.5f;
+	float fHeight = RULE_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.91f, SCREEN_HEIGHT * 0.15f, 0.0f);
 
 	// 頂点座標の設定処理
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -443,8 +443,8 @@ static void InitStop(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuffStop->Lock(0, 0, (void**)&pVtx, 0);
 
-	float fWidth = RESULT_WIDTH * 0.5f;
-	float fHeight = RESULT_HEIGHT * 0.5f;
+	float fWidth = RULE_WIDTH * 0.5f;
+	float fHeight = RULE_HEIGHT * 0.5f;
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
 
 	// 頂点座標の設定処理
@@ -493,7 +493,7 @@ static void InitAorB(void)
 
 	float fWidth = A_OR_D_WIDTH * 0.5f;
 	float fHeight = A_OR_D_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.075f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.225f, 0.0f);
 
 	// 頂点座標の設定処理
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -541,7 +541,7 @@ static void InitSpace(void)
 
 	float fWidth = STICK_WIDTH * 0.5f;
 	float fHeight = STICK_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.225f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.075f, 0.0f);
 
 	// 頂点座標の設定
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);

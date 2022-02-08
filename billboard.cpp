@@ -11,10 +11,12 @@
 #include "main.h"
 #include "billboard.h"
 #include "effect.h"
+#include "fade.h"
 #include "field.h"
 #include "particle.h"
 #include "player.h"
 #include "setup.h"
+#include "title.h"
 #include "wall.h"
 
 #include <stdio.h>
@@ -33,6 +35,12 @@
 #define CHEAT_HEIGHT		(2000.0f)		// çÇÇ≥
 #define PLAYER_WIDTH		(300.0f)		// ïù
 #define PLAYER_HEIGHT		(2000.0f)		// çÇÇ≥
+#define TITLE_WIDTH			(150.0f)		// ïù
+#define TITLE_HEIGHT		(100.0f)		// çÇÇ≥
+#define RULE_WIDTH			(300.0f)		// ïù
+#define RULE_HEIGHT			(100.0f)		// çÇÇ≥
+#define MOVE_WIDTH			(200.0f)		// ïù
+#define MOVE_HEIGHT			(100.0f)		// çÇÇ≥
 
 //--------------------------------------------------
 // ç\ë¢ëÃ
@@ -76,6 +84,11 @@ static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// í∏ì_ÉoÉbÉtÉ@Ç÷ÇÃÉ|ÉCÉìÉ
 static LPDIRECT3DTEXTURE9			s_pTextureTarget;				// ñ⁄ïWínì_ÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
 static LPDIRECT3DTEXTURE9			s_pTextureTargetCheat;			// Ç∏ÇÈÇÇµÇΩñ⁄ïWínì_ÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
 static LPDIRECT3DTEXTURE9			s_pTexturePlayer;				// é©ì]é‘ÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
+static LPDIRECT3DTEXTURE9			s_pTextureWalking;				// ÉEÉHÅ[ÉLÉìÉOÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
+static LPDIRECT3DTEXTURE9			s_pTextureStop;					// é~ÇﬂÇÈÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
+static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// ç‚ÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
+static LPDIRECT3DTEXTURE9			s_pTextureRule;					// ê‡ñæÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
+static LPDIRECT3DTEXTURE9			s_pTextureMove;					// à⁄ìÆÇÃÉeÉNÉXÉ`ÉÉÇ÷ÇÃÉ|ÉCÉìÉ^
 static Billboard					s_billboard[MAX_BILLBOARD];		// ÉrÉãÉ{Å[ÉhÇÃèÓïÒ
 static int							s_nUseTex;						// ÉeÉNÉXÉ`ÉÉÇÃégópêî
 
@@ -84,6 +97,8 @@ static int							s_nUseTex;						// ÉeÉNÉXÉ`ÉÉÇÃégópêî
 //--------------------------------------------------
 static void System(FILE *pFile, char *aFile);
 static void Load(FILE *pFile);
+static void TitleMenu(void);
+static void TitleRule(void);
 
 //--------------------------------------------------
 // èâä˙âª
@@ -164,6 +179,36 @@ void UninitBillboard(void)
 	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
 		s_pTexturePlayer->Release();
 		s_pTexturePlayer = NULL;
+	}
+
+	if (s_pTextureWalking != NULL)
+	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
+		s_pTextureWalking->Release();
+		s_pTextureWalking = NULL;
+	}
+
+	if (s_pTextureStop != NULL)
+	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
+		s_pTextureStop->Release();
+		s_pTextureStop = NULL;
+	}
+
+	if (s_pTextureSlope != NULL)
+	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
+		s_pTextureSlope->Release();
+		s_pTextureSlope = NULL;
+	}
+
+	if (s_pTextureRule != NULL)
+	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
+		s_pTextureRule->Release();
+		s_pTextureRule = NULL;
+	}
+
+	if (s_pTextureMove != NULL)
+	{// ÉeÉNÉXÉ`ÉÉÇÃâï˙
+		s_pTextureMove->Release();
+		s_pTextureMove = NULL;
 	}
 }
 
@@ -343,6 +388,127 @@ void LoadBillboard(void)
 
 	// ì«Ç›çûÇ›
 	Load(pFile);
+}
+
+//--------------------------------------------------
+// ìñÇΩÇËîªíË
+//--------------------------------------------------
+void CollisionBillboard(void)
+{
+	for (int i = 0; i < MAX_BILLBOARD; i++)
+	{
+		Billboard *pBillboard = &s_billboard[i];
+
+		if (!pBillboard->bUse)
+		{//égópÇ≥ÇÍÇƒÇ¢Ç»Ç¢
+			continue;
+		}
+
+		if (pBillboard->pTexture != s_pTextureWalking &&
+			pBillboard->pTexture != s_pTextureStop && 
+			pBillboard->pTexture != s_pTextureSlope)
+		{// ÉeÉNÉXÉ`ÉÉÇ™à·Ç§
+			continue;
+		}
+
+		D3DXVECTOR3 pos = GetPlayer()->pos;
+		float fWidth = TITLE_WIDTH * 0.5f;
+		float fHeight = TITLE_HEIGHT * 0.5f;
+
+		if (pBillboard->pos.x + fWidth >= pos.x &&
+			pBillboard->pos.x - fWidth <= pos.x &&
+			pBillboard->pos.z + fHeight >= pos.z &&
+			pBillboard->pos.z - fHeight <= pos.z)
+		{
+			if (pBillboard->pTexture == s_pTextureWalking)
+			{
+				// É^ÉCÉgÉãÇÃê›íË
+				SetTitle(MENU_WALKING);
+			}
+			else if (pBillboard->pTexture == s_pTextureStop)
+			{
+				// É^ÉCÉgÉãÇÃê›íË
+				SetTitle(MENU_STOP);
+			}
+			else if (pBillboard->pTexture == s_pTextureSlope)
+			{
+				// É^ÉCÉgÉãÇÃê›íË
+				SetTitle(MENU_SLOPE);
+			}
+
+			// ÉtÉFÅ[ÉhÇÃê›íË
+			SetFade(MODE_GAME);
+		}
+	}
+}
+
+
+//--------------------------------------------------
+// ç‚
+//--------------------------------------------------
+void InitBillboardSlope(void)
+{
+	// ÉfÉoÉCÉXÇ÷ÇÃÉ|ÉCÉìÉ^ÇÃéÊìæ
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/target000.png",
+		&s_pTextureTarget);
+
+	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/target001.png",
+		&s_pTextureTargetCheat);
+
+	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/player.png",
+		&s_pTexturePlayer);
+
+	float fWidth = TARGET_WIDTH * 0.5f;
+	float fHeight = TARGET_HEIGHT * 0.5f;
+
+	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, fHeight + 100.0f, 30.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// ÉrÉãÉ{Å[ÉhÇÃê›íË
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+
+	fWidth = CHEAT_WIDTH * 0.5f;
+	fHeight = CHEAT_HEIGHT * 0.5f;
+
+	fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
+
+	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
+
+	// ÉrÉãÉ{Å[ÉhÇÃê›íË
+	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+
+	fWidth = PLAYER_WIDTH * 0.5f;
+	fHeight = PLAYER_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
+
+	// ÉrÉãÉ{Å[ÉhÇÃê›íË
+	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
+}
+
+//--------------------------------------------------
+// É^ÉCÉgÉã
+//--------------------------------------------------
+void InitBillboardTitle(void)
+{
+	// É^ÉCÉgÉãÇÃê‡ñæ
+	TitleRule();
+
+	// É^ÉCÉgÉãÇÃÉÅÉjÉÖÅ[
+	TitleMenu();
 }
 
 //--------------------------------------------------
@@ -550,9 +716,9 @@ static void Load(FILE *pFile)
 }
 
 //--------------------------------------------------
-// ç‚
+// É^ÉCÉgÉãÇÃÉÅÉjÉÖÅ[
 //--------------------------------------------------
-void InitBillboardSlope(void)
+static void TitleMenu(void)
 {
 	// ÉfÉoÉCÉXÇ÷ÇÃÉ|ÉCÉìÉ^ÇÃéÊìæ
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -560,49 +726,75 @@ void InitBillboardSlope(void)
 	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/target000.png",
-		&s_pTextureTarget);
+		"data/TEXTURE/menu000.png",
+		&s_pTextureWalking);
 
 	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/target001.png",
-		&s_pTextureTargetCheat);
+		"data/TEXTURE/menu001.png",
+		&s_pTextureStop);
 
 	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data/TEXTURE/player.png",
-		&s_pTexturePlayer);
+		"data/TEXTURE/menu002.png",
+		&s_pTextureSlope);
 
-	float fWidth = TARGET_WIDTH * 0.5f;
-	float fHeight = TARGET_HEIGHT * 0.5f;
+	float fWidth = TITLE_WIDTH * 0.5f;
+	float fHeight = TITLE_HEIGHT * 0.5f;
 
-	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
-	
-	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, fHeight + 100.0f, 30.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -60.0f);
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ÉrÉãÉ{Å[ÉhÇÃê›íË
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureWalking);
 
-	fWidth = CHEAT_WIDTH * 0.5f;
-	fHeight = CHEAT_HEIGHT * 0.5f;
-
-	fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
-
-	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
-	move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	pos.x = 0.0f;
 
 	// ÉrÉãÉ{Å[ÉhÇÃê›íË
-	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureStop);
+
+	pos.x = 200.0f;
+
+	// ÉrÉãÉ{Å[ÉhÇÃê›íË
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+}
+
+//--------------------------------------------------
+// É^ÉCÉgÉãÇÃê‡ñæ
+//--------------------------------------------------
+static void TitleRule(void)
+{
+	// ÉfÉoÉCÉXÇ÷ÇÃÉ|ÉCÉìÉ^ÇÃéÊìæ
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/title000.png",
+		&s_pTextureRule);
+
+	// ÉeÉNÉXÉ`ÉÉÇÃì«Ç›çûÇ›
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/title001.png",
+		&s_pTextureMove);
+
+	float fWidth = RULE_WIDTH * 0.5f;
+	float fHeight = RULE_HEIGHT * 0.5f;
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(-fWidth, 0.0f, 120.0f);
+	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	// ÉrÉãÉ{Å[ÉhÇÃê›íË
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureRule);
+
+	fWidth = MOVE_WIDTH * 0.5f;
+	fHeight = MOVE_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(200.0f, 0.0f, 120.0f);
 	
-	fWidth = PLAYER_WIDTH * 0.5f;
-	fHeight = PLAYER_HEIGHT * 0.5f;
-
-	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
-	move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-
 	// ÉrÉãÉ{Å[ÉhÇÃê›íË
-	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
+	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureMove);
 }

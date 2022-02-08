@@ -25,6 +25,7 @@ void InitTitle(void);
 void UninitTitle(void);
 void UpdateTitle(void);
 void DrawTitle(void);
+void SetTitle(MENU menu);
 MENU GetTitle(void);
 
 #endif // !_TITLE_H_

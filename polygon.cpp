@@ -12,6 +12,7 @@
 #include "polygon.h"
 #include "setup.h"
 
+#include <assert.h>
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -22,9 +23,10 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
-static polygon						s_polygon;				// ポリゴンの情報
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureTitle = NULL;		// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
+static polygon						s_polygon;					// ポリゴンの情報
 
 //--------------------------------------------------
 // 初期化
@@ -39,6 +41,12 @@ void InitPolygon(void)
 		pDevice,
 		"data\\TEXTURE\\block009.png",
 		&s_pTexture);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data\\TEXTURE\\block011.png",
+		&s_pTextureTitle);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
@@ -131,8 +139,25 @@ void DrawPolygon(void)
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
-	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
+		
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTextureTitle);
+		break;
+
+	case MODE_GAME:			// ゲーム
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTexture);
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(

@@ -52,6 +52,9 @@ static bool			s_bStop;					// 止まるかどうか
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+static void InitTitleMode(void);
+static void InitGameMode(void);
+static void UpdateGameMode(void);
 static void FollowMove(void);
 static void ResultMove(void);
 static void Overlap(float fPosX);
@@ -64,31 +67,19 @@ void InitCamera(void)
 	// クリア
 	memset(s_camera, 0, sizeof(s_camera));
 
-	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x) * 0.75f;
-
-	switch (GetTitle())
+	switch (GetMode())
 	{
-	case MENU_WALKING:		// ウォーキング
+	case MODE_TITLE:		// タイトル
 
-		s_camera[0].posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
-		s_camera[0].posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
-		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
-
-		break;
-
-	case MENU_STOP:			// 止める
-
-		s_camera[0].posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
-		s_camera[0].posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
-		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		// タイトルの時の初期化
+		InitTitleMode();
 
 		break;
 
-	case MENU_SLOPE:		// 坂
+	case MODE_GAME:			// ゲーム
 
-		s_camera[0].posV = D3DXVECTOR3(fPosX, START_SLOPE_Y, START_SLOPE_Z);
-		s_camera[0].posR = D3DXVECTOR3(fPosX, START_SLOPE_Y, 0.0f);
-		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+		// ゲームの時の初期化
+		InitGameMode();
 
 		break;
 
@@ -167,6 +158,135 @@ void UninitCamera(void)
 //--------------------------------------------------
 void UpdateCamera(void)
 {
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
+
+		/* 処理なし */
+
+		break;
+
+	case MODE_GAME:			// ゲーム
+
+		// ゲームの時の更新
+		UpdateGameMode();
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// 設定
+//--------------------------------------------------
+void SetCamera(int nData)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	Camera *pCamara = &s_camera[nData];
+
+	// ビューマトリックスの初期化
+	D3DXMatrixIdentity(&pCamara->mtxView);
+
+	// ビューマトリックスの作成
+	D3DXMatrixLookAtLH(
+		&pCamara->mtxView,
+		&pCamara->posV,
+		&pCamara->posR,
+		&pCamara->vecU);
+
+	// ビューマトリックスの設定
+	pDevice->SetTransform(D3DTS_VIEW, &pCamara->mtxView);
+
+	// プロジェクションマトリックスの初期化
+	D3DXMatrixIdentity(&pCamara->mtxProjection);
+
+	// プロジェクションマトリックスの作成
+	D3DXMatrixPerspectiveFovLH(
+		&pCamara->mtxProjection,
+		D3DXToRadian(45.0f),
+		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
+		MAX_NEAR,
+		MAX_FAR);
+
+	// プロジェクションマトリックスの設定
+	pDevice->SetTransform(D3DTS_PROJECTION, &pCamara->mtxProjection);
+}
+
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
+Camera *GetCamera(int nData)
+{
+	return &s_camera[nData];
+}
+
+//--------------------------------------------------
+// 重なってるかどうかを取得
+//--------------------------------------------------
+bool GetOverlap(void)
+{
+	return s_bOverlap;
+}
+
+//--------------------------------------------------
+// タイトルの時の初期化
+//--------------------------------------------------
+static void InitTitleMode(void)
+{
+	s_camera[0].posV = D3DXVECTOR3(0.0f, 450.0f, -0.1f);
+	s_camera[0].posR = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+}
+
+//--------------------------------------------------
+// ゲームの時の初期化
+//--------------------------------------------------
+static void InitGameMode(void)
+{
+	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x) * 0.75f;
+
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+
+		s_camera[0].posV = D3DXVECTOR3(0.0f, START_WALKING_Y, START_WALKING_Z);
+		s_camera[0].posR = D3DXVECTOR3(0.0f, 35.0f, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		s_camera[0].posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
+		s_camera[0].posR = D3DXVECTOR3(0.0f, START_STOP_Y, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		s_camera[0].posV = D3DXVECTOR3(fPosX, START_SLOPE_Y, START_SLOPE_Z);
+		s_camera[0].posR = D3DXVECTOR3(fPosX, START_SLOPE_Y, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// ゲームの時の更新
+//--------------------------------------------------
+static void UpdateGameMode(void)
+{
 	switch (GetTitle())
 	{
 	case MENU_STOP:			// 止める
@@ -241,60 +361,6 @@ void UpdateCamera(void)
 		assert(false);
 		break;
 	}
-}
-
-//--------------------------------------------------
-// 設定
-//--------------------------------------------------
-void SetCamera(int nData)
-{
-	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	Camera *pCamara = &s_camera[nData];
-
-	// ビューマトリックスの初期化
-	D3DXMatrixIdentity(&pCamara->mtxView);
-
-	// ビューマトリックスの作成
-	D3DXMatrixLookAtLH(
-		&pCamara->mtxView,
-		&pCamara->posV,
-		&pCamara->posR,
-		&pCamara->vecU);
-
-	// ビューマトリックスの設定
-	pDevice->SetTransform(D3DTS_VIEW, &pCamara->mtxView);
-
-	// プロジェクションマトリックスの初期化
-	D3DXMatrixIdentity(&pCamara->mtxProjection);
-
-	// プロジェクションマトリックスの作成
-	D3DXMatrixPerspectiveFovLH(
-		&pCamara->mtxProjection,
-		D3DXToRadian(45.0f),
-		(float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
-		MAX_NEAR,
-		MAX_FAR);
-
-	// プロジェクションマトリックスの設定
-	pDevice->SetTransform(D3DTS_PROJECTION, &pCamara->mtxProjection);
-}
-
-//--------------------------------------------------
-// 取得
-//--------------------------------------------------
-Camera *GetCamera(int nData)
-{
-	return &s_camera[nData];
-}
-
-//--------------------------------------------------
-// 重なってるかどうかを取得
-//--------------------------------------------------
-bool GetOverlap(void)
-{
-	return s_bOverlap;
 }
 
 //--------------------------------------------------
