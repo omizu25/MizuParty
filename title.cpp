@@ -11,6 +11,7 @@
 #include "billboard.h"
 #include "camera.h"
 #include "fade.h"
+#include "frame.h"
 #include "game.h"
 #include "input.h"
 #include "light.h"
@@ -26,13 +27,16 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static MENU		s_Menu;		// メニュー
+static MENU		s_Menu;			// メニュー
+static int		s_nCount;		// 何回タイトルに来たかのカウント
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitTitle(void)
 {
+	s_nCount++;
+
 	// ポリゴンの初期化
 	InitPolygon();
 
@@ -45,10 +49,13 @@ void InitTitle(void)
 	// プレイヤーの初期化
 	InitPlayer();
 
+	// 枠の初期化
+	InitFrame();
+
 	// ビルボードの初期化
 	InitBillboard();
 
-	// タイトルの時の読み込みs
+	// タイトルの時の読み込み
 	InitBillboardTitle();
 
 	// カメラの初期化
@@ -71,6 +78,9 @@ void UninitTitle(void)
 
 	// ポリゴンの終了
 	UninitPolygon();
+
+	// 枠の終了
+	UninitFrame();
 
 	// ビルボードの終了
 	UninitBillboard();
@@ -131,6 +141,9 @@ void DrawTitle(void)
 	// プレイヤーの描画
 	DrawPlayer();
 
+	// 枠の描画
+	DrawFrame();
+
 	// ビルボードの描画
 	DrawBillboard(false, false);
 
@@ -155,4 +168,20 @@ void SetTitle(MENU menu)
 MENU GetTitle(void)
 {
 	return s_Menu;
+}
+
+//--------------------------------------------------
+// カウントの設定
+//--------------------------------------------------
+void SetTitleCnt(void)
+{
+	s_nCount = 0;
+}
+
+//--------------------------------------------------
+// カウントの取得
+//--------------------------------------------------
+int GetTitleCnt(void)
+{
+	return s_nCount;
 }

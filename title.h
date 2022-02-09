@@ -19,6 +19,11 @@ typedef enum
 }MENU;
 
 //--------------------------------------------------
+// マクロ定義
+//--------------------------------------------------
+#define REMIX_OK		(2)		// リミックスが出来るようになる数
+
+//--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 void InitTitle(void);
@@ -27,5 +32,7 @@ void UpdateTitle(void);
 void DrawTitle(void);
 void SetTitle(MENU menu);
 MENU GetTitle(void);
+void SetTitleCnt(void);
+int GetTitleCnt(void);
 
 #endif // !_TITLE_H_

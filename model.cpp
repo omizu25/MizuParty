@@ -225,7 +225,6 @@ void UpdateModel(void)
 						// サウンドの再生
 						PlaySound(SOUND_LABEL_SE_止めるの下手);
 					}
-
 				}
 			}
 		}
@@ -239,7 +238,7 @@ void DrawModel(void)
 {
 	if (GetTitle() == MENU_STOP)
 	{// 止める
-	// デバイスへのポインタの取得
+		// デバイスへのポインタの取得
 		LPDIRECT3DDEVICE9 pDevice = GetDevice();
 		D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
 		D3DMATERIAL9 matDef;				// 現在のマテリアル保存用

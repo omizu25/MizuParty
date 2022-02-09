@@ -6,6 +6,7 @@
 //==================================================
 #include "fade.h"
 #include "field.h"
+#include "game.h"
 #include "input.h"
 #include "model.h"
 #include "number.h"
@@ -150,17 +151,59 @@ void UpdateResult(void)
 	if (GetKeyboardAllTrigger() ||
 		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
 	{// ボタンが押されたかどうか
-		// モード処理
-		SetFade(MODE_TITLE);
+
+		if (GetRemix())
+		{// リミックス中
+			int nMenu = (int)GetTitle() + 1;
+
+			if (nMenu >= MENU_MAX)
+			{// 終わり
+				// モード処理
+				SetFade(MODE_TITLE);
+			}
+			else
+			{// まだ続く
+				// フェードの設定
+				SetFade(MODE_GAME);
+			}
+		}
+		else
+		{// リミックスではない
+			// モード処理
+			SetFade(MODE_TITLE);
+		}
 	}
 
 	s_nTime++;
 
-	if (s_nTime >= 900)
-	{// 15秒経ちました
-		// モード処理
-		SetFade(MODE_TITLE);
+	if (GetRemix())
+	{// リミックス中
+		if (s_nTime >= 180)
+		{// 180秒経ちました
+			int nMenu = (int)GetTitle() + 1;
+
+			if (nMenu >= MENU_MAX)
+			{// 終わり
+				// モード処理
+				SetFade(MODE_TITLE);
+			}
+			else
+			{// まだ続く
+				// フェードの設定
+				SetFade(MODE_GAME);
+			}
+		}
 	}
+	else
+	{// リミックスではない
+		if (s_nTime >= 900)
+		{// 15秒経ちました
+			// モード処理
+			SetFade(MODE_TITLE);
+		}
+	}
+
+	
 }
 
 //--------------------------------------------------

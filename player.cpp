@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "fade.h"
 #include "field.h"
+#include "frame.h"
 #include "game.h"
 #include "input.h"
 #include "mesh_field.h"
@@ -950,6 +951,9 @@ static void UpdateTitle(Player *pPlayer)
 
 	// ƒ‚[ƒVƒ‡ƒ“
 	Motion(pPlayer);
+
+	// ˜g‚Ì“–‚½‚è”»’è
+	CollisionFrame(&pPlayer->pos);
 }
 
 //--------------------------------------------------
@@ -1129,9 +1133,6 @@ static void UpdateGame(Player *pPlayer)
 		break;
 
 	case MENU_STOP:			// Ž~‚ß‚é
-
-		// ƒ‚ƒfƒ‹‚Æ‚Ì“–‚½‚è”»’è
-		//CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
 
 		if (!GetCollision())
 		{// “–‚½‚Á‚Ä‚È‚¢

@@ -13,6 +13,8 @@
 #include "effect.h"
 #include "fade.h"
 #include "field.h"
+#include "frame.h"
+#include "game.h"
 #include "particle.h"
 #include "player.h"
 #include "setup.h"
@@ -26,44 +28,27 @@
 //--------------------------------------------------
 // ƒ}ƒNƒ’è‹`
 //--------------------------------------------------
-#define MAX_BILLBOARD		(256)			// ƒrƒ‹ƒ{[ƒh‚ÌÅ‘å”
 #define MAX_TEXTURE			(256)			// ƒeƒNƒXƒ`ƒƒ‚ÌÅ‘å”
 #define DO_NOT_ROT_Y		(0)				// Y²‰ñ“]‚ğ‚µ‚È‚¢”’l
 #define DO_NOT_RESULT		(0)				// ƒŠƒUƒ‹ƒg‚Å•\¦‚µ‚È‚¢
-#define TARGET_WIDTH		(250.0f)		// •
-#define TARGET_HEIGHT		(600.0f)		// ‚‚³
-#define CHEAT_WIDTH			(300.0f)		// •
-#define CHEAT_HEIGHT		(2000.0f)		// ‚‚³
-#define PLAYER_WIDTH		(300.0f)		// •
-#define PLAYER_HEIGHT		(2000.0f)		// ‚‚³
-#define TITLE_WIDTH			(150.0f)		// •
-#define TITLE_HEIGHT		(100.0f)		// ‚‚³
-#define RULE_WIDTH			(300.0f)		// •
-#define RULE_HEIGHT			(100.0f)		// ‚‚³
-#define MOVE_WIDTH			(200.0f)		// •
-#define MOVE_HEIGHT			(100.0f)		// ‚‚³
+#define TARGET_WIDTH		(250.0f)		// –Ú•W’n“_‚Ì•
+#define TARGET_HEIGHT		(600.0f)		// –Ú•W’n“_‚Ì‚‚³
+#define CHEAT_WIDTH			(300.0f)		// ‚¸‚é‚ğ‚µ‚½–Ú•W’n“_‚Ì•
+#define CHEAT_HEIGHT		(2000.0f)		// ‚¸‚é‚ğ‚µ‚½–Ú•W’n“_‚Ì‚‚³
+#define PLAYER_WIDTH		(300.0f)		// ©“]Ô‚Ì•
+#define PLAYER_HEIGHT		(2000.0f)		// ©“]Ô‚Ì‚‚³
+#define TITLE_WIDTH			(150.0f)		// ƒƒjƒ…[‚Ì•
+#define TITLE_HEIGHT		(100.0f)		// ƒƒjƒ…[‚Ì‚‚³
+#define RULE_WIDTH			(300.0f)		// ƒ‹[ƒ‹‚Ì•
+#define RULE_HEIGHT			(100.0f)		// ƒ‹[ƒ‹‚Ì‚‚³
+#define MOVE_WIDTH			(200.0f)		// ˆÚ“®‚Ì•
+#define MOVE_HEIGHT			(100.0f)		// ˆÚ“®‚Ì‚‚³
+#define REMIX_WIDTH			(100.0f)		// ƒŠƒ~ƒbƒNƒX•
+#define REMIX_HEIGHT		(30.0f)			// ƒŠƒ~ƒbƒNƒX‚‚³
 
 //--------------------------------------------------
 // \‘¢‘Ì
 //--------------------------------------------------
-
-/*« ƒrƒ‹ƒ{[ƒh «*/
-
-typedef struct
-{
-	D3DXVECTOR3				pos;			// ˆÊ’u
-	D3DXMATRIX				mtxWorld;		// ƒ[ƒ‹ƒhƒ}ƒgƒŠƒbƒNƒX
-	float					fWidth;			// •
-	float					fHeight;		// ‚‚³
-	bool					bUse;			// g—p‚µ‚Ä‚¢‚é‚©‚Ç‚¤‚©
-	bool					bYRot;			// Y²‰ñ“]‚ğ‚·‚é‚©‚Ç‚¤‚©
-	bool					bResult;		// ƒŠƒUƒ‹ƒg‚¾‚¯‚Å•\¦‚·‚é
-	bool					bCamera;		// ƒJƒƒ‰‰½”Ô–Ú‚©
-	LPDIRECT3DTEXTURE9		pTexture;		// ƒeƒNƒXƒ`ƒƒ
-}Billboard;
-
-/*« “Ç‚İ‚Ş“à—e «*/
-
 typedef struct
 {
 	D3DXVECTOR3				pos;			// ˆÊ’u
@@ -89,6 +74,7 @@ static LPDIRECT3DTEXTURE9			s_pTextureStop;					// ~‚ß‚é‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ
 static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// â‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DTEXTURE9			s_pTextureRule;					// à–¾‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 static LPDIRECT3DTEXTURE9			s_pTextureMove;					// ˆÚ“®‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
+static LPDIRECT3DTEXTURE9			s_pTextureRemix;				// ƒŠƒ~ƒbƒNƒX‚ÌƒeƒNƒXƒ`ƒƒ‚Ö‚Ìƒ|ƒCƒ“ƒ^
 static Billboard					s_billboard[MAX_BILLBOARD];		// ƒrƒ‹ƒ{[ƒh‚Ìî•ñ
 static int							s_nUseTex;						// ƒeƒNƒXƒ`ƒƒ‚Ìg—p”
 
@@ -348,7 +334,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool
 		pBillboard->bResult = bResult;
 		pBillboard->bCamera = bCamera;
 		pBillboard->bUse = true;
-
+		
 		// ’¸“_î•ñ‚ğƒƒbƒN‚µA’¸“_î•ñ‚Ö‚Ìƒ|ƒCƒ“ƒ^‚ğæ“¾
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
@@ -365,6 +351,14 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool
 
 		break;
 	}
+}
+
+//--------------------------------------------------
+// æ“¾
+//--------------------------------------------------
+Billboard *GetBillboard(void)
+{
+	return &s_billboard[0];
 }
 
 //--------------------------------------------------
@@ -405,34 +399,58 @@ void CollisionBillboard(void)
 
 		if (pBillboard->pTexture != s_pTextureWalking &&
 			pBillboard->pTexture != s_pTextureStop && 
-			pBillboard->pTexture != s_pTextureSlope)
+			pBillboard->pTexture != s_pTextureSlope &&
+			pBillboard->pTexture != s_pTextureRule)
 		{// ƒeƒNƒXƒ`ƒƒ‚ªˆá‚¤
 			continue;
 		}
 
-		D3DXVECTOR3 pos = GetPlayer()->pos;
-		float fWidth = TITLE_WIDTH * 0.5f;
-		float fHeight = TITLE_HEIGHT * 0.5f;
+		if (GetTitleCnt() < REMIX_OK)
+		{
+			if (pBillboard->pTexture == s_pTextureRule)
+			{// ƒeƒNƒXƒ`ƒƒ‚ªˆá‚¤
+				continue;
+			}
+		}
 
-		if (pBillboard->pos.x + fWidth >= pos.x &&
-			pBillboard->pos.x - fWidth <= pos.x &&
-			pBillboard->pos.z + fHeight >= pos.z &&
-			pBillboard->pos.z - fHeight <= pos.z)
+		D3DXVECTOR3 pos = GetPlayer()->pos;
+
+		if (pBillboard->pos.x + pBillboard->fWidth >= pos.x &&
+			pBillboard->pos.x - pBillboard->fWidth <= pos.x &&
+			pBillboard->pos.z + pBillboard->fHeight >= pos.z &&
+			pBillboard->pos.z - pBillboard->fHeight <= pos.z)
 		{
 			if (pBillboard->pTexture == s_pTextureWalking)
 			{
 				// ƒ^ƒCƒgƒ‹‚Ìİ’è
 				SetTitle(MENU_WALKING);
+
+				// ƒŠƒ~ƒbƒNƒXİ’è
+				SetRemix(false);
 			}
 			else if (pBillboard->pTexture == s_pTextureStop)
 			{
 				// ƒ^ƒCƒgƒ‹‚Ìİ’è
 				SetTitle(MENU_STOP);
+
+				// ƒŠƒ~ƒbƒNƒXİ’è
+				SetRemix(false);
 			}
 			else if (pBillboard->pTexture == s_pTextureSlope)
 			{
 				// ƒ^ƒCƒgƒ‹‚Ìİ’è
 				SetTitle(MENU_SLOPE);
+
+				// ƒŠƒ~ƒbƒNƒXİ’è
+				SetRemix(false);
+			}
+			if (pBillboard->pTexture == s_pTextureRule)
+			{
+				// ƒ^ƒCƒgƒ‹‚Ìİ’è
+				SetTitle(MENU_WALKING);
+
+				// ƒŠƒ~ƒbƒNƒXİ’è
+				SetRemix(true);
 			}
 
 			// ƒtƒF[ƒh‚Ìİ’è
@@ -443,7 +461,6 @@ void CollisionBillboard(void)
 		}
 	}
 }
-
 
 //--------------------------------------------------
 // â
@@ -747,20 +764,28 @@ static void TitleMenu(void)
 	float fHeight = TITLE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -60.0f);
-	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ƒrƒ‹ƒ{[ƒh‚Ìİ’è
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
+
+	// ˜g‚Ìİ’è
+	SetFrame(pos, fWidth, fHeight, &s_pTextureWalking);
 
 	pos.x = 0.0f;
 
 	// ƒrƒ‹ƒ{[ƒh‚Ìİ’è
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureStop);
 
+	// ˜g‚Ìİ’è
+	SetFrame(pos, fWidth, fHeight, &s_pTextureStop);
+
 	pos.x = 200.0f;
 
 	// ƒrƒ‹ƒ{[ƒh‚Ìİ’è
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+
+	// ˜g‚Ìİ’è
+	SetFrame(pos, fWidth, fHeight, &s_pTextureSlope);
 }
 
 //--------------------------------------------------
@@ -787,10 +812,29 @@ static void TitleRule(void)
 	float fHeight = RULE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-fWidth, 0.0f, 120.0f);
-	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ƒrƒ‹ƒ{[ƒh‚Ìİ’è
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
+
+	if (GetTitleCnt() >= REMIX_OK)
+	{// ƒŠƒ~ƒbƒNƒXo—ˆ‚é
+		// ˜g‚Ìİ’è
+		SetFrame(pos, fWidth, fHeight, &s_pTextureRule);
+
+		// ƒeƒNƒXƒ`ƒƒ‚Ì“Ç‚İ‚İ
+		D3DXCreateTextureFromFile(
+			pDevice,
+			"data/TEXTURE/Remix.png",
+			&s_pTextureRemix);
+
+		fWidth = REMIX_WIDTH * 0.5f;
+		fHeight = REMIX_HEIGHT * 0.5f;
+
+		pos = D3DXVECTOR3(-210.0f, 0.0f, 85.0f);
+
+		// ƒrƒ‹ƒ{[ƒh‚Ìİ’è
+		SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRemix);
+	}
 
 	fWidth = MOVE_WIDTH * 0.5f;
 	fHeight = MOVE_HEIGHT * 0.5f;

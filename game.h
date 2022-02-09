@@ -30,5 +30,7 @@ void UpdateGame(void);
 void DrawGame(void);
 void SetGameState(GAMESTATE state);
 GAMESTATE GetGame(void);
+void SetRemix(bool bRemix);
+bool GetRemix(void);
 
 #endif // !_GAME_H_
