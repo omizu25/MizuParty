@@ -18,6 +18,7 @@
 #include "player.h"
 #include "polygon.h"
 #include "shadow.h"
+#include "sound.h"
 #include "title.h"
 
 #include <assert.h>
@@ -55,6 +56,9 @@ void InitTitle(void)
 
 	// ライトの初期化
 	InitLight();
+
+	// サウンドの再生
+	PlaySound(SOUND_LABEL_No_name);
 }
 
 //--------------------------------------------------
@@ -62,6 +66,9 @@ void InitTitle(void)
 //--------------------------------------------------
 void UninitTitle(void)
 {
+	// サウンドの停止
+	StopSound();
+
 	// ポリゴンの終了
 	UninitPolygon();
 

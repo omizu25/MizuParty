@@ -17,6 +17,7 @@
 #include "setup.h"
 #include "shadow.h"
 #include "particle.h"
+#include "player.h"
 #include "result.h"
 #include "sound.h"
 #include "title.h"
@@ -30,6 +31,8 @@
 #define MAX_MOVE		(6.0f)			// 移動量の最大値
 #define MIN_MOVE		(5.0f)			// 移動量の最小値
 #define MAX_RANDOM		(2)				// ランダムの最大値
+#define STOP_GOOD		(15.0f)			// 止めるの上手
+#define STOP_NORMAL		(70.0f)			// 止めるの普通
 
 //--------------------------------------------------
 // スタティック変数
@@ -202,6 +205,27 @@ void UpdateModel(void)
 
 					// ゲームの設定
 					SetGameState(GAMESTATE_END);
+
+					float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+					float fDiff = s_model.pos.y - fPlayer;
+
+					if (fDiff <= STOP_GOOD)
+					{// 止めるの上手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの上手);
+					}
+					else if (fDiff <= STOP_NORMAL)
+					{// 止めるの普通
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの普通);
+					}
+					else
+					{// 止めるの下手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの下手);
+					}
+
 				}
 			}
 		}
@@ -345,25 +369,22 @@ void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 //--------------------------------------------------
 void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
 {
-	if (GetTitle() == MENU_STOP)
-	{// 止める
-		float fBottom = s_model.pos.y;
+	float fBottom = s_model.pos.y;
 
-		if ((pPos->y + size.y > fBottom))
-		{// 下
-			s_bCollision = true;
+	if ((pPos->y + size.y > fBottom))
+	{// 下
+		s_bCollision = true;
 
-			// パーティクルの設定
-			SetParticle(s_model.pos, 20.0f, true);
+		// パーティクルの設定
+		SetParticle(s_model.pos, 20.0f, true);
 
-			// リザルトの設定
-			SetResult(RESULT_GAMEOVER);
+		// リザルトの設定
+		SetResult(RESULT_GAMEOVER);
 
-			// ゲームの設定
-			SetGameState(GAMESTATE_END);
+		// ゲームの設定
+		SetGameState(GAMESTATE_END);
 
-			// サウンドの再生
-			PlaySound(SOUND_LABEL_SE_KO);
-		}
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_SE_KO);
 	}
 }

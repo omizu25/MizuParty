@@ -39,6 +39,7 @@
 //--------------------------------------------------
 static GAMESTATE		s_gameState;		// ゲーム情報
 static int				s_nTime;			// タイム
+static bool				s_bRemix;			// リミックス
 
 //--------------------------------------------------
 // 初期化
@@ -157,6 +158,34 @@ void InitGame(void)
 
 	// リザルトの設定
 	SetResult(RESULT_NONE);
+
+		switch (GetTitle())
+	{// どのゲーム？
+	case MENU_WALKING:		// ウォーキング
+
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_彼女のもとに);
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_魔王魂_アコースティック49);
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_魔王魂_サイバー44);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 }
 
 //--------------------------------------------------
@@ -164,6 +193,9 @@ void InitGame(void)
 //--------------------------------------------------
 void UninitGame(void)
 {
+	// サウンドの提出
+	StopSound();
+
 	// ポリゴンの終了
 	UninitPolygon();
 

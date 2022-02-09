@@ -70,7 +70,8 @@ static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
 static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
-static bool			s_bSound;				// サウンドを流したか
+static bool			s_bSoundRun;			// 走るサウンドを流したか
+static bool			s_bSoundFall;			// 落ちるサウンドを流したか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -142,7 +143,8 @@ void InitPlayer(void)
 	s_bMotionLoop = false;
 	s_fSlopeMove = 0.0f;
 	s_nEndTime = 0;
-	s_bSound = false;
+	s_bSoundRun = false;
+	s_bSoundFall = false;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -1027,6 +1029,14 @@ static void UpdateGame(Player *pPlayer)
 			{
 				if (s_nEndTime >= 120)
 				{
+					if (!s_bSoundRun)
+					{
+						s_bSoundRun = true;
+
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_走る);
+					}
+
 					pPlayer->pos.x += s_fSlopeMove;
 				}
 			}
@@ -1083,12 +1093,6 @@ static void UpdateGame(Player *pPlayer)
 
 	D3DXVECTOR3 size = D3DXVECTOR3(pPlayer->fSize, pPlayer->fHeight, pPlayer->fSize);
 
-	if (!GetCollision())
-	{
-		// 止めるの当たり判定
-		CollisionStop(&pPlayer->pos, size);
-	}
-
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
@@ -1111,9 +1115,9 @@ static void UpdateGame(Player *pPlayer)
 					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
 					pPlayer->rot.y += -D3DX_PI * 0.25f;
 
-					if (!s_bSound)
+					if (!s_bSoundFall)
 					{
-						s_bSound = true;
+						s_bSoundFall = true;
 
 						// サウンドの再生
 						PlaySound(SOUND_LABEL_SE_落下);
@@ -1127,7 +1131,16 @@ static void UpdateGame(Player *pPlayer)
 	case MENU_STOP:			// 止める
 
 		// モデルとの当たり判定
-		CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+		//CollisionModel(&pPlayer->pos, &pPlayer->posOld, size);
+
+		if (!GetCollision())
+		{// 当たってない
+			if (!GetStop())
+			{// 止まってない
+				// 止めるの当たり判定
+				CollisionStop(&pPlayer->pos, size);
+			}
+		}
 
 		break;
 

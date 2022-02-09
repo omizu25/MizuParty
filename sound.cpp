@@ -33,12 +33,19 @@ DWORD g_aSizeAudio[SOUND_LABEL_MAX] = {};					// オーディオデータサイズ
 // 各音素材のパラメータ
 SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 {
-	{"data/BGM/mwtpg.wav", -1},				// BGM0
-	{"data/SE/countdown.wav", 0},			// カウントダウン音
-	{"data/SE/ヒューンと落下.wav", 0},		// 色んな落下音
-	{"data/SE/K.O.wav", 0},					// ハンマーに直撃音
-	{"data/SE/one_point29.wav", 0},			// ゲームオーバー音
-	{"data/SE/パパッ.wav", 0},				// 選択音
+	{"data/BGM/No_name.wav", -1},						// BGM0
+	{"data/BGM/彼女のもとに.wav", -1},					// BGM1
+	{"data/BGM/魔王魂_アコースティック49.wav", -1},		// BGM2
+	{"data/BGM/魔王魂_サイバー44.wav", -1},				// BGM3
+	{"data/SE/countdown.wav", 0},						// カウントダウン音
+	{"data/SE/ヒューンと落下.wav", 0},					// 色んな落下音
+	{"data/SE/K.O.wav", 0},								// ハンマーに直撃音
+	{"data/SE/one_point29.wav", 0},						// ゲームオーバー音
+	{"data/SE/パパッ.wav", 0},							// 選択音
+	{"data/SE/ピューンと逃げる.wav", 0},				// 坂の走り始め音
+	{"data/SE/間抜け2.wav", 0},							// 止めるの下手音
+	{"data/SE/魔王魂  戦闘10.wav", 0},					// 止めるの普通音
+	{"data/SE/居合抜き1.wav", 0},						// 止めるの上手音
 };
 
 //=============================================================================
