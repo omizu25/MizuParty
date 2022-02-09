@@ -154,7 +154,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="billboard.cpp" />
-    <ClCompile Include="bullet.cpp" />
     <ClCompile Include="camera.cpp" />
     <ClCompile Include="countdown.cpp" />
     <ClCompile Include="effect.cpp" />
@@ -164,12 +163,8 @@
     <ClCompile Include="input.cpp" />
     <ClCompile Include="light.cpp" />
     <ClCompile Include="line.cpp" />
-    <ClCompile Include="locus.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="mesh_cylinder.cpp" />
     <ClCompile Include="mesh_field.cpp" />
-    <ClCompile Include="mesh_sky.cpp" />
-    <ClCompile Include="mesh_sphere.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="number.cpp" />
     <ClCompile Include="particle.cpp" />
@@ -179,6 +174,7 @@
     <ClCompile Include="rule.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="shadow.cpp" />
+    <ClCompile Include="sound.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
@@ -186,7 +182,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="billboard.h" />
-    <ClInclude Include="bullet.h" />
     <ClInclude Include="camera.h" />
     <ClInclude Include="countdown.h" />
     <ClInclude Include="effect.h" />
@@ -196,12 +191,8 @@
     <ClInclude Include="input.h" />
     <ClInclude Include="light.h" />
     <ClInclude Include="line.h" />
-    <ClInclude Include="locus.h" />
     <ClInclude Include="main.h" />
-    <ClInclude Include="mesh_cylinder.h" />
     <ClInclude Include="mesh_field.h" />
-    <ClInclude Include="mesh_sky.h" />
-    <ClInclude Include="mesh_sphere.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="number.h" />
     <ClInclude Include="particle.h" />
@@ -211,6 +202,7 @@
     <ClInclude Include="rule.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shadow.h" />
+    <ClInclude Include="sound.h" />
     <ClInclude Include="target.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />

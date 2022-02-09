@@ -18,6 +18,7 @@
 #include "shadow.h"
 #include "particle.h"
 #include "result.h"
+#include "sound.h"
 #include "title.h"
 
 #include <time.h>
@@ -360,6 +361,9 @@ void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
 
 			// ゲームの設定
 			SetGameState(GAMESTATE_END);
+
+			// サウンドの再生
+			PlaySound(SOUND_LABEL_SE_KO);
 		}
 	}
 }

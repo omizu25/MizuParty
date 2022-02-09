@@ -27,5 +27,6 @@ void UninitResult(void);
 void UpdateResult(void);
 void DrawResult(void);
 void SetResult(RESULT result);
+RESULT GetResult(void);
 
 #endif // !_RESULT_H_

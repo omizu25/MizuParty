@@ -27,7 +27,7 @@
 #define START_POS_Y		(300.0f)		// スタートの高さ
 #define START_POS_Z		(-15.0f)		// スタートの奥行き
 #define MAX_MOVE		(5.0f)			// 移動量
-#define MAX_RANDOM		(65)			// ランダムの最大値
+#define MAX_RANDOM		(650)			// ランダムの最大値
 
 //--------------------------------------------------
 // スタティック変数
@@ -117,7 +117,7 @@ void InitField(void)
 	//世界の種子の初期化
 	srand((unsigned)time(NULL));
 
-	float fRand = (float)(rand() % MAX_RANDOM) * 10.0f;
+	float fRand = (float)(rand() % MAX_RANDOM);
 
 	s_field.pos = D3DXVECTOR3(fRand, 0.0f, 0.0f);
 	s_field.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);

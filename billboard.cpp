@@ -16,6 +16,7 @@
 #include "particle.h"
 #include "player.h"
 #include "setup.h"
+#include "sound.h"
 #include "title.h"
 #include "wall.h"
 
@@ -51,7 +52,6 @@
 typedef struct
 {
 	D3DXVECTOR3				pos;			// 位置
-	D3DXVECTOR3				move;			// 移動量
 	D3DXMATRIX				mtxWorld;		// ワールドマトリックス
 	float					fWidth;			// 幅
 	float					fHeight;		// 高さ
@@ -325,7 +325,7 @@ void DrawBillboard(bool bResult, bool bCamera)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -341,7 +341,6 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXVECTOR3 move, float fWidth, float fHeight
 		/*↓ 使用されていない ↓*/
 
 		pBillboard->pos = pos;
-		pBillboard->move = move;
 		pBillboard->fWidth = fWidth;
 		pBillboard->fHeight = fHeight;
 		pBillboard->pTexture = *pTexture;
@@ -438,6 +437,9 @@ void CollisionBillboard(void)
 
 			// フェードの設定
 			SetFade(MODE_GAME);
+
+			//サウンドの再生
+			PlaySound(SOUND_LABEL_SE_選択音);
 		}
 	}
 }
@@ -478,7 +480,7 @@ void InitBillboardSlope(void)
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureTarget);
 
 	fWidth = CHEAT_WIDTH * 0.5f;
 	fHeight = CHEAT_HEIGHT * 0.5f;
@@ -488,7 +490,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
 
 	fWidth = PLAYER_WIDTH * 0.5f;
 	fHeight = PLAYER_HEIGHT * 0.5f;
@@ -496,7 +498,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
+	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
 }
 
 //--------------------------------------------------
@@ -702,7 +704,7 @@ static void Load(FILE *pFile)
 			}
 
 			// 設定
-			SetBillboard(pText[i].pos, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
+			SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
 		}
 
 		delete[] pText;
@@ -748,17 +750,17 @@ static void TitleMenu(void)
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureWalking);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
 
 	pos.x = 0.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureStop);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureStop);
 
 	pos.x = 200.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureSlope);
 }
 
 //--------------------------------------------------
@@ -788,7 +790,7 @@ static void TitleRule(void)
 	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureRule);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
 
 	fWidth = MOVE_WIDTH * 0.5f;
 	fHeight = MOVE_HEIGHT * 0.5f;
@@ -796,5 +798,5 @@ static void TitleRule(void)
 	pos = D3DXVECTOR3(200.0f, 0.0f, 120.0f);
 	
 	// ビルボードの設定
-	SetBillboard(pos, move, fWidth, fHeight, true, false, false, &s_pTextureMove);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMove);
 }

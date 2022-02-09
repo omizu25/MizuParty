@@ -64,6 +64,8 @@ static void DrawGameOver(void);
 //--------------------------------------------------
 void InitResult(void)
 {
+	s_nTime = 0;
+
 	switch (s_result)
 	{
 	case RESULT_CLEAR:			// クリア
@@ -145,9 +147,9 @@ void UninitResult(void)
 //--------------------------------------------------
 void UpdateResult(void)
 {
-	if (GetKeyboardTrigger(DIK_RETURN) ||
+	if (GetKeyboardAllTrigger() ||
 		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
-	{// 決定キー(ENTERキー)が押されたかどうか
+	{// ボタンが押されたかどうか
 		// モード処理
 		SetFade(MODE_TITLE);
 	}
@@ -203,6 +205,14 @@ void SetResult(RESULT result)
 	{
 		s_result = result;
 	}
+}
+
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
+RESULT GetResult(void)
+{
+	return s_result;
 }
 
 //--------------------------------------------------

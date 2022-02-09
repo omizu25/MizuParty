@@ -27,6 +27,7 @@
 #include "result.h"
 #include "rule.h"
 #include "shadow.h"
+#include "sound.h"
 #include "target.h"
 #include "time.h"
 #include "title.h"
@@ -228,6 +229,9 @@ void UpdateGame(void)
 
 			// ゲームの設定
 			SetGameState(GAMESTATE_COUNTDOWN);
+
+			//サウンドの再生
+			PlaySound(SOUND_LABEL_SE_カウントダウン);
 		}
 
 		break;
@@ -304,23 +308,8 @@ void UpdateGame(void)
 				break;
 			}
 
-			// メッシュ円柱の更新
-			//UpdateMeshCylinder();
-
-			// メッシュ球の更新
-			//UpdateMeshSphere();
-
-			// メッシュ空の更新
-			//UpdateMeshSky();
-
 			// モデルの更新
 			UpdateModel();
-
-			// 線の更新
-			//UpdateLine();
-
-			// 弾の更新
-			//UpdateBullet();
 
 			if (GetTitle() != MENU_STOP)
 			{// 止めるじゃない
@@ -361,6 +350,12 @@ void UpdateGame(void)
 				{// 止める
 					// カメラの初期化
 					InitCamera();
+				}
+
+				if (GetResult() == RESULT_GAMEOVER)
+				{
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_ゲームオーバー);
 				}
 			}
 

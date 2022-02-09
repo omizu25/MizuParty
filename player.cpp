@@ -23,6 +23,7 @@
 #include "setup.h"
 #include "shadow.h"
 #include "wall.h"
+#include "sound.h"
 #include "title.h"
 
 #include <stdio.h>
@@ -69,6 +70,7 @@ static bool			s_bMotionBlend;			// モーションブレンド
 static bool			s_bMotionLoop;			// モーションループ
 static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
+static bool			s_bSound;				// サウンドを流したか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -94,18 +96,35 @@ void InitPlayer(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-	switch (GetTitle())
-	{// どのゲーム？
-	case MENU_WALKING:		// ウォーキング
-	case MENU_STOP:			// 止める
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
 
 		s_nSelectPlayer = 0;
 
 		break;
 
-	case MENU_SLOPE:		// 坂
+	case MODE_GAME:			// ゲーム
 
-		s_nSelectPlayer = 1;
+		switch (GetTitle())
+		{// どのゲーム？
+		case MENU_WALKING:		// ウォーキング
+		case MENU_STOP:			// 止める
+
+			s_nSelectPlayer = 0;
+
+			break;
+
+		case MENU_SLOPE:		// 坂
+
+			s_nSelectPlayer = 1;
+
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
 
 		break;
 
@@ -123,6 +142,7 @@ void InitPlayer(void)
 	s_bMotionLoop = false;
 	s_fSlopeMove = 0.0f;
 	s_nEndTime = 0;
+	s_bSound = false;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -941,9 +961,8 @@ static void UpdateGame(Player *pPlayer)
 	pPlayer->posOld = pPlayer->pos;
 
 	switch (GetTitle())
-	{// どのゲーム？
+	{// 移動系
 	case MENU_WALKING:		// ウォーキング
-	case MENU_SLOPE:		// 坂
 
 		switch (GetGame())
 		{
@@ -965,49 +984,8 @@ static void UpdateGame(Player *pPlayer)
 
 		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
 
-			if (GetTitle() == MENU_WALKING)
-			{
-				pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-			}
-			else if (GetTitle() == MENU_SLOPE)
-			{
-				s_nEndTime++;
-
-				if (s_fSlopeMove != 0.0f)
-				{
-					if (s_nEndTime >= 120)
-					{
-						pPlayer->pos.x += s_fSlopeMove;
-						pPlayer->pos.y += -10.8f;
-					}
-				}
-				else
-				{
-					pPlayer->pos.y += -10.8f;
-
-					if (s_nEndTime >= 120)
-					{
-						if (CollisionField(&pPlayer->pos, &pPlayer->posOld))
-						{
-							// リザルトの設定
-							SetResult(RESULT_CLEAR);
-						}
-						else
-						{
-							// リザルトの設定
-							SetResult(RESULT_GAMEOVER);
-						}
-
-						pPlayer->pos.y += -10.8f;
-
-						// リザルトの初期化
-						InitResult();
-
-						// ゲームの設定
-						SetGameState(GAMESTATE_RESULT);
-					}
-				}
-			}
+			// 向きの初期化
+			pPlayer->rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 			break;
 
@@ -1017,6 +995,77 @@ static void UpdateGame(Player *pPlayer)
 		}
 
 		break;
+
+		case MENU_SLOPE:		// 坂
+
+		// 重力を加算
+		pPlayer->pos.y += -10.8f;
+
+		switch (GetGame())
+		{
+		case GAMESTATE_NONE:			// 何もしていない状態
+		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
+		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+
+			/* 処理なし */
+
+			break;
+
+		case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
+
+			// 移動
+			Move(pPlayer);
+
+			break;
+
+		case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
+
+			s_nEndTime++;
+
+			if (s_fSlopeMove != 0.0f)
+			{
+				if (s_nEndTime >= 120)
+				{
+					pPlayer->pos.x += s_fSlopeMove;
+				}
+			}
+			else
+			{
+				if (s_nEndTime >= 120)
+				{
+					if (CollisionField(&pPlayer->pos, &pPlayer->posOld))
+					{
+						// リザルトの設定
+						SetResult(RESULT_CLEAR);
+					}
+					else
+					{
+						// リザルトの設定
+						SetResult(RESULT_GAMEOVER);
+					}
+
+					pPlayer->pos.y += -10.8f;
+
+					// リザルトの初期化
+					InitResult();
+
+					// ゲームの設定
+					SetGameState(GAMESTATE_RESULT);
+
+					if (GetResult() == RESULT_GAMEOVER)
+					{
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_ゲームオーバー);
+					}
+				}
+			}
+			break;
+
+		default:
+			assert(false);
+			break;
+		}
 
 	case MENU_STOP:			// 止める
 
@@ -1050,11 +1099,6 @@ static void UpdateGame(Player *pPlayer)
 
 	case MENU_SLOPE:		// 坂
 
-		if (GetGame() == GAMESTATE_RESULT)
-		{
-			pPlayer->pos.y += -10.8f;
-		}
-
 		if (!CollisionField(&pPlayer->pos, &pPlayer->posOld))
 		{// フィールドとの当たり判定
 			if (!CollisionMeshField(&pPlayer->pos))
@@ -1066,6 +1110,14 @@ static void UpdateGame(Player *pPlayer)
 					pPlayer->rot.x += -D3DX_PI * 0.25f;
 					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
 					pPlayer->rot.y += -D3DX_PI * 0.25f;
+
+					if (!s_bSound)
+					{
+						s_bSound = true;
+
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_落下);
+					}
 				}
 			}
 		}
@@ -1145,6 +1197,12 @@ static void UpdateGame(Player *pPlayer)
 
 						// ゲームの設定
 						SetGameState(GAMESTATE_RESULT);
+
+						if (GetResult() == RESULT_GAMEOVER)
+						{
+							// サウンドの再生
+							PlaySound(SOUND_LABEL_SE_ゲームオーバー);
+						}
 					}
 				}
 			}

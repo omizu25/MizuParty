@@ -158,7 +158,6 @@ void DrawPolygon(void)
 		break;
 	}
 
-
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(
 		D3DPT_TRIANGLESTRIP,		// プリミティブの種類

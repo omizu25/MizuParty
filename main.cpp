@@ -14,6 +14,7 @@
 #include "input.h"
 #include "game.h"
 #include "result.h"
+#include "sound.h"
 #include "title.h"
 
 #include <stdio.h>
@@ -293,7 +294,10 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		return E_FAIL;
 	}
 
-	//フェードの設定
+	// サウンドの初期化
+	InitSound(hWnd);
+
+	// フェードの設定
 	InitFade(s_mode);
 
 	return S_OK;
@@ -310,6 +314,9 @@ static void Uninit(void)
 
 	// 入力処理の終了
 	UninitInput();
+
+	// サウンドの終了
+	UninitSound();
 
 	switch (s_mode)
 	{// どのモード？
