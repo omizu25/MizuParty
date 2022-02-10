@@ -35,7 +35,7 @@ static int		s_nCount;		// 何回タイトルに来たかのカウント
 //--------------------------------------------------
 void InitTitle(void)
 {
-	s_nCount++;
+	s_nCount++; 
 
 	// ポリゴンの初期化
 	InitPolygon();
@@ -65,7 +65,7 @@ void InitTitle(void)
 	InitLight();
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_No_name);
+	PlaySound(SOUND_LABEL_タイトル);
 }
 
 //--------------------------------------------------

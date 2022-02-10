@@ -13,6 +13,7 @@
 #include "player.h"
 #include "result.h"
 #include "setup.h"
+#include "sound.h"
 #include "time.h"
 #include "title.h"
 
@@ -82,12 +83,18 @@ void InitResult(void)
 		// クリア
 		InitClear();
 
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_SE_ゲームクリア);
+
 		break;
 
 	case RESULT_GAMEOVER:		// ゲームオーバー
 
 		// ゲームオーバー
 		InitGameOver();
+
+		// サウンドの再生
+		PlaySound(SOUND_LABEL_SE_ゲームオーバー);
 
 		break;
 

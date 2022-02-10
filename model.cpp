@@ -189,8 +189,14 @@ void UpdateModel(void)
 {
 	if (GetTitle() == MENU_STOP)
 	{// Ž~‚ß‚é
+
 		if (!s_bCollision)
 		{
+			if (!s_bStop)
+			{// Ž~‚Ü‚ç‚È‚¢
+				s_model.pos.y -= s_model.fMove;
+			}
+
 			float fModel = GetModel()->pos.y;
 			float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
 
@@ -214,42 +220,37 @@ void UpdateModel(void)
 			}
 		}
 
-		if (!s_bCollision)
+		if (!s_bCollision && !s_bStop)
 		{
-			if (!s_bStop)
-			{// Ž~‚Ü‚ç‚È‚¢
-				s_model.pos.y -= s_model.fMove;
+			if (GetKeyboardTrigger(DIK_SPACE) ||
+				GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
+			{// F4ƒL[‚ª‰Ÿ‚³‚ê‚½
+				s_bStop = true;
 
-				if (GetKeyboardTrigger(DIK_SPACE) ||
-					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
-				{// F4ƒL[‚ª‰Ÿ‚³‚ê‚½
-					s_bStop = true;
+				// ƒŠƒUƒ‹ƒg‚ÌÝ’è
+				SetResult(RESULT_CLEAR);
 
-					// ƒŠƒUƒ‹ƒg‚ÌÝ’è
-					SetResult(RESULT_CLEAR);
+				// ƒQ[ƒ€‚ÌÝ’è
+				SetGameState(GAMESTATE_END);
 
-					// ƒQ[ƒ€‚ÌÝ’è
-					SetGameState(GAMESTATE_END);
+				float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
 
-					float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+				float fDiff = s_model.pos.y - fPlayer;
 
-					float fDiff = s_model.pos.y - fPlayer;
-
-					if (fDiff <= STOP_GOOD)
-					{// Ž~‚ß‚é‚ÌãŽè
-						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚ÌãŽè);
-					}
-					else if (fDiff <= STOP_NORMAL)
-					{// Ž~‚ß‚é‚Ì•’Ê
-						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì•’Ê);
-					}
-					else
-					{// Ž~‚ß‚é‚Ì‰ºŽè
-						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì‰ºŽè);
-					}
+				if (fDiff <= STOP_GOOD)
+				{// Ž~‚ß‚é‚ÌãŽè
+					// ƒTƒEƒ“ƒh‚ÌÄ¶
+					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚ÌãŽè);
+				}
+				else if (fDiff <= STOP_NORMAL)
+				{// Ž~‚ß‚é‚Ì•’Ê
+					// ƒTƒEƒ“ƒh‚ÌÄ¶
+					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì•’Ê);
+				}
+				else
+				{// Ž~‚ß‚é‚Ì‰ºŽè
+					// ƒTƒEƒ“ƒh‚ÌÄ¶
+					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì‰ºŽè);
 				}
 			}
 		}

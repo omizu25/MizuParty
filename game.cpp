@@ -182,21 +182,21 @@ void InitGame(void)
 	case MENU_WALKING:		// ウォーキング
 
 		// サウンドの再生
-		PlaySound(SOUND_LABEL_彼女のもとに);
+		PlaySound(SOUND_LABEL_ウォーキング);
 
 		break;
 
 	case MENU_STOP:			// 止める
 
 		// サウンドの再生
-		PlaySound(SOUND_LABEL_魔王魂_アコースティック49);
+		PlaySound(SOUND_LABEL_止める);
 
 		break;
 
 	case MENU_SLOPE:		// 坂
 
 		// サウンドの再生
-		PlaySound(SOUND_LABEL_魔王魂_サイバー44);
+		PlaySound(SOUND_LABEL_坂);
 
 		break;
 
@@ -400,12 +400,6 @@ void UpdateGame(void)
 				{// 止める
 					// カメラの初期化
 					InitCamera();
-				}
-
-				if (GetResult() == RESULT_GAMEOVER)
-				{
-					// サウンドの再生
-					PlaySound(SOUND_LABEL_SE_ゲームオーバー);
 				}
 			}
 

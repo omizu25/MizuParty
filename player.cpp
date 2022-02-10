@@ -321,8 +321,11 @@ void UpdatePlayer(void)
 		break;
 	}
 
-	// 影の位置の設定
-	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
+	if (pPlayer->pos.y >= 0.0f)
+	{
+		// 影の位置の設定
+		SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
+	}
 }
 
 //--------------------------------------------------
@@ -1066,12 +1069,6 @@ static void UpdateGame(Player *pPlayer)
 
 					// ゲームの設定
 					SetGameState(GAMESTATE_RESULT);
-
-					if (GetResult() == RESULT_GAMEOVER)
-					{
-						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_ゲームオーバー);
-					}
 				}
 			}
 			break;
@@ -1199,12 +1196,6 @@ static void UpdateGame(Player *pPlayer)
 
 						// ゲームの設定
 						SetGameState(GAMESTATE_RESULT);
-
-						if (GetResult() == RESULT_GAMEOVER)
-						{
-							// サウンドの再生
-							PlaySound(SOUND_LABEL_SE_ゲームオーバー);
-						}
 					}
 				}
 			}

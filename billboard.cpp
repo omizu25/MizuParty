@@ -39,12 +39,12 @@
 #define PLAYER_HEIGHT		(2000.0f)		// 自転車の高さ
 #define TITLE_WIDTH			(150.0f)		// メニューの幅
 #define TITLE_HEIGHT		(100.0f)		// メニューの高さ
-#define RULE_WIDTH			(300.0f)		// ルールの幅
-#define RULE_HEIGHT			(100.0f)		// ルールの高さ
+#define RULE_WIDTH			(200.0f)		// ルールの幅
+#define RULE_HEIGHT			(180.0f)		// ルールの高さ
 #define MOVE_WIDTH			(200.0f)		// 移動の幅
 #define MOVE_HEIGHT			(100.0f)		// 移動の高さ
-#define REMIX_WIDTH			(100.0f)		// リミックス幅
-#define REMIX_HEIGHT		(30.0f)			// リミックス高さ
+#define REMIX_WIDTH			(150.0f)		// リミックス幅
+#define REMIX_HEIGHT		(60.0f)			// リミックス高さ
 
 //--------------------------------------------------
 // 構造体
@@ -400,14 +400,14 @@ void CollisionBillboard(void)
 		if (pBillboard->pTexture != s_pTextureWalking &&
 			pBillboard->pTexture != s_pTextureStop && 
 			pBillboard->pTexture != s_pTextureSlope &&
-			pBillboard->pTexture != s_pTextureRule)
+			pBillboard->pTexture != s_pTextureRemix)
 		{// テクスチャが違う
 			continue;
 		}
 
 		if (GetTitleCnt() < REMIX_OK)
 		{
-			if (pBillboard->pTexture == s_pTextureRule)
+			if (pBillboard->pTexture == s_pTextureRemix)
 			{// テクスチャが違う
 				continue;
 			}
@@ -444,7 +444,7 @@ void CollisionBillboard(void)
 				// リミックス設定
 				SetRemix(false);
 			}
-			if (pBillboard->pTexture == s_pTextureRule)
+			if (pBillboard->pTexture == s_pTextureRemix)
 			{
 				// タイトルの設定
 				SetTitle(MENU_WALKING);
@@ -763,7 +763,7 @@ static void TitleMenu(void)
 	float fWidth = TITLE_WIDTH * 0.5f;
 	float fHeight = TITLE_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -60.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -90.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
@@ -811,16 +811,13 @@ static void TitleRule(void)
 	float fWidth = RULE_WIDTH * 0.5f;
 	float fHeight = RULE_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-fWidth, 0.0f, 120.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, 90.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
 
 	if (GetTitleCnt() >= REMIX_OK)
 	{// リミックス出来る
-		// 枠の設定
-		SetFrame(pos, fWidth, fHeight, &s_pTextureRule);
-
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
@@ -830,10 +827,13 @@ static void TitleRule(void)
 		fWidth = REMIX_WIDTH * 0.5f;
 		fHeight = REMIX_HEIGHT * 0.5f;
 
-		pos = D3DXVECTOR3(-210.0f, 0.0f, 85.0f);
+		pos = D3DXVECTOR3(0.0f, 0.0f, 85.0f);
 
 		// ビルボードの設定
 		SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRemix);
+
+		// 枠の設定
+		SetFrame(pos, fWidth, fHeight, &s_pTextureRemix);
 	}
 
 	fWidth = MOVE_WIDTH * 0.5f;
