@@ -37,6 +37,5 @@ Model *GetModel(void);
 bool GetStop(void);
 bool GetCollision(void);
 void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size);
-void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size);
 
 #endif // !_MODEL_H_

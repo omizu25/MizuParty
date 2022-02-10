@@ -37,15 +37,33 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static GAMESTATE		s_gameState;		// ゲーム情報
-static int				s_nTime;			// タイム
-static bool				s_bRemix;			// リミックス
+static GAMESTATE		s_gameState;					// ゲーム情報
+static int				s_nTime;						// タイム
+static bool				s_bRemix;						// リミックス
+static bool				s_bRemixWalking = false;		// リミックスのウォーキングをしたかどうか
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitGame(void)
 {
+	if (GetRemix())
+	{// リミックス
+		if (s_bRemixWalking)
+		{// リミックスのウォーキングをした
+			int nMenu = (int)GetTitle() + 1;
+
+			MENU menu = (MENU)nMenu;
+
+			// タイトルの設定
+			SetTitle(menu);
+		}
+		else
+		{// リミックスのウォーキングをしてない
+			s_bRemixWalking = true;
+		}
+	}
+
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
@@ -672,6 +690,7 @@ GAMESTATE GetGame(void)
 void SetRemix(bool bRemix)
 {
 	s_bRemix = bRemix;
+	s_bRemixWalking = false;
 }
 
 //--------------------------------------------------

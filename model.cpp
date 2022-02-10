@@ -191,6 +191,31 @@ void UpdateModel(void)
 	{// 止める
 		if (!s_bCollision)
 		{
+			float fModel = GetModel()->pos.y;
+			float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+			float fPos = (fModel - fPlayer) + 1.0f;
+
+			if (fPos < 0.0f)
+			{
+				s_bCollision = true;
+
+				// パーティクルの設定
+				SetParticle(s_model.pos, 20.0f, true);
+
+				// リザルトの設定
+				SetResult(RESULT_GAMEOVER);
+
+				// ゲームの設定
+				SetGameState(GAMESTATE_END);
+
+				// サウンドの再生
+				PlaySound(SOUND_LABEL_SE_KO);
+			}
+		}
+
+		if (!s_bCollision)
+		{
 			if (!s_bStop)
 			{// 止まらない
 				s_model.pos.y -= s_model.fMove;
@@ -360,30 +385,5 @@ void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
 		{// 上
 			pPos->y = fTop;
 		}
-	}
-}
-
-//--------------------------------------------------
-// 当たり判定 (止める)
-//--------------------------------------------------
-void CollisionStop(D3DXVECTOR3 *pPos, D3DXVECTOR3 size)
-{
-	float fBottom = s_model.pos.y;
-
-	if ((pPos->y + size.y > fBottom))
-	{// 下
-		s_bCollision = true;
-
-		// パーティクルの設定
-		SetParticle(s_model.pos, 20.0f, true);
-
-		// リザルトの設定
-		SetResult(RESULT_GAMEOVER);
-
-		// ゲームの設定
-		SetGameState(GAMESTATE_END);
-
-		// サウンドの再生
-		PlaySound(SOUND_LABEL_SE_KO);
 	}
 }

@@ -45,7 +45,6 @@ static LPD3DXFONT				s_pFont = NULL;				// フォントへのポインタ
 static int						s_nCountFPS = 0;			// FPSカウンタ
 static MODE						s_mode = MODE_TITLE;		// 現在のモード
 static bool						s_bDebug = true;			// デバッグ表示をするか [表示  : true 非表示  : false]
-static bool						s_bRemixWalking;			// リミックスのウォーキングをしたかどうか
 
 //--------------------------------------------------
 // main関数
@@ -301,8 +300,6 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// タイトルへのカウントの設定
 	SetTitleCnt();
 
-	s_bRemixWalking = false;
-
 	// フェードの設定
 	InitFade(s_mode);
 
@@ -503,30 +500,6 @@ void SetMode(MODE mode)
 	}
 
 	s_mode = mode;		// 現在の画面(モード)を切り替える
-
-	if (GetRemix())
-	{// リミックス
-		if (s_bRemixWalking)
-		{// リミックスのウォーキングをした
-			int nMenu = (int)GetTitle() + 1;
-
-			MENU menu = (MENU)nMenu;
-
-			if (nMenu < MENU_MAX)
-			{// まだ続く
-				// タイトルの設定
-				SetTitle(menu);
-			}
-			else
-			{// 終わり
-				s_bRemixWalking = false;
-			}
-		}
-		else
-		{// リミックスのウォーキングをしてない
-			s_bRemixWalking = true;
-		}
-	}
 
 	// 新しい画面(モード)の終了処理
 	switch (mode)

@@ -1100,6 +1100,7 @@ static void UpdateGame(Player *pPlayer)
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ƒEƒH[ƒLƒ“ƒO
+	case MENU_STOP:			// Ž~‚ß‚é
 
 		/* ˆ—‚È‚µ */
 
@@ -1127,19 +1128,6 @@ static void UpdateGame(Player *pPlayer)
 						PlaySound(SOUND_LABEL_SE_—Ž‰º);
 					}
 				}
-			}
-		}
-
-		break;
-
-	case MENU_STOP:			// Ž~‚ß‚é
-
-		if (!GetCollision())
-		{// “–‚½‚Á‚Ä‚È‚¢
-			if (!GetStop())
-			{// Ž~‚Ü‚Á‚Ä‚È‚¢
-				// Ž~‚ß‚é‚Ì“–‚½‚è”»’è
-				CollisionStop(&pPlayer->pos, size);
 			}
 		}
 
