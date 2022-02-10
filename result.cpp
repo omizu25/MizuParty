@@ -21,20 +21,22 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define RESULT_WIDTH		(500.0f)		// 幅
-#define RESULT_HEIGHT		(200.0f)		// 高さ
-#define METER_WIDTH			(100.0f)		// メートルの幅
-#define METER_HEIGHT		(160.0f)		// メートルの高さ
-#define MINUS_WIDTH			(60.0f)			// マイナスの幅
-#define MINUS_HEIGHT		(40.0f)			// マイナスの高さ
-#define GAMEOVER_WIDTH		(1000.0f)		// ゲームオーバーの幅
-#define GAMEOVER_HEIGHT		(300.0f)		// ゲームオーバーの高さ
-#define NUMBER_WIDTH		(140.0f)		// 数の幅
-#define NUMBER_HEIGHT		(250.0f)		// 数の高さ
-#define WIDTH_INTERVAL		(0.0f)			// 幅の間隔
-#define MAX_RESULT			(3)				// リザルトの最大数
-#define MIN_RESULT			(2)				// リザルトの最小数
-#define STOP_SCORE			(-1)			// 止めるのスコアの微調整
+#define RESULT_WIDTH			(450.0f)		// 幅
+#define RESULT_HEIGHT			(180.0f)		// 高さ
+#define METER_WIDTH				(100.0f)		// メートルの幅
+#define METER_HEIGHT			(160.0f)		// メートルの高さ
+#define MINUS_WIDTH				(60.0f)			// マイナスの幅
+#define MINUS_HEIGHT			(100.0f)		// マイナスの高さ
+#define GAMEOVER_WIDTH			(1000.0f)		// ゲームオーバーの幅
+#define GAMEOVER_HEIGHT			(300.0f)		// ゲームオーバーの高さ
+#define NUMBER_WIDTH			(100.0f)		// 数の幅
+#define NUMBER_HEIGHT			(200.0f)		// 数の高さ
+#define DECIMAL_WIDTH			(80.0f)			// 小数点の幅
+#define DECIMAL_HEIGHT			(150.0f)		// 小数点の高さ
+#define DECIMAL_INTERVAL		(40.0f)			// 小数の間隔
+#define MAX_RESULT				(4)				// リザルトの最大数
+#define MIN_RESULT				(2)				// リザルトの最小数
+#define STOP_SCORE				(-1)			// 止めるのスコアの微調整
 
 //--------------------------------------------------
 // スタティック変数
@@ -43,10 +45,14 @@ static LPDIRECT3DTEXTURE9			s_pTexture = NULL;				// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;			// メートルのテクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMeter = NULL;			// メートルの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMinus = NULL;			// マイナスのテクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMinus = NULL;			// マイナスの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureDecimal = NULL;		// 小数点のテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffDecimal = NULL;		// 小数点の頂点バッファのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureGameOver = NULL;		// ゲームオーバーのテクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameOver = NULL;		// ゲームオーバーの頂点バッファのポインタ
 static int							s_nTime;						// タイム
+static int							s_nDigit;						// 桁数
 static RESULT						s_result;						// リザルト
 
 //--------------------------------------------------
@@ -56,6 +62,7 @@ static void InitClear(void);
 static void InitGameOver(void);
 static void InitPosNumber(void);
 static void InitMeter(void);
+static void InitDecimal(void);
 static void InitMinus(void);
 static void DrawClear(void);
 static void DrawGameOver(void);
@@ -66,6 +73,7 @@ static void DrawGameOver(void);
 void InitResult(void)
 {
 	s_nTime = 0;
+	s_nDigit = 0;
 
 	switch (s_result)
 	{
@@ -290,7 +298,7 @@ static void InitClear(void)
 
 	float fWidth = RESULT_WIDTH * 0.5f;
 	float fHeight = RESULT_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.3f, SCREEN_HEIGHT * 0.75f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.225f, SCREEN_HEIGHT * 0.75f, 0.0f);
 
 	// 頂点座標の設定処理
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -331,6 +339,9 @@ static void InitClear(void)
 
 	// メートル
 	InitMeter();
+
+	// 小数点
+	InitDecimal();
 
 	// マイナス
 	InitMinus();
@@ -390,7 +401,7 @@ static void InitGameOver(void)
 static void InitPosNumber(void)
 {
 	// 位置を初期化する
-	D3DXVECTOR3 posNumber = D3DXVECTOR3(SCREEN_WIDTH * 0.85f, SCREEN_HEIGHT * 0.75f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.85f, SCREEN_HEIGHT * 0.75f, 0.0f);
 
 	int nPos = 0;
 	float fModel = 0.0f, fPlayer = 0.0f;
@@ -399,7 +410,7 @@ static void InitPosNumber(void)
 	{
 	case MENU_WALKING:		// ウォーキング
 		
-		nPos = (int)(GetPlayer()->pos.x / 30);
+		nPos = (int)(GetPlayer()->pos.x / 3);
 
 		if (GetPlayer()->pos.x <= 0.0f)
 		{// マイナス
@@ -413,7 +424,7 @@ static void InitPosNumber(void)
 		fModel = GetModel()->pos.y;
 		fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
 
-		nPos = (int)(fModel - fPlayer) + STOP_SCORE;
+		nPos = (int)(((fModel - fPlayer) + STOP_SCORE) * 10.0f);
 
 		break;
 
@@ -422,7 +433,7 @@ static void InitPosNumber(void)
 		fModel = GetField()->pos.x + GetField()->vtxMax.x;
 		fPlayer = GetPlayer()->pos.x + GetPlayer()->fSize;
 
-		nPos = (int)((fModel - fPlayer) * 0.1f);
+		nPos = (int)(fModel - fPlayer);
 
 		break;
 
@@ -431,7 +442,7 @@ static void InitPosNumber(void)
 		break;
 	}
 
-	int nNumber = nPos, nDigit = 0;
+	int nNumber = nPos;
 
 	while (1)
 	{
@@ -439,15 +450,15 @@ static void InitPosNumber(void)
 		if (nNumber >= 10)
 		{
 			nNumber /= 10;
-			nDigit++;
+			s_nDigit++;
 		}
 		else
 		{
-			nDigit++;
+			s_nDigit++;
 
-			if (nDigit < MIN_RESULT)
+			if (s_nDigit < MIN_RESULT)
 			{
-				nDigit = MIN_RESULT;
+				s_nDigit = MIN_RESULT;
 			}
 
 			break;
@@ -456,15 +467,22 @@ static void InitPosNumber(void)
 
 	int aNumber[MAX_RESULT];
 
-	for (int i = 0; i < nDigit; i++)
+	for (int i = 0; i < s_nDigit; i++)
 	{// １桁ずつに分ける
 		aNumber[i] = nPos % 10;
 		nPos /= 10;
 
-		float fInterval = (NUMBER_WIDTH * i) + (WIDTH_INTERVAL * (i / 2));
+		float fInterval = (NUMBER_WIDTH * i);
+
+		float fDecimal = 0.0f;
+
+		if (i >= 1)
+		{
+			fDecimal = DECIMAL_INTERVAL;
+		}
 
 		// 数の設定処理
-		SetRightNumber(D3DXVECTOR3(posNumber.x - fInterval, posNumber.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_RESULT);
+		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_RESULT);
 	}
 }
 
@@ -517,12 +535,66 @@ static void InitMeter(void)
 }
 
 //--------------------------------------------------
+// 小数点
+//--------------------------------------------------
+static void InitDecimal(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/decimal.png",
+		&s_pTextureDecimal);
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffDecimal,
+		NULL);
+
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffDecimal->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = DECIMAL_WIDTH * 0.5f;
+	float fHeight = DECIMAL_HEIGHT * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.755f, SCREEN_HEIGHT * 0.77f, 0.0f);
+
+	// 頂点座標の設定
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhwの初期化
+	Initrhw(pVtx);
+
+	// 頂点カラーの初期化
+	Initcol(pVtx);
+
+	// テクスチャ座標の初期化
+	Inittex(pVtx);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuffDecimal->Unlock();
+}
+
+//--------------------------------------------------
 // マイナス
 //--------------------------------------------------
 static void InitMinus(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/minus.png",
+		&s_pTextureMinus);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
@@ -540,7 +612,10 @@ static void InitMinus(void)
 
 	float fWidth = MINUS_WIDTH * 0.5f;
 	float fHeight = MINUS_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.6f, SCREEN_HEIGHT * 0.75f, 0.0f);
+
+	float fPosX = (SCREEN_WIDTH * 0.85f) - DECIMAL_INTERVAL - (NUMBER_WIDTH * s_nDigit);
+	
+	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX - fWidth, SCREEN_HEIGHT * 0.75f, 0.0f);
 
 	// 頂点座標の設定
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -597,13 +672,28 @@ static void DrawClear(void)
 		2);							// プリミティブ(ポリゴン)数
 
 	// 頂点バッファをデータストリームに設定
+	pDevice->SetStreamSource(0, s_pVtxBuffDecimal, 0, sizeof(VERTEX_2D));
+
+	// 頂点フォーマットの設定
+	pDevice->SetFVF(FVF_VERTEX_2D);
+
+	// テクスチャの設定
+	pDevice->SetTexture(0, s_pTextureDecimal);
+
+	// ポリゴンの描画
+	pDevice->DrawPrimitive(
+		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+		0,							// 描画する最初の頂点インデックス
+		2);							// プリミティブ(ポリゴン)数
+
+	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuffMinus, 0, sizeof(VERTEX_2D));
 
 	// 頂点フォーマットの設定
 	pDevice->SetFVF(FVF_VERTEX_2D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
+	pDevice->SetTexture(0, s_pTextureMinus);
 
 	if (GetPlayer()->pos.x <= -30.0f)
 	{// マイナス
