@@ -321,11 +321,8 @@ void UpdatePlayer(void)
 		break;
 	}
 
-	if (pPlayer->pos.y >= 0.0f)
-	{
-		// ‰e‚ÌˆÊ’u‚ÌÝ’è
-		SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
-	}
+	// ‰e‚ÌˆÊ’u‚ÌÝ’è
+	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
 }
 
 //--------------------------------------------------
@@ -1111,11 +1108,14 @@ static void UpdateGame(Player *pPlayer)
 			{
 				if (GetGame() == GAMESTATE_END ||
 					GetGame() == GAMESTATE_RESULT)
-				{
+				{// —Ž‰º‚Ì‰ñ“]
 					pPlayer->rotDest.x += -D3DX_PI * 0.25f;
 					pPlayer->rot.x += -D3DX_PI * 0.25f;
 					pPlayer->rotDest.y += -D3DX_PI * 0.25f;
 					pPlayer->rot.y += -D3DX_PI * 0.25f;
+
+					// ‰e‚ðŽg‚¤‚Ì‚ðŽ~‚ß‚é
+					UseStopShadow(pPlayer->nIdxShadow);
 
 					if (!s_bSoundFall)
 					{

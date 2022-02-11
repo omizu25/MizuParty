@@ -8,6 +8,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "camera.h"
 #include "countdown.h"
 #include "field.h"
@@ -16,6 +17,7 @@
 #include "model.h"
 #include "player.h"
 #include "setup.h"
+#include "shadow.h"
 #include "title.h"
 
 #include <assert.h>

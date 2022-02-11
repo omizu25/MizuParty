@@ -9,6 +9,7 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "audience.h"
 #include "billboard.h"
 #include "camera.h"
 #include "countdown.h"
@@ -109,6 +110,12 @@ void InitGame(void)
 
 	// モデルの初期化
 	InitModel();
+
+	// 観客の読み込み
+	LoadAudience();
+
+	// 観客の初期化
+	InitAudience();
 
 	// プレイヤーの読み込み
 	LoadPlayer();
@@ -237,6 +244,9 @@ void UninitGame(void)
 
 	// モデルの終了
 	UninitModel();
+
+	// 観客の終了
+	UninitAudience();
 
 	// プレイヤーの終了
 	UninitPlayer();
@@ -400,6 +410,16 @@ void UpdateGame(void)
 				{// 止める
 					// カメラの初期化
 					InitCamera();
+
+					for (int i = 0; i < GetNumAudience(); i++)
+					{
+						Audience *pAudience = GetAudience(i);
+
+						// 影を使うのを止める
+						UseStopShadow(pAudience->nIdxShadow);
+
+						pAudience->bDraw = false;
+					}
 				}
 			}
 
@@ -447,6 +467,9 @@ void UpdateGame(void)
 
 	// ターゲットの更新
 	UpdateTarget();
+
+	// 観客の更新
+	UpdateAudience();
 
 	// プレイヤーの更新
 	UpdatePlayer();
@@ -561,6 +584,9 @@ void DrawGame(void)
 
 		// モデルの描画
 		DrawModel();
+
+		// 観客の描画
+		DrawAudience();
 
 		// プレイヤーの描画
 		DrawPlayer();

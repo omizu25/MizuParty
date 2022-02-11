@@ -228,29 +228,40 @@ void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
 {
 	Shadow *pShadow = &s_shadow[nIdxShadow];
 
-	pShadow->pos = pos;
+	if (pShadow->bUse)
+	{//使用されている
+		pShadow->pos = pos;
 
-	polygon *pPolygon = GetPolygon();
+		polygon *pPolygon = GetPolygon();
 
-	pShadow->pos.y = pPolygon->pos.y + 0.1f;
+		pShadow->pos.y = pPolygon->pos.y + 0.1f;
 
-	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
+		VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
-	// 頂点情報をロックし、頂点情報へのポインタを取得
-	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+		// 頂点情報をロックし、頂点情報へのポインタを取得
+		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
-	pVtx += (nIdxShadow * 4);		//該当の位置まで進める
+		pVtx += (nIdxShadow * 4);		//該当の位置まで進める
 
-	float fSize = pos.y * 0.15f;
+		float fSize = pos.y * 0.15f;
 
-	// 頂点座標の設定
-	Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+		// 頂点座標の設定
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
 
-	float Alpha = 1.0f - (pos.y * 0.005f);
+		float Alpha = 1.0f - (pos.y * 0.005f);
 
-	// 頂点カラーの設定
-	Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
+		// 頂点カラーの設定
+		Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
-	// 頂点バッファをアンロックする
-	s_pVtxBuff->Unlock();
+		// 頂点バッファをアンロックする
+		s_pVtxBuff->Unlock();
+	}
+}
+
+//--------------------------------------------------
+// 使うのを止める
+//--------------------------------------------------
+void UseStopShadow(int nIdxShadow)
+{
+	s_shadow[nIdxShadow].bUse = false;
 }
