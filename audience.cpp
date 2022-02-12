@@ -22,8 +22,8 @@
 //--------------------------------------------------
 // ƒXƒ^ƒeƒBƒbƒN•Ï”
 //--------------------------------------------------
-#define MAX_RANDOM		(3)		// ŠÏ‹q‚ÌÅ‘å”
-#define MIN_RANDOM		(1)		// ŠÏ‹q‚ÌÅ¬”
+#define MAX_RANDOM		(5)		// ŠÏ‹q‚ÌÅ‘å”
+#define MIN_RANDOM		(3)		// ŠÏ‹q‚ÌÅ¬”
 
 //--------------------------------------------------
 // \‘¢‘Ì
@@ -133,14 +133,19 @@ void InitAudience(void)
 				pAudience->pTexture[j] = NULL;
 			}
 		}
+	}
+
+	// “–‚½‚è”»’è
+	Collision();
+	for (int i = 0; i < s_nNumAudience; i++)
+	{
+		Audience *pAudience = &s_pAudience[i];
+
 		pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 		// ‰e‚ÌÝ’è
 		pAudience->nIdxShadow = SetShadow(pAudience->pos, pAudience->rot, pAudience->vtxMax.x);
 	}
-
-	// “–‚½‚è”»’è
-	Collision();
 }
 
 //--------------------------------------------------
@@ -567,7 +572,7 @@ static void RandomPos(void)
 			fRand = (float)((rand() % nPosX) + (nPosX * i));
 			fRand += (30.0f * 10.0f);
 
-			pAudience->pos = D3DXVECTOR3(-fRand, 0.0f, 0.0f);
+			pAudience->pos = D3DXVECTOR3(-fRand, 0.0f, 200.0f);
 		}
 
 		for (int i = 0; i < s_nRight; i++)
@@ -578,7 +583,7 @@ static void RandomPos(void)
 			fRand = (float)((rand() % nPosX) + (nPosX * i));
 			fRand += (30.0f * 10.0f);
 
-			pAudience->pos = D3DXVECTOR3(fRand, 0.0f, 0.0f);
+			pAudience->pos = D3DXVECTOR3(fRand, 0.0f, 200.0f);
 		}
 
 		break;
@@ -617,7 +622,7 @@ static void Collision(void)
 		if (fAudienceLeft <= fNextRight &&
 			fAudienceRight >= fNextLeft)
 		{// d‚È‚Á‚Ä‚é
-			float fPosX = fAudienceRight + pNext->vtxMin.x;
+			float fPosX = fAudienceRight + pAudience->vtxMax.x;
 			pNext->pos.x = fPosX + pAudience->vtxMax.x;
 		}
 	}
