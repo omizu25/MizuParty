@@ -9,9 +9,10 @@
 // インクルード
 //--------------------------------------------------
 #include "main.h"
+#include "audience.h"
 #include "game.h"
 #include "input.h"
-#include "audience.h"
+#include "player.h"
 #include "setup.h"
 #include "shadow.h"
 #include "title.h"
@@ -22,8 +23,9 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-#define MAX_RANDOM		(5)		// 観客の最大数
-#define MIN_RANDOM		(3)		// 観客の最小数
+#define STOP_TEXT		"data/TEXT/stop.txt"		// 止めるのテキスト
+#define MAX_RANDOM				(5)					// 観客の最大数
+#define MIN_RANDOM				(3)					// 観客の最小数
 
 //--------------------------------------------------
 // 構造体
@@ -53,10 +55,13 @@ static int			s_nRight;			// 右側の観客の数
 static void System(char *pFileName);
 static void LoadNew(char *pFileName);
 static void LoadAudience(char *pFileName);
-static void InitRandom(void);
+static void InitWalking(void);
+static void InitStop(void);
+static void LoadStopNew(void);
+static void LoadStop(void);
 static void RandomNum(void);
-static void RandomUse(void);
 static void RandomPos(void);
+static void RandomUse(void);
 static void Collision(void);
 
 //--------------------------------------------------
@@ -64,8 +69,31 @@ static void Collision(void);
 //--------------------------------------------------
 void InitAudience(void)
 {
-	// ランダム
-	InitRandom();
+	//世界の種子の初期化
+	srand((unsigned)time(NULL));
+
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+		InitWalking();
+
+		break;
+
+	case MENU_STOP:			// 止める
+		InitStop();
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		s_nNumAudience = (rand() % MAX_RANDOM) + MIN_RANDOM;
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
 
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
@@ -137,11 +165,10 @@ void InitAudience(void)
 
 	// 当たり判定
 	Collision();
+
 	for (int i = 0; i < s_nNumAudience; i++)
 	{
 		Audience *pAudience = &s_pAudience[i];
-
-		pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 		// 影の設定
 		pAudience->nIdxShadow = SetShadow(pAudience->pos, pAudience->rot, pAudience->vtxMax.x);
@@ -459,21 +486,189 @@ static void LoadAudience(char *pFileName)
 }
 
 //--------------------------------------------------
-// ランダム
+// ウォーキング
 //--------------------------------------------------
-static void InitRandom(void)
+static void InitWalking(void)
 {
-	//世界の種子の初期化
-	srand((unsigned)time(NULL));
+	s_nLeft = 0;
+	s_nRight = 0;
+	s_nNumAudience = 0;
 
-	// 使う数
-	RandomNum();
+	s_nLeft = (rand() % MAX_RANDOM) + MIN_RANDOM;
+	s_nRight = (rand() % MAX_RANDOM) + MIN_RANDOM;
+	s_nLeft = 1;
+	s_nRight = 1;
+	s_nNumAudience = s_nLeft + s_nRight;
+
+	// 必要数分の配列を用意する
+	s_pAudience = new Audience[s_nNumAudience];
 
 	// 使う観客
 	RandomUse();
 
-	// 位置
-	RandomPos();
+	int nPosX = 0;
+	float fRand = 0.0f;
+
+	for (int i = 0; i < s_nLeft; i++)
+	{
+		Audience *pAudience = &s_pAudience[i];
+
+		nPosX = (30 * 75) / s_nLeft;
+		fRand = (float)((rand() % nPosX) + (nPosX * i));
+		fRand += (30.0f * 10.0f);
+
+		pAudience->pos = D3DXVECTOR3(-fRand, 0.0f, 200.0f);
+	}
+
+	for (int i = 0; i < s_nRight; i++)
+	{
+		Audience *pAudience = &s_pAudience[i + s_nLeft];
+
+		nPosX = (30 * 75) / s_nRight;
+		fRand = (float)((rand() % nPosX) + (nPosX * i));
+		fRand += (30.0f * 10.0f);
+
+		pAudience->pos = D3DXVECTOR3(fRand, 0.0f, 200.0f);
+	}
+}
+
+//--------------------------------------------------
+// 止める
+//--------------------------------------------------
+static void InitStop(void)
+{
+	// 止めるのnew用の読み込み
+	LoadStopNew();
+
+	// 止めるの読み込み
+	LoadStop();
+
+	for (int i = 0; i < s_nNumAudience; i++)
+	{
+		Audience *pAudience = &s_pAudience[i];
+		Player *pPlayer = GetPlayer();
+
+		//目的の移動方向(角度)
+		float fRot = atan2f(pAudience->pos.x - pPlayer->pos.x, pAudience->pos.z - pPlayer->pos.z);
+
+		// 角度の正規化
+		NormalizeRot(&fRot);
+
+		pAudience->rot = D3DXVECTOR3(0.0f, fRot, 0.0f);
+	}
+
+	// 使う観客
+	RandomUse();
+}
+
+//--------------------------------------------------
+// 止めるのnew用の読み込み
+//--------------------------------------------------
+static void LoadStopNew(void)
+{
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(STOP_TEXT, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		s_nNumAudience = 0;
+
+		while (strncmp(&aRead[0], "END_SCRIPT", 10) != 0)
+		{// 終わりが来るまで繰り返す
+			fgets(aRead, MAX_TEXT, pFile);
+
+			if (strncmp(&aRead[0], "MODELSET", 8) == 0)
+			{// モデルの情報
+				s_nNumAudience++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+
+		// 必要数分の配列を用意する
+		s_pAudience = new Audience[s_nNumAudience];
+	}
+	else
+	{// ファイルが開かない場合
+		assert(false);
+	}
+}
+
+//--------------------------------------------------
+// 止めるの読み込み
+//--------------------------------------------------
+static void LoadStop(void)
+{
+	FILE *pFile;		// ファイルポインタを宣言
+
+	// ファイルを開く
+	pFile = fopen(STOP_TEXT, "r");
+
+	if (pFile != NULL)
+	{// ファイルが開いた場合
+		char aRead[MAX_TEXT] = {};
+		int nModel = 0;
+
+		while (strcmp(&aRead[0], "SCRIPT") != 0)
+		{// 始まりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+		}
+
+		while (strcmp(&aRead[0], "END_SCRIPT") != 0)
+		{// 終わりが来るまで繰り返す
+			fscanf(pFile, "%s", &aRead);
+
+			if (strncmp(&aRead[0], "#-", 2) == 0)
+			{// コメント
+				continue;
+			}
+			else if (strncmp(&aRead[0], "#", 1) == 0)
+			{// コメント
+				fgets(aRead, MAX_TEXT, pFile);
+				continue;
+			}
+
+			if (strcmp(&aRead[0], "MODELSET") == 0)
+			{// キャラクターの情報
+				Audience *pAudience = &s_pAudience[nModel];
+
+				while (strcmp(&aRead[0], "END_MODELSET") != 0)
+				{// 終わりが来るまで繰り返す
+					fscanf(pFile, "%s", &aRead);
+
+					if (strncmp(&aRead[0], "#-", 2) == 0)
+					{// コメント
+						continue;
+					}
+					else if (strncmp(&aRead[0], "#", 1) == 0)
+					{// コメント
+						fgets(aRead, MAX_TEXT, pFile);
+						continue;
+					}
+
+					if (strcmp(&aRead[0], "POS") == 0)
+					{// 位置
+						fscanf(pFile, "%s", &aRead);
+						fscanf(pFile, "%f", &pAudience->pos.x);
+						fscanf(pFile, "%f", &pAudience->pos.y);
+						fscanf(pFile, "%f", &pAudience->pos.z);
+					}
+				}
+				nModel++;
+			}
+		}
+
+		// ファイルを閉じる
+		fclose(pFile);
+	}
+	else
+	{// ファイルが開かない場合
+		assert(false);
+	}
 }
 
 //--------------------------------------------------
@@ -489,10 +684,7 @@ static void RandomNum(void)
 	{
 	case MENU_WALKING:		// ウォーキング
 	case MENU_STOP:			// 止める
-		s_nLeft = (rand() % MAX_RANDOM) + MIN_RANDOM;
-		s_nRight = (rand() % MAX_RANDOM) + MIN_RANDOM;
-
-		s_nNumAudience = s_nLeft + s_nRight;
+		
 
 		break;
 
@@ -507,8 +699,7 @@ static void RandomNum(void)
 		break;
 	}
 
-	// 必要数分の配列を用意する
-	s_pAudience = new Audience[s_nNumAudience];
+	
 }
 
 //--------------------------------------------------
@@ -524,7 +715,6 @@ static void RandomUse(void)
 		Audience *pAudience = &s_pAudience[i];
 
 		int nUse = (rand() % s_nNumFileName);
-
 		Text *pText = &s_pText[nUse];
 
 		if (!pText->bLoad)
@@ -564,31 +754,35 @@ static void RandomPos(void)
 	{
 	case MENU_WALKING:		// ウォーキング
 		
+		
+
+		break;
+
+	case MENU_STOP:			// 止める
+
 		for (int i = 0; i < s_nLeft; i++)
 		{
 			Audience *pAudience = &s_pAudience[i];
 
-			nPosX = (30 * 75) / s_nLeft;
+			nPosX = (400 - 125) / s_nLeft;
 			fRand = (float)((rand() % nPosX) + (nPosX * i));
-			fRand += (30.0f * 10.0f);
+			fRand += 125.0f;
 
 			pAudience->pos = D3DXVECTOR3(-fRand, 0.0f, 200.0f);
+			pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
 
 		for (int i = 0; i < s_nRight; i++)
 		{
 			Audience *pAudience = &s_pAudience[i + s_nLeft];
 
-			nPosX = (30 * 75) / s_nRight;
+			nPosX = (400 - 125) / s_nRight;
 			fRand = (float)((rand() % nPosX) + (nPosX * i));
-			fRand += (30.0f * 10.0f);
+			fRand += 125.0f;
 
 			pAudience->pos = D3DXVECTOR3(fRand, 0.0f, 200.0f);
+			pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		}
-
-		break;
-
-	case MENU_STOP:			// 止める
 
 		break;
 

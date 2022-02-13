@@ -111,17 +111,17 @@ void InitGame(void)
 	// モデルの初期化
 	InitModel();
 
-	// 観客の読み込み
-	LoadAudience();
-
-	// 観客の初期化
-	InitAudience();
-
 	// プレイヤーの読み込み
 	LoadPlayer();
 
 	// プレイヤーの初期化
 	InitPlayer();
+
+	// 観客の読み込み
+	LoadAudience();
+
+	// 観客の初期化
+	InitAudience();
 
 	// ビルボードの初期化
 	InitBillboard();
