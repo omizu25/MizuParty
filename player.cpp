@@ -35,10 +35,11 @@
 //--------------------------------------------------
 #define MAX_ROTATION		(0.035f)		// 回転の最大値
 #define MAX_ATTENUATION		(0.1f)			// 減衰係数の最大値
+#define MAX_INERTIA			(0.5f)			// 慣性の最大値
 #define MAX_HEIGHT			(80.0f)			// 高さの最大値
 #define MIN_HEIGHT			(-80.0f)		// 高さの最小値
 #define IDX_PARENT			(-1)			// 親の番号
-#define MAX_BLEND			(30)			// ブレンドの最大値
+#define MAX_BLEND			(20)			// ブレンドの最大値
 #define SLOPE_LIMIT			(90.0f)			// 坂の移動制限
 #define SLOPE_RESULT		(1500.0f)		// 坂のリザルトへの判定
 #define TITLE_WIDTH			(255.0f)		// タイトルの移動制限
@@ -89,6 +90,7 @@ static void Rot(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
 static void MotionBlend(Player *pPlayer);
+static void MotionSlope(Player *pPlayer);
 
 //--------------------------------------------------
 // 初期化
@@ -187,6 +189,8 @@ void InitPlayer(void)
 		pPlayer->posOld = pPlayer->pos;
 		pPlayer->rotDest = pPlayer->rot;
 		pPlayer->nStopTime = 0;
+
+		pPlayer->move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
 	Player *pPlayer = &s_player[s_nSelectPlayer];
@@ -1031,6 +1035,8 @@ static void UpdateGame(Player *pPlayer)
 
 			if (s_fSlopeMove != 0.0f)
 			{
+				pPlayer->move.x = 0.0f;
+
 				if (s_nEndTime >= 120)
 				{
 					if (!s_bSoundRun)
@@ -1042,6 +1048,8 @@ static void UpdateGame(Player *pPlayer)
 					}
 
 					pPlayer->pos.x += s_fSlopeMove;
+
+					pPlayer->move.x = s_fSlopeMove;
 				}
 			}
 			else
@@ -1205,7 +1213,6 @@ static void UpdateGame(Player *pPlayer)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
-	case MENU_SLOPE:		// 坂
 
 		// モーション
 		Motion(pPlayer);
@@ -1213,6 +1220,21 @@ static void UpdateGame(Player *pPlayer)
 		break;
 
 	case MENU_STOP:			// 止める
+
+		if (s_bMotionBlend)
+		{// モーションブレンド中
+			s_nFrame++;
+
+			// モーションブレンド
+			MotionBlend(pPlayer);
+		}
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
+		// 坂のモーション
+		MotionSlope(pPlayer);
 
 		if (s_bMotionBlend)
 		{// モーションブレンド中
@@ -1294,12 +1316,85 @@ static void TitleMove(Player *pPlayer)
 		pPlayer->rotDest.y = 0.0f;
 	}
 
+	D3DXVECTOR3 move;			// 移動量の初期化
+	float moveLength = 0.0f;
+	D3DXVECTOR2 moveInput;
+
+	if (IsJoyPadUse(0))
+	{// ジョイパッドの使用
+		moveInput.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
+		moveInput.y = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y;
+		if (moveInput.x != 0.0f || moveInput.y != 0.0f)
+		{
+			moveLength = D3DXVec2Length(&moveInput);
+			if (moveLength > 1.0f)
+			{
+				moveLength = 1.0f;
+			}
+		}
+	}
+	else
+	{
+		moveInput.x = 0.0f;
+		moveInput.y = 0.0f;
+		// モデルの移動
+		if (GetKeyboardPress(DIK_W))
+		{
+			moveInput.y += 1.0f;
+			moveLength = 1.0f;
+		}
+		if (GetKeyboardPress(DIK_A))
+		{
+			moveInput.x -= 1.0f;
+			moveLength = 1.0f;
+		}
+		if (GetKeyboardPress(DIK_S))
+		{
+			moveInput.y -= 1.0f;
+			moveLength = 1.0f;
+		}
+		if (GetKeyboardPress(DIK_D))
+		{
+			moveInput.x += 1.0f;
+			moveLength = 1.0f;
+		}
+	}
+	if (moveLength > 0.0f)
+	{
+		// カメラの角度情報取得
+		D3DXVECTOR3* CameraRot = &GetCamera(0)->rot;
+		D3DXVec2Normalize(&moveInput, &moveInput);
+		float c = cosf(-CameraRot->y);
+		float s = sinf(-CameraRot->y);
+		// move の長さは 1 になる。
+		move.x = moveInput.x * c - moveInput.y * s;
+		move.z = moveInput.x * s + moveInput.y * c;
+	}
+	else
+	{ // 入力されていない。
+		return;
+	}
+
+	// 方向ベクトル掛ける移動量
+	pPlayer->move = move * moveLength * pPlayer->fMove;
+	//s_player.pos += s_player.movevec;
+	//pPlayer->move.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x * pPlayer->fMove;
+	//pPlayer->move.z = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y * pPlayer->fMove;
+
 	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
 		GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 	{// ←, →, ↑, ↓キーが押された
-		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
-		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
+		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
 	}
+
+	// 移動
+	pPlayer->pos.x += pPlayer->move.x;
+	pPlayer->pos.z += pPlayer->move.z;
+
+	// 慣性・移動量を更新 (減衰させる)
+	pPlayer->move.x += (0.0f - pPlayer->move.x) * MAX_INERTIA;
+	pPlayer->move.z += (0.0f - pPlayer->move.z) * MAX_INERTIA;
 
 	if (pPlayer->pos.x <= -TITLE_WIDTH)
 	{// 移動制限
@@ -1344,9 +1439,15 @@ static void Move(Player *pPlayer)
 
 	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
 	{// ←, →, ↑, ↓キーが押された
-		pPlayer->pos.x += sinf(fRot) * pPlayer->fMove;
-		pPlayer->pos.z += cosf(fRot) * pPlayer->fMove;
+		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
 	}
+
+	pPlayer->pos.x += pPlayer->move.x;
+	pPlayer->pos.z += pPlayer->move.z;
+
+	pPlayer->move.x += (0.0f - pPlayer->move.x) * MAX_INERTIA;
+	pPlayer->move.z += (0.0f - pPlayer->move.z) * MAX_INERTIA;
 
 	if (GetTitle() == MENU_SLOPE)
 	{
@@ -1401,11 +1502,14 @@ static void Motion(Player * pPlayer)
 	{
 	case MODE_TITLE:		// タイトル
 
-		if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D) ||
-			GetKeyboardTrigger(DIK_W) || GetKeyboardTrigger(DIK_S))
-		{// ←, →, ↑, ↓キーが押された
-			// 次のモーション
-			NextMotion(MOTION_MOVE);
+		if (s_IdxMotion != MOTION_MOVE)
+		{
+			if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f ||
+				pPlayer->move.z >= 0.1f || pPlayer->move.z <= -0.1f)
+			{// ←, →, ↑, ↓キーが押された
+				// 次のモーション
+				NextMotion(MOTION_MOVE);
+			}
 		}
 
 		break;
@@ -1419,10 +1523,13 @@ static void Motion(Player * pPlayer)
 			case MENU_WALKING:		// ウォーキング
 			case MENU_SLOPE:		// 坂
 
-				if (GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_D))
-				{// ←, →, ↑, ↓キーが押された
-					// 次のモーション
-					NextMotion(MOTION_MOVE);
+				if (s_IdxMotion != MOTION_MOVE)
+				{
+					if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f)
+					{// ←, →, ↑, ↓キーが押された
+					 // 次のモーション
+						NextMotion(MOTION_MOVE);
+					}
 				}
 
 				break;
@@ -1465,8 +1572,8 @@ static void Motion(Player * pPlayer)
 		{
 		case MODE_TITLE:		// タイトル
 
-			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
-				GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
+			if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f ||
+				pPlayer->move.z >= 0.1f || pPlayer->move.z <= -0.1f)
 			{// ←, →, ↑, ↓キーが押された
 				s_bMotionLoop = false;
 			}
@@ -1477,7 +1584,7 @@ static void Motion(Player * pPlayer)
 
 			if (GetGame() == GAMESTATE_NORMAL)
 			{// 通常状態 (ゲーム進行中)
-				if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
+				if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f)
 				{// ←, →, ↑, ↓キーが押された
 					s_bMotionLoop = false;
 				}
@@ -1576,5 +1683,47 @@ static void MotionBlend(Player *pPlayer)
 	{// フレーム数が超えた
 		s_bMotionBlend = false;
 		s_nFrame = 0;
+	}
+}
+
+//--------------------------------------------------
+// 坂のモーション
+//--------------------------------------------------
+static void MotionSlope(Player *pPlayer)
+{
+	switch (GetGame())
+	{
+	case GAMESTATE_NONE:			// 何もしていない状態
+	case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
+	case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
+	case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+
+		/* 処理なし */
+
+		break;
+
+	case GAMESTATE_NORMAL:		// 通常状態 (ゲーム進行中)
+
+		if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f)
+		{// 移動している
+			pPlayer->parts[1].rot.x += -D3DX_PI * 0.025f;
+			pPlayer->parts[2].rot.x += -D3DX_PI * 0.025f;
+		}
+
+		break;
+
+	case GAMESTATE_END:			// 終了状態 (ゲーム終了時)
+
+		if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f)
+		{// 移動している
+			pPlayer->parts[1].rot.x += -D3DX_PI * (s_fSlopeMove * 0.005f);
+			pPlayer->parts[2].rot.x += -D3DX_PI * (s_fSlopeMove * 0.005f);
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 }

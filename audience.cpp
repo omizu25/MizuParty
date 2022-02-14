@@ -24,8 +24,8 @@
 // スタティック変数
 //--------------------------------------------------
 #define STOP_TEXT		"data/TEXT/stop.txt"		// 止めるのテキスト
-#define MAX_RANDOM				(5)					// 観客の最大数
-#define MIN_RANDOM				(3)					// 観客の最小数
+#define MAX_RANDOM				(50)					// 観客の最大数
+#define MIN_RANDOM				(30)					// 観客の最小数
 
 //--------------------------------------------------
 // 構造体
@@ -496,8 +496,6 @@ static void InitWalking(void)
 
 	s_nLeft = (rand() % MAX_RANDOM) + MIN_RANDOM;
 	s_nRight = (rand() % MAX_RANDOM) + MIN_RANDOM;
-	s_nLeft = 1;
-	s_nRight = 1;
 	s_nNumAudience = s_nLeft + s_nRight;
 
 	// 必要数分の配列を用意する
@@ -715,6 +713,8 @@ static void RandomUse(void)
 		Audience *pAudience = &s_pAudience[i];
 
 		int nUse = (rand() % s_nNumFileName);
+		nUse = 14;
+
 		Text *pText = &s_pText[nUse];
 
 		if (!pText->bLoad)

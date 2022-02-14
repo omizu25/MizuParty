@@ -163,8 +163,7 @@ void UninitResult(void)
 //--------------------------------------------------
 void UpdateResult(void)
 {
-	if (GetKeyboardAllTrigger() ||
-		GetJoypadTrigger(JOYKEY_B, 0) || GetJoypadTrigger(JOYKEY_START, 0))
+	if (GetKeyboardAllTrigger() || GetJoypadAllTrigger())
 	{// ƒ{ƒ^ƒ“‚ª‰Ÿ‚³‚ê‚½‚©‚Ç‚¤‚©
 
 		if (GetRemix())

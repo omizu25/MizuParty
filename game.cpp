@@ -118,10 +118,10 @@ void InitGame(void)
 	InitPlayer();
 
 	// 観客の読み込み
-	LoadAudience();
+	//LoadAudience();
 
 	// 観客の初期化
-	InitAudience();
+	//InitAudience();
 
 	// ビルボードの初期化
 	InitBillboard();
@@ -246,7 +246,7 @@ void UninitGame(void)
 	UninitModel();
 
 	// 観客の終了
-	UninitAudience();
+	//UninitAudience();
 
 	// プレイヤーの終了
 	UninitPlayer();
@@ -391,7 +391,6 @@ void UpdateGame(void)
 
 			break;
 
-		case MENU_WALKING:		// ウォーキング
 		case MENU_STOP:			// 止める
 
 			s_nTime++;
@@ -405,21 +404,32 @@ void UpdateGame(void)
 
 				// ゲームの設定
 				SetGameState(GAMESTATE_RESULT);
+			}
 
-				if (GetTitle() == MENU_WALKING)
-				{// 止める
-					// カメラの初期化
-					InitCamera();
+			break;
 
-					for (int i = 0; i < GetNumAudience(); i++)
-					{
-						Audience *pAudience = GetAudience(i);
+		case MENU_WALKING:		// ウォーキング
 
-						// 影を使うのを止める
-						UseStopShadow(pAudience->nIdxShadow);
+			s_nTime++;
 
-						pAudience->bDraw = false;
-					}
+			if (s_nTime >= 120)
+			{
+				s_nTime = 0;
+
+				// ゲームの設定
+				SetGameState(GAMESTATE_RESULT);
+
+				// カメラの初期化
+				InitCamera();
+
+				for (int i = 0; i < GetNumAudience(); i++)
+				{
+					Audience *pAudience = GetAudience(i);
+
+					// 影を使うのを止める
+					UseStopShadow(pAudience->nIdxShadow);
+
+					pAudience->bDraw = false;
 				}
 			}
 
@@ -469,7 +479,7 @@ void UpdateGame(void)
 	UpdateTarget();
 
 	// 観客の更新
-	UpdateAudience();
+	//UpdateAudience();
 
 	// プレイヤーの更新
 	UpdatePlayer();
@@ -586,7 +596,7 @@ void DrawGame(void)
 		DrawModel();
 
 		// 観客の描画
-		DrawAudience();
+		//DrawAudience();
 
 		// プレイヤーの描画
 		DrawPlayer();

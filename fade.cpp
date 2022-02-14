@@ -147,7 +147,8 @@ void UpdateFade(void)
 
 		case FADE_IN:		// フェードイン状態
 
-			if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_B, 0))
+			if (GetKeyboardTrigger(DIK_RETURN) || GetJoypadTrigger(JOYKEY_START) ||
+				GetJoypadTrigger(JOYKEY_B) || GetJoypadTrigger(JOYKEY_A))
 			{// 決定キー(ENTERキー)が押されたかどうか
 
 				if (s_fade == FADE_OUT)

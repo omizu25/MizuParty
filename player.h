@@ -76,6 +76,7 @@ typedef struct
 	D3DXVECTOR3		posOld;					// 前回の位置
 	D3DXVECTOR3		rot;					// 向き
 	D3DXVECTOR3		rotDest;				// 目的の向き
+	D3DXVECTOR3		move;					// 移動量
 	D3DXMATRIX		mtxWorld;				// ワールドマトリックス
 	PlayerParts		*parts;					// パーツの情報
 	MotionSet		*Motion;				// モーションの情報

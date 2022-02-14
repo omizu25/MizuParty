@@ -5,8 +5,6 @@
 // Author2  : ISOE JUKIA
 // Author3  : KATSUKI MIZUKI
 // 
-// input.hを参照を推奨
-// 
 //==================================================
 
 //--------------------------------------------------
@@ -31,7 +29,7 @@ static LPDIRECTINPUT8			s_pInput = NULL;						// DirectInputオブジェクトへのポイ
 static LPDIRECTINPUTDEVICE8		s_pDevKeyboard = NULL;					// 入力デバイス(キーボード)へのポインタ
 static BYTE						s_aKeyState[NUM_KEY_MAX];				// キーボードのプレス情報
 static BYTE						s_aKeyStateTrigger[NUM_KEY_MAX];		// キーボードのトリガー情報
-static BYTE						s_aKeyStateReturn[NUM_KEY_MAX];			// キーボードのリターン情報
+static BYTE						s_aKeyStateRelease[NUM_KEY_MAX];		// キーボードのリリース情報
 
 /*↓ ジョイパッド ↓*/
 
@@ -41,6 +39,7 @@ static D3DXVECTOR3				s_JoyStickPos[PLAYER_MAX];				// ジョイスティックの傾き
 static XINPUT_VIBRATION			s_JoyMoter[PLAYER_MAX];					// ジョイパッドのモーター
 static int						s_nTime[PLAYER_MAX];					// 振動持続時間
 static WORD						s_nStrength[PLAYER_MAX];				// 振動の強さ (0 - 65535)
+static bool						s_bUseJoyPad[PLAYER_MAX];				// ジョイパッドを使用してるか
 
 /*↓ マウス ↓*/
 
@@ -49,6 +48,7 @@ static LPDIRECTINPUTDEVICE8		s_pDevMouse = NULL;						// 入力でパスへのポインタ
 static DIMOUSESTATE2			s_aKeyStateMouse;						// マウスのプレス処理
 static DIMOUSESTATE2			s_aKeyStatetriggerMouse;				// マウスのトリガー処理
 static POINT					s_MousePos;								// マウスのカーソル用
+static HWND						s_hMouseWnd;							// ウィンドウハンドル
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -204,7 +204,7 @@ static void UpdateKeyboard(void)
 		for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
 		{
 			s_aKeyStateTrigger[nCntKey] = ~s_aKeyState[nCntKey] & aKeyState[nCntKey];		// キーボードのトリガー情報を保存
-			s_aKeyStateReturn[nCntKey] = s_aKeyState[nCntKey] & ~aKeyState[nCntKey];		// キーボードのリターン情報を保存
+			s_aKeyStateRelease[nCntKey] = s_aKeyState[nCntKey] & ~aKeyState[nCntKey];		// キーボードのリリース情報を保存
 			s_aKeyState[nCntKey] = aKeyState[nCntKey];										// キーボードのプレス情報を保存
 		}
 	}
@@ -232,11 +232,11 @@ bool GetKeyboardTrigger(int nKey)
 }
 
 //--------------------------------------------------
-// キーボードのリターン情報を取得
+// キーボードのリリース情報を取得
 //--------------------------------------------------
-bool GetKeyboardReturn(int nKey)
+bool GetKeyboardRelease(int nKey)
 {
-	return (s_aKeyStateReturn[nKey] & 0x80) != 0;
+	return (s_aKeyStateRelease[nKey] & 0x80) != 0;
 }
 
 //--------------------------------------------------
@@ -263,6 +263,22 @@ bool GetKeyboardAllTrigger(void)
 	for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
 	{
 		if (GetKeyboardTrigger(nCntKey))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//--------------------------------------------------
+// キーボードの全キーリリース情報を取得
+//--------------------------------------------------
+bool GetKeyboardAllRelease(void)
+{
+	for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
+	{
+		if (GetKeyboardRelease(nCntKey))
 		{
 			return true;
 		}
@@ -326,6 +342,12 @@ static void UpdateJoypad(void)
 
 			// プレス情報を保存
 			s_JoyKeyState[nCnt] = JoyKeyState[nCnt];
+
+			s_bUseJoyPad[nCnt] = true; // 使用状況の更新
+		}
+		else
+		{
+			s_bUseJoyPad[nCnt] = false;	// 使用状況の更新
 		}
 
 		// ジョイパッドの振動
@@ -346,20 +368,87 @@ static void UpdateJoypad(void)
 }
 
 //--------------------------------------------------
-// ジョイパッドのプレス処理
+// ジョイパッドのプレス処理(プレイヤー指定あり)
 //--------------------------------------------------
-bool GetJoypadPress(JOYKEY Key, int nPlayer)
+bool GetJoypadIdxPress(JOYKEY Key, int nPlayer)
 {
 	return (s_JoyKeyState[nPlayer].Gamepad.wButtons & (0x01 << Key)) != 0;
 }
 
 //--------------------------------------------------
-// ジョイパッドのトリガー処理
+// ジョイパッドのトリガー処理(プレイヤー指定あり)
 //--------------------------------------------------
-bool GetJoypadTrigger(JOYKEY Key, int nPlayer)
+bool GetJoypadIdxTrigger(JOYKEY Key, int nPlayer)
 {
 	return (s_JoyKeyStateTrigger[nPlayer].Gamepad.wButtons & (0x01 << Key)) != 0;
 }
+
+//--------------------------------------------------
+// ジョイパッドのプレス処理(プレイヤー指定なし)
+//--------------------------------------------------
+bool GetJoypadPress(JOYKEY Key)
+{
+	for (int nPlayer = 0; nPlayer < PLAYER_MAX; nPlayer++)
+	{
+		if (GetJoypadIdxPress(Key, nPlayer))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//--------------------------------------------------
+// ジョイパッドのプレス処理(プレイヤー指定なし)
+//--------------------------------------------------
+bool GetJoypadTrigger(JOYKEY Key)
+{
+	for (int nPlayer = 0; nPlayer < PLAYER_MAX; nPlayer++)
+	{
+		if (GetJoypadIdxTrigger((JOYKEY)Key, nPlayer))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+//--------------------------------------------------
+// ジョイパッドの全キープレス処理
+//--------------------------------------------------
+bool GetJoypadAllPress(void)
+{
+	for (int nPlayer = 0; nPlayer < PLAYER_MAX; nPlayer++)
+	{
+		for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
+		{
+			if (GetJoypadIdxPress((JOYKEY)nCntKey, nPlayer))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+//--------------------------------------------------
+// ジョイパッドの全キートリガー処理
+//--------------------------------------------------
+bool GetJoypadAllTrigger(void)
+{
+	for (int nPlayer = 0; nPlayer < PLAYER_MAX; nPlayer++)
+	{
+		for (int nCntKey = 0; nCntKey < NUM_KEY_MAX; nCntKey++)
+		{
+			if (GetJoypadIdxTrigger((JOYKEY)nCntKey, nPlayer))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 
 //--------------------------------------------------
 // ジョイパット（スティックプレス）処理
@@ -408,6 +497,14 @@ void JoypadVibration(int nTime, WORD nStrength, int nPlayer)
 	s_nStrength[nPlayer] = nStrength;		// 振動の強さ
 }
 
+//--------------------------------------------------
+// ジョイパッドの使用されているか返す処理
+//--------------------------------------------------
+bool IsJoyPadUse(int nPlayer)
+{
+	return s_bUseJoyPad[nPlayer];
+}
+
 //**************************************************
 // マウスの入力処理
 //**************************************************
@@ -442,6 +539,9 @@ static HRESULT InitMouse(HINSTANCE hInstance, HWND hWnd)
 	{
 		return E_FAIL;
 	}
+
+	//ウィンドウハンドルの保管
+	s_hMouseWnd = hWnd;
 
 	// キーボードへのアクセス権を獲得
 	s_pDevMouse->Acquire();
@@ -506,13 +606,20 @@ bool GetMouseTrigger(MOUSE mouse)
 //--------------------------------------------------
 // マウスポインターの位置
 //--------------------------------------------------
-//D3DXVECTOR3 GetMouse(void)
-//{
-//	// 画面上のマウスポインターの位置
-//	GetCursorPos(&s_MousePos);
-//
-//	// ウィンドウ上のマウスポインターの位置
-//	ScreenToClient(GetWnd(), &s_MousePos);
-//
-//	return D3DXVECTOR3((float)s_MousePos.x, (float)s_MousePos.y, 0.0f);
-//}
+D3DXVECTOR3 GetMouse(void)
+{
+	//画面上のマウスポインターの位置
+	GetCursorPos(&s_MousePos);
+	//ウィンドウ上のマウスポインターの位置
+	ScreenToClient(s_hMouseWnd, &s_MousePos);
+
+	return D3DXVECTOR3((float)s_MousePos.x, (float)s_MousePos.y, 0.0f);
+}
+
+//--------------------------------------------------
+// マウスのホイールの動き感知
+//--------------------------------------------------
+int GetMouseWheel(void)
+{
+	return (int)s_aKeyStateMouse.lZ;
+}

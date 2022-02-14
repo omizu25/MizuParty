@@ -9,27 +9,43 @@ SCRIPT			# この行は絶対消さないこと！
 #--------------------------------------------------
 # モデル数
 #--------------------------------------------------
-NUM_MODEL = 1
+NUM_MODEL = 3
 
 #--------------------------------------------------
 # モデルファイル名
 #--------------------------------------------------
-MODEL_FILENAME = data/MODEL/bicycle.x		# [0]自転車
+MODEL_FILENAME = data/MODEL/自転車/body.x			# [0]ボディ
+MODEL_FILENAME = data/MODEL/自転車/FrontWheel.x		# [1]前輪
+MODEL_FILENAME = data/MODEL/自転車/RearWheel.x		# [2]後輪
 
 #--------------------------------------------------
 # キャラクター情報
 #--------------------------------------------------
 CHARACTERSET
-	NUM_PARTS = 1					# パーツ数
-	MOVE = 6.0						# 移動量
+	NUM_PARTS = 3					# パーツ数
+	MOVE = 3.0						# 移動量
 	JUMP = 12.65					# ジャンプ量
 	RADIUS = 90.0					# 半径
 	HEIGHT = 63.0					# 高さ
 
 	PARTSSET
-		INDEX = 0					# 自転車
+		INDEX = 0					# ボディ
 		PARENT = -1					# (親)NULL
-		POS = 0.0 0.0 0.0
+		POS = 0.0 10.0 0.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 1					# 前輪
+		PARENT = 0					# (親)ボディ
+		POS = 0.0 35.0 -68.0
+		ROT = 0.0 0.0 0.0
+	END_PARTSSET
+	
+	PARTSSET
+		INDEX = 2					# 後輪
+		PARENT = 0					# (親)ボディ
+		POS = 0.0 35.0 68.0
 		ROT = 0.0 0.0 0.0
 	END_PARTSSET
 	
@@ -51,6 +67,16 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.00 0.00 0.00
 		END_KEY
+		
+		KEY	# ----- [ 1 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 2 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
 	END_KEYSET
 END_MOTIONSET
 
@@ -62,13 +88,22 @@ MOTIONSET
 	NUM_KEY = 1		# キー数
 
 	KEYSET			# --- << KEY : 0 / 1 >> ---
-		FRAME = 20
+		FRAME = 30
 		KEY	# ----- [ 0 ] -----
 			POS = 0.00 0.00 0.00
 			ROT = 0.00 0.00 0.00
 		END_KEY
+		
+		KEY	# ----- [ 1 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 2 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
 	END_KEYSET
-	
 END_MOTIONSET
 
 #---------------------------------------
@@ -83,6 +118,16 @@ MOTIONSET
 	KEYSET			# --- << KEY : 0 / 1 >> ---
 		FRAME = 10
 		KEY	# ----- [ 0 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 1 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 2 ] -----
 			POS = 0.00 0.00 0.00
 			ROT = 0.00 0.00 0.00
 		END_KEY
@@ -102,6 +147,16 @@ MOTIONSET
 			POS = 0.00 0.00 0.00
 			ROT = 0.00 0.00 0.00
 		END_KEY
+		
+		KEY	# ----- [ 1 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 2 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
 	END_KEYSET
 END_MOTIONSET
 
@@ -116,6 +171,16 @@ MOTIONSET
 	KEYSET			# --- << KEY : 0 / 1 >> ---
 		FRAME = 5
 		KEY	# ----- [ 0 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 1 ] -----
+			POS = 0.00 0.00 0.00
+			ROT = 0.00 0.00 0.00
+		END_KEY
+		
+		KEY	# ----- [ 2 ] -----
 			POS = 0.00 0.00 0.00
 			ROT = 0.00 0.00 0.00
 		END_KEY

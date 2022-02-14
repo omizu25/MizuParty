@@ -16,6 +16,7 @@
 #include "input.h"
 #include "model.h"
 #include "player.h"
+#include "result.h"
 #include "setup.h"
 #include "shadow.h"
 #include "title.h"
@@ -402,7 +403,7 @@ static void ResultMove(void)
 	if (!s_bOverlap)
 	{// 重なってない
 		D3DXVECTOR3 pos = GetPlayer()->pos;
-		float fMove = GetPlayer()->fMove;
+		float fMove = GetPlayer()->fMove * 2.5f;
 		bool bDirection = true;		// true : 右向き  false : 左向き
 
 		if (pos.x <= 0.0f)
@@ -460,4 +461,7 @@ static void Overlap(float fPosX)
 	s_camera[0].posV.x = fPosX;
 
 	s_bOverlap = true;
+
+	// リザルトの初期化
+	InitResult();
 }

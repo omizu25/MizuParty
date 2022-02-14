@@ -5,8 +5,6 @@
 // Author2  : ISOE JUKIA
 // Author3  : KATSUKI MIZUKI
 //
-//	＜最後の行を見ることを推奨＞
-//
 //==================================================
 #ifndef _INPUT_H_		// このマクロ定義がされなかったら
 #define _INPUT_H_		// 2重インクルード防止のマクロ定義
@@ -48,7 +46,7 @@ typedef enum
 	JOYKEY_Y,					// Yボタン
 	JOYKEY_LEFT_STICK,			// 左スティック
 	JOYKEY_RIGHT_STICK,			// 右スティック
-	JOYKEY_MAX
+	JOYKEY_MAX,
 }JOYKEY;
 
 /*↓ キー種類(マウス) ↓*/
@@ -78,54 +76,31 @@ void UpdateInput(void);												// 入力処理全部の更新処理
 
 /*↓ プロトタイプ宣言 (キーボード) ↓*/
 
-bool GetKeyboardPress(int nKey);									// キーボードのプレス処理
-bool GetKeyboardTrigger(int nKey);									// キーボードのトリガー処理
-bool GetKeyboardReturn(int nKey);									// キーボードのリターン処理
 bool GetKeyboardAllPress(void);										// キーボードの全キープレス処理
+bool GetKeyboardPress(int nKey);									// キーボードのプレス処理
 bool GetKeyboardAllTrigger(void);									// キーボードの全キートリガー処理
+bool GetKeyboardTrigger(int nKey);									// キーボードのトリガー処理
+bool GetKeyboardAllRelease(void);									// キーボードの全リリース処理
+bool GetKeyboardRelease(int nKey);									// キーボードのリリース処理
 
 /*↓ プロトタイプ宣言(ジョイパッド) ↓*/
 
-bool GetJoypadPress(JOYKEY Key, int nPlayer);						// ジョイパッドのプレス処理
-bool GetJoypadTrigger(JOYKEY Key, int nPlayer);						// ジョイパッドのトリガー処理
+bool GetJoypadAllPress(void);										// ジョイパッドプレス処理(キー指定なし)
+bool GetJoypadPress(JOYKEY Key);									// ジョイパッドプレス処理(プレイヤー指定なし)
+bool GetJoypadIdxPress(JOYKEY Key, int nPlayer);					// ジョイパッドのプレス処理(プレイヤー指定あり)
+bool GetJoypadAllTrigger(void);										// ジョイパッドトリガー処理(キー指定なし)
+bool GetJoypadTrigger(JOYKEY Key);									// ジョイパッドトリガー処理(プレイヤー指定なし)
+bool GetJoypadIdxTrigger(JOYKEY Key, int nPlayer);					// ジョイパッドのトリガー処理(プレイヤー指定あり)
 D3DXVECTOR3 GetJoypadStick(JOYKEY Key, int nPlayer);				// ジョイパッドのスティック処理
 int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);					// ジョイパッドのトリガーペダル処理
 void JoypadVibration(int nTime, WORD nStrength, int nPlayer);		// ジョイパッドの振動制御
+bool IsJoyPadUse(int nPlayer);										// ジョイパッドの使用状況
 
 /*↓ プロトタイプ宣言(マウス) ↓*/
 
 bool GetMousePress(MOUSE mouse);									// マウスのプレス処理
 bool GetMouseTrigger(MOUSE mouse);									// マウスのトリガー処理
 D3DXVECTOR3 GetMouse(void);											// マウスの画面内の位置
+int GetMouseWheel(void);											// マウスのホイールの動き処理
 
-/*************************************************************************************************************
-	
-	//--------------------------------------------------
-	// プロトタイプ宣言(ジョイパッド)の説明
-	//--------------------------------------------------
-
-	//返す値　スティックを倒せば倒すほど(1.0f or -1.0f)に近く
-	//スティックの遊びはifの条件式に組む
-	//例　if(GetJoypadStick(JOYKEY_RIGHT_STICK,0)  > 0.5f)
-	//    {//右に半分より多く倒したら
-
-	{第一引数はキー（スティック）,第二引数はプレイヤー番号
-	D3DXVECTOR3 GetJoypadStick(JOYKEY Key, int nPlayer);			// ジョイパッドスティック処理
-	}
-
-	//返す値　ペダルがどれだけ押し込まれたかをintで返す
-	//ペダルの遊びはifの条件式に組む
-	//例　if(GetJoypadTriggerPedal(JOYKEY_RIGHT_TRIGGER,0) > 100))
-	//    {//右ペダルを100より多く倒したら
-
-	{第一引数はキー（スティック）,第二引数はプレイヤー番号
-	int GetJoypadTriggerPedal(JOYKEY Key, int nPlayer);				// ジョイパッドトリガーペダル処理
-	}
-
-	{第一引数は揺らす時間, 第二引数はどれくらいの強さで揺らすか, 第三引数はプレイヤー番号
-	void JoypadVibration(int nTime, WORD nStrength, int nPlayer);	// ジョイパッド振動制御
-	}
-
-************************************************************************************************************/
-
-#endif 
+#endif // !_INPUT_H_
