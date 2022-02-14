@@ -94,26 +94,7 @@ void UninitWall(void)
 //--------------------------------------------------
 void UpdateWall(void)
 {
-	for (int i = 0; i < MAX_WALL; i++)
-	{
-		Wall *pWall = &s_wall[i];
 
-		if (!pWall->bUse)
-		{//使用されていない
-			continue;
-		}
-
-		/*↓ 使用されている ↓*/
-
-		if (GetKeyboardPress(DIK_1))
-		{// 1キーが押された
-			pWall->rot.y += 0.01f;
-		}
-		else if (GetKeyboardPress(DIK_2))
-		{// 2キーが押された
-			pWall->rot.y -= 0.01f;
-		}
-	}
 }
 
 //--------------------------------------------------

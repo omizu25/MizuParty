@@ -304,30 +304,6 @@ void UpdateGame(void)
 		//カウントダウンの更新
 		UpdateCountdown();
 
-		switch (GetTitle())
-		{// どのゲーム？
-		case MENU_WALKING:		// ウォーキング
-		case MENU_SLOPE:		// 坂
-
-			if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
-			{// ←, →, ↑, ↓キーが押された
-			 // 次のモーション
-				NextMotion(MOTION_MOVE);
-			}
-
-			break;
-
-		case MENU_STOP:			// 止める
-
-			/* 処理なし */
-
-			break;
-
-		default:
-			assert(false);
-			break;
-		}
-
 		break;
 
 	case GAMESTATE_NORMAL:		// 通常状態(ゲーム進行中)

@@ -222,8 +222,9 @@ void UpdateModel(void)
 
 		if (!s_bCollision && !s_bStop)
 		{
-			if (GetKeyboardTrigger(DIK_SPACE) ||
-				GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B))
+			if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
+				GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
+				GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
 			{// F4ÉLÅ[Ç™âüÇ≥ÇÍÇΩ
 				s_bStop = true;
 

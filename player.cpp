@@ -44,6 +44,7 @@
 #define SLOPE_RESULT		(1500.0f)		// 坂のリザルトへの判定
 #define TITLE_WIDTH			(255.0f)		// タイトルの移動制限
 #define TITLE_DEPTH			(135.0f)		// タイトルの移動制限
+#define DEAD_ZONE			(0.1f)			// スティックの遊び
 
 //--------------------------------------------------
 // 構造体
@@ -74,6 +75,9 @@ static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
 static bool			s_bSoundRun;			// 走るサウンドを流したか
 static bool			s_bSoundFall;			// 落ちるサウンドを流したか
+static bool			s_bKeyBoard;			// キーボード入力があるかどうか
+static bool			s_bJoyPad;				// ジョイパッド入力があるかどうか
+static bool			s_bStick;				// スティック入力があるかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -86,6 +90,7 @@ static void UpdateTitle(Player *pPlayer);
 static void UpdateGame(Player *pPlayer);
 static void TitleMove(Player *pPlayer);
 static void Move(Player *pPlayer);
+static void InputMove(void);
 static void Rot(Player *pPlayer);
 static void Motion(Player *pPlayer);
 static void SetMotion(Player *pPlayer);
@@ -148,6 +153,9 @@ void InitPlayer(void)
 	s_nEndTime = 0;
 	s_bSoundRun = false;
 	s_bSoundFall = false;
+	s_bKeyBoard = false;
+	s_bJoyPad = false;
+	s_bStick = false;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -1257,6 +1265,9 @@ static void UpdateGame(Player *pPlayer)
 //--------------------------------------------------
 static void TitleMove(Player *pPlayer)
 {
+	// 移動の入力
+	InputMove();
+
 	float fRot = 0.0f;
 
 	/* ↓モデルの移動↓ */
@@ -1316,71 +1327,6 @@ static void TitleMove(Player *pPlayer)
 		pPlayer->rotDest.y = 0.0f;
 	}
 
-	D3DXVECTOR3 move;			// 移動量の初期化
-	float moveLength = 0.0f;
-	D3DXVECTOR2 moveInput;
-
-	if (IsJoyPadUse(0))
-	{// ジョイパッドの使用
-		moveInput.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
-		moveInput.y = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y;
-		if (moveInput.x != 0.0f || moveInput.y != 0.0f)
-		{
-			moveLength = D3DXVec2Length(&moveInput);
-			if (moveLength > 1.0f)
-			{
-				moveLength = 1.0f;
-			}
-		}
-	}
-	else
-	{
-		moveInput.x = 0.0f;
-		moveInput.y = 0.0f;
-		// モデルの移動
-		if (GetKeyboardPress(DIK_W))
-		{
-			moveInput.y += 1.0f;
-			moveLength = 1.0f;
-		}
-		if (GetKeyboardPress(DIK_A))
-		{
-			moveInput.x -= 1.0f;
-			moveLength = 1.0f;
-		}
-		if (GetKeyboardPress(DIK_S))
-		{
-			moveInput.y -= 1.0f;
-			moveLength = 1.0f;
-		}
-		if (GetKeyboardPress(DIK_D))
-		{
-			moveInput.x += 1.0f;
-			moveLength = 1.0f;
-		}
-	}
-	if (moveLength > 0.0f)
-	{
-		// カメラの角度情報取得
-		D3DXVECTOR3* CameraRot = &GetCamera(0)->rot;
-		D3DXVec2Normalize(&moveInput, &moveInput);
-		float c = cosf(-CameraRot->y);
-		float s = sinf(-CameraRot->y);
-		// move の長さは 1 になる。
-		move.x = moveInput.x * c - moveInput.y * s;
-		move.z = moveInput.x * s + moveInput.y * c;
-	}
-	else
-	{ // 入力されていない。
-		return;
-	}
-
-	// 方向ベクトル掛ける移動量
-	pPlayer->move = move * moveLength * pPlayer->fMove;
-	//s_player.pos += s_player.movevec;
-	//pPlayer->move.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x * pPlayer->fMove;
-	//pPlayer->move.z = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y * pPlayer->fMove;
-
 	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
 		GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 	{// ←, →, ↑, ↓キーが押された
@@ -1420,34 +1366,74 @@ static void TitleMove(Player *pPlayer)
 //--------------------------------------------------
 static void Move(Player *pPlayer)
 {
+	// 移動の入力
+	InputMove();
+
 	float fRot = 0.0f;
 
 	/* ↓モデルの移動↓ */
 
-	if (GetKeyboardPress(DIK_A))
-	{// ←キーが押された
-		fRot = -D3DX_PI * 0.5f;
+	if (s_bKeyBoard)
+	{// キーボード
+		if (GetKeyboardPress(DIK_A))
+		{// ←キーが押された
+			fRot = -D3DX_PI * 0.5f;
 
-		pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+		}
+		else if (GetKeyboardPress(DIK_D))
+		{// →キーが押された
+			fRot = D3DX_PI * 0.5f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+		}
+
+		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
+		{// ←, →, ↑, ↓キーが押された
+			pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		}
 	}
-	else if (GetKeyboardPress(DIK_D))
-	{// →キーが押された
-		fRot = D3DX_PI * 0.5f;
+	else if (s_bJoyPad)
+	{// ジョイパッド
+		if (GetJoypadPress(JOYKEY_LEFT))
+		{// ←キーが押された
+			fRot = -D3DX_PI * 0.5f;
 
-		pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+		}
+		else if (GetJoypadPress(JOYKEY_RIGHT))
+		{// →キーが押された
+			fRot = D3DX_PI * 0.5f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+		}
+
+		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT))
+		{// ←, →, ↑, ↓キーが押された
+			pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		}
 	}
+	else if (s_bStick)
+	{// スティック
+		if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < 0.0f)
+		{
+			fRot = D3DX_PI * 0.5f;
 
-	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
-	{// ←, →, ↑, ↓キーが押された
-		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
-		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
+			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+		}
+		else if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x > 0.0f)
+		{
+			fRot = D3DX_PI * 0.5f;
+
+			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+		}
+
+		pPlayer->move.x += sinf(fRot) * GetJoypadStick(JOYKEY_LEFT_STICK, 0).x * pPlayer->fMove;
 	}
 
 	pPlayer->pos.x += pPlayer->move.x;
-	pPlayer->pos.z += pPlayer->move.z;
 
 	pPlayer->move.x += (0.0f - pPlayer->move.x) * MAX_INERTIA;
-	pPlayer->move.z += (0.0f - pPlayer->move.z) * MAX_INERTIA;
 
 	if (GetTitle() == MENU_SLOPE)
 	{
@@ -1461,6 +1447,67 @@ static void Move(Player *pPlayer)
 		{
 			pPlayer->pos.x = fWidth + SLOPE_LIMIT;
 		}
+	}
+}
+
+//--------------------------------------------------
+// 移動の入力
+//--------------------------------------------------
+static void InputMove(void)
+{
+	s_bKeyBoard = false;
+	s_bJoyPad = false;
+	s_bStick = false;
+
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
+
+		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
+			GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
+		{// キーが押された
+			s_bKeyBoard = true;
+		}
+
+		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT) ||
+			GetJoypadPress(JOYKEY_UP) || GetJoypadPress(JOYKEY_DOWN))
+		{// ボタンが押された
+			s_bJoyPad = true;
+		}
+
+		if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x > DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < -DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_LEFT_STICK, 0).y > DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_LEFT_STICK, 0).y < -DEAD_ZONE)
+		{// スティックが傾いた
+			s_bStick = true;
+		}
+		
+		break;
+
+	case MODE_GAME:			// ゲーム
+
+		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
+		{// キーが押された
+			s_bKeyBoard = true;
+		}
+
+		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT))
+		{// ボタンが押された
+			s_bJoyPad = true;
+		}
+
+		if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x > DEAD_ZONE || 
+			GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < -DEAD_ZONE)
+		{// スティックが傾いた
+			s_bStick = true;
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 }
 

@@ -106,7 +106,9 @@ void UpdateTitle(void)
 	// プレイヤーの更新
 	UpdatePlayer();
 
-	if (GetKeyboardTrigger(DIK_RETURN))
+	if (GetKeyboardTrigger(DIK_RETURN) || GetKeyboardTrigger(DIK_SPACE) ||
+		GetJoypadTrigger(JOYKEY_B) || GetJoypadTrigger(JOYKEY_A) ||
+		GetJoypadTrigger(JOYKEY_START))
 	{// スペースキーが押された
 		// ビルボードの当たり判定
 		CollisionBillboard();
