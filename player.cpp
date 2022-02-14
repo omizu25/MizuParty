@@ -1272,66 +1272,163 @@ static void TitleMove(Player *pPlayer)
 
 	/* ↓モデルの移動↓ */
 
-	if (GetKeyboardPress(DIK_A))
-	{// ←キーが押された
-		if (GetKeyboardPress(DIK_W))
-		{// ↑キーが押された
-			fRot = -D3DX_PI * 0.25f;
-
-			pPlayer->rotDest.y = D3DX_PI * 0.75f;
+	if (s_bKeyBoard)
+	{// キーボード
+		if (GetKeyboardPress(DIK_A))
+		{// キーが押された
+			if (GetKeyboardPress(DIK_W))
+			{// キーが押された
+				fRot = -D3DX_PI * 0.25f;
+				pPlayer->rotDest.y = D3DX_PI * 0.75f;
+			}
+			else if (GetKeyboardPress(DIK_S))
+			{// キーが押された
+				fRot = -D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = -D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetKeyboardPress(DIK_D))
+		{// キーが押された
+			if (GetKeyboardPress(DIK_W))
+			{// キーが押された
+				fRot = D3DX_PI * 0.25f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
+			}
+			else if (GetKeyboardPress(DIK_S))
+			{// キーが押された
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetKeyboardPress(DIK_W))
+		{// キーが押された
+			fRot = 0.0f;
+			pPlayer->rotDest.y = D3DX_PI;
 		}
 		else if (GetKeyboardPress(DIK_S))
-		{// ↓キーが押された
-			fRot = -D3DX_PI * 0.75f;
-
-			pPlayer->rotDest.y = D3DX_PI * 0.25f;
+		{// キーが押された
+			fRot = D3DX_PI;
+			pPlayer->rotDest.y = 0.0f;
 		}
-		else
-		{
-			fRot = -D3DX_PI * 0.5f;
 
-			pPlayer->rotDest.y = D3DX_PI * 0.5f;
-		}
-	}
-	else if (GetKeyboardPress(DIK_D))
-	{// →キーが押された
-		if (GetKeyboardPress(DIK_W))
-		{// ↑キーが押された
-			fRot = D3DX_PI * 0.25f;
-
-			pPlayer->rotDest.y = -D3DX_PI * 0.75f;
-		}
-		else if (GetKeyboardPress(DIK_S))
-		{// ↓キーが押された
-			fRot = D3DX_PI * 0.75f;
-
-			pPlayer->rotDest.y = -D3DX_PI * 0.25f;
-		}
-		else
-		{
-			fRot = D3DX_PI * 0.5f;
-
-			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-		}
-	}
-	else if (GetKeyboardPress(DIK_W))
-	{// ↑キーが押された
-		fRot = 0.0f;
-
-		pPlayer->rotDest.y = D3DX_PI;
-	}
-	else if (GetKeyboardPress(DIK_S))
-	{// ↓キーが押された
-		fRot = D3DX_PI;
-
-		pPlayer->rotDest.y = 0.0f;
-	}
-
-	if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
-		GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
-	{// ←, →, ↑, ↓キーが押された
 		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
 		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
+	}
+	else if (s_bJoyPad)
+	{// ジョイパッド
+		if (GetJoypadPress(JOYKEY_LEFT))
+		{// ボタンが押された
+			if (GetJoypadPress(JOYKEY_UP))
+			{// ボタンが押された
+				fRot = -D3DX_PI * 0.25f;
+				pPlayer->rotDest.y = D3DX_PI * 0.75f;
+			}
+			else if (GetJoypadPress(JOYKEY_DOWN))
+			{// ボタンが押された
+				fRot = -D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = -D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetJoypadPress(JOYKEY_RIGHT))
+		{// ボタンが押された
+			if (GetJoypadPress(JOYKEY_UP))
+			{// ボタンが押された
+				fRot = D3DX_PI * 0.25f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
+			}
+			else if (GetJoypadPress(JOYKEY_DOWN))
+			{// ボタンが押された
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			}
+		}
+		else if (GetJoypadPress(JOYKEY_UP))
+		{// ボタンが押された
+			fRot = 0.0f;
+			pPlayer->rotDest.y = D3DX_PI;
+		}
+		else if (GetJoypadPress(JOYKEY_DOWN))
+		{// ボタンが押された
+			fRot = D3DX_PI;
+			pPlayer->rotDest.y = 0.0f;
+		}
+
+		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
+	}
+	else if (s_bStick)
+	{// スティック
+		D3DXVECTOR3 stick = GetJoypadStick(JOYKEY_LEFT_STICK, 0);
+
+		if (stick.x < -DEAD_ZONE)
+		{// 左
+			if (stick.y < -DEAD_ZONE)
+			{// 上
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = D3DX_PI * 0.75f;
+			}
+			else if (stick.y > DEAD_ZONE)
+			{// 下
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			}
+		}
+		else if (stick.x > DEAD_ZONE)
+		{// 右
+			if (stick.y < -DEAD_ZONE)
+			{// 上
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
+			}
+			else if (stick.y > DEAD_ZONE)
+			{// 下
+				fRot = D3DX_PI * 0.75f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
+			}
+			else
+			{
+				fRot = D3DX_PI * 0.5f;
+				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			}
+		}
+		else if (stick.y < -DEAD_ZONE)
+		{// 上
+			fRot = D3DX_PI;
+			pPlayer->rotDest.y = D3DX_PI;
+		}
+		else if (stick.y > DEAD_ZONE)
+		{// 下
+			fRot = D3DX_PI;
+			pPlayer->rotDest.y = 0.0f;
+		}
+
+		pPlayer->move.x += sinf(fRot) * stick.x * pPlayer->fMove;
+		pPlayer->move.z += cosf(fRot) * stick.y * pPlayer->fMove;
 	}
 
 	// 移動
@@ -1347,7 +1444,7 @@ static void TitleMove(Player *pPlayer)
 		pPlayer->pos.x = -TITLE_WIDTH;
 	}
 	else if (pPlayer->pos.x >= TITLE_WIDTH)
-	{
+	{// 移動制限
 		pPlayer->pos.x = TITLE_WIDTH;
 	}
 
@@ -1356,7 +1453,7 @@ static void TitleMove(Player *pPlayer)
 		pPlayer->pos.z = -TITLE_DEPTH;
 	}
 	else if (pPlayer->pos.z >= TITLE_DEPTH)
-	{
+	{// 移動制限
 		pPlayer->pos.z = TITLE_DEPTH;
 	}
 }
@@ -1376,67 +1473,63 @@ static void Move(Player *pPlayer)
 	if (s_bKeyBoard)
 	{// キーボード
 		if (GetKeyboardPress(DIK_A))
-		{// ←キーが押された
+		{// キーが押された
 			fRot = -D3DX_PI * 0.5f;
 
 			pPlayer->rotDest.y = D3DX_PI * 0.5f;
 		}
 		else if (GetKeyboardPress(DIK_D))
-		{// →キーが押された
+		{// キーが押された
 			fRot = D3DX_PI * 0.5f;
 
 			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 		}
 
-		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
-		{// ←, →, ↑, ↓キーが押された
-			pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
-		}
+		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
 	}
 	else if (s_bJoyPad)
 	{// ジョイパッド
 		if (GetJoypadPress(JOYKEY_LEFT))
-		{// ←キーが押された
+		{// ボタンが押された
 			fRot = -D3DX_PI * 0.5f;
 
 			pPlayer->rotDest.y = D3DX_PI * 0.5f;
 		}
 		else if (GetJoypadPress(JOYKEY_RIGHT))
-		{// →キーが押された
+		{// ボタンが押された
 			fRot = D3DX_PI * 0.5f;
 
 			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 		}
 
-		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT))
-		{// ←, →, ↑, ↓キーが押された
-			pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
-		}
+		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
 	}
 	else if (s_bStick)
 	{// スティック
-		if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < 0.0f)
-		{
-			fRot = D3DX_PI * 0.5f;
+		D3DXVECTOR3 stick = GetJoypadStick(JOYKEY_LEFT_STICK, 0);
 
+		fRot = D3DX_PI * 0.5f;
+
+		if (stick.x < -DEAD_ZONE)
+		{// 左
 			pPlayer->rotDest.y = D3DX_PI * 0.5f;
 		}
-		else if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x > 0.0f)
-		{
-			fRot = D3DX_PI * 0.5f;
-
+		else if (stick.x > DEAD_ZONE)
+		{// 右
 			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 		}
 
-		pPlayer->move.x += sinf(fRot) * GetJoypadStick(JOYKEY_LEFT_STICK, 0).x * pPlayer->fMove;
+		pPlayer->move.x += sinf(fRot) * stick.x * pPlayer->fMove;
 	}
 
+	// 移動
 	pPlayer->pos.x += pPlayer->move.x;
 
+	// 慣性・移動量を更新 (減衰させる)
 	pPlayer->move.x += (0.0f - pPlayer->move.x) * MAX_INERTIA;
 
 	if (GetTitle() == MENU_SLOPE)
-	{
+	{// 坂
 		float fWidth = GetMeshField()->fWidth;
 
 		if (pPlayer->pos.x >= -SLOPE_LIMIT)
@@ -1444,7 +1537,7 @@ static void Move(Player *pPlayer)
 			pPlayer->pos.x = -SLOPE_LIMIT;
 		}
 		else if (pPlayer->pos.x <= fWidth + SLOPE_LIMIT)
-		{
+		{// 移動制限
 			pPlayer->pos.x = fWidth + SLOPE_LIMIT;
 		}
 	}
