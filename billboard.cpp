@@ -408,7 +408,7 @@ void DrawBillboard(bool bResult, bool bCamera)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -442,9 +442,6 @@ void SetBillboard(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, b
 
 		// 頂点の法線の設定
 		Setnor(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
-
-		// 頂点カラーの設定
-		Setcol(pVtx, col);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -594,10 +591,9 @@ void InitBillboardSlope(void)
 	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, fHeight + 100.0f, 30.0f);
-	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
+	
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureTarget);
 
 	fWidth = CHEAT_WIDTH * 0.5f;
 	fHeight = CHEAT_HEIGHT * 0.5f;
@@ -607,7 +603,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
 
 	fWidth = PLAYER_WIDTH * 0.5f;
 	fHeight = PLAYER_HEIGHT * 0.5f;
@@ -615,7 +611,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
+	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
 }
 
 //--------------------------------------------------
@@ -823,10 +819,8 @@ static void Load(FILE *pFile)
 				bCamera = false;
 			}
 
-			D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
 			// 設定
-			SetBillboard(pText[i].pos, col, pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
+			SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
 		}
 
 		delete[] pText;
@@ -869,10 +863,9 @@ static void TitleMenu(void)
 	float fHeight = TITLE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -90.0f);
-	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureWalking);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureWalking);
@@ -880,7 +873,7 @@ static void TitleMenu(void)
 	pos.x = 0.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureStop);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureStop);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureStop);
@@ -888,7 +881,7 @@ static void TitleMenu(void)
 	pos.x = 200.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureSlope);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureSlope);
@@ -918,10 +911,8 @@ static void TitleRule(void)
 	float fHeight = RULE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-210.0f, 0.0f, 100.0f);
-	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureRule);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
 
 	if (GetTitleCnt() >= REMIX_OK)
 	{// リミックス出来る
@@ -937,7 +928,7 @@ static void TitleRule(void)
 		pos = D3DXVECTOR3(0.0f, 0.0f, 50.0f);
 
 		// ビルボードの設定
-		SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureRemix);
+		SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRemix);
 
 		// 枠の設定
 		SetFrame(pos, fWidth, fHeight, &s_pTextureRemix);
@@ -949,7 +940,7 @@ static void TitleRule(void)
 	pos = D3DXVECTOR3(200.0f, 0.0f, 50.0f);
 	
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureMove);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMove);
 }
 
 //--------------------------------------------------
@@ -982,10 +973,9 @@ static void TitleLogo(void)
 	float fHeight = MIZU_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-30.0f, 0.0f, 130.0f);
-	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureMizu);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMizu);
 
 	fWidth = PARTY_WIDTH * 0.5f;
 	fHeight = PARTY_HEIGHT * 0.5f;
@@ -993,7 +983,7 @@ static void TitleLogo(void)
 	pos = D3DXVECTOR3(140.0f, 0.0f, 130.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureParty);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureParty);
 
 	fWidth = LOGO_WIDTH * 0.5f;
 	fHeight = LOGO_HEIGHT * 0.5f;
@@ -1001,5 +991,5 @@ static void TitleLogo(void)
 	pos = D3DXVECTOR3(275.0f, 0.0f, 125.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureLogo);
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureLogo);
 }

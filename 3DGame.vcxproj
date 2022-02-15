@@ -171,6 +171,7 @@
     <ClCompile Include="particle.cpp" />
     <ClCompile Include="player.cpp" />
     <ClCompile Include="polygon.cpp" />
+    <ClCompile Include="ranking.cpp" />
     <ClCompile Include="result.cpp" />
     <ClCompile Include="rule.cpp" />
     <ClCompile Include="setup.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="particle.h" />
     <ClInclude Include="player.h" />
     <ClInclude Include="polygon.h" />
+    <ClInclude Include="ranking.h" />
     <ClInclude Include="result.h" />
     <ClInclude Include="rule.h" />
     <ClInclude Include="setup.h" />

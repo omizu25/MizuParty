@@ -28,7 +28,9 @@ typedef enum
 void InitNumber(void);
 void UninitNumber(void);
 void UpdateNumber(void);
-void DrawNumber(USE use);
+void DrawNumber2D(USE use);
+void DrawNumber3D(void);
+void SetNumber3D(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit);
 void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use);
 void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use);
 void TexNumber(int nNumber, int nDigit, USE use);

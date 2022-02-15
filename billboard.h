@@ -40,7 +40,7 @@ void InitBillboard(void);
 void UninitBillboard(void);
 void UpdateBillboard(void);
 void DrawBillboard(bool bResult, bool bCamera);
-void SetBillboard(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture);
+void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture);
 Billboard *GetBillboard(void);
 void LoadBillboard(void);
 void CollisionBillboard(void);

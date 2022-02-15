@@ -13,6 +13,7 @@
 #include "camera.h"
 #include "input.h"
 #include "game.h"
+#include "ranking.h"
 #include "result.h"
 #include "sound.h"
 #include "title.h"
@@ -300,6 +301,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 	// タイトルへのカウントの設定
 	SetTitleCnt();
 
+	// ランキングの読み込み
+	LoadRanking();
+
 	// フェードの設定
 	InitFade(s_mode);
 
@@ -320,6 +324,9 @@ static void Uninit(void)
 
 	// サウンドの終了
 	UninitSound();
+
+	// ランキングのセーブ
+	SaveRanking();
 
 	switch (s_mode)
 	{// どのモード？

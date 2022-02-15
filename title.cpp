@@ -16,8 +16,10 @@
 #include "input.h"
 #include "light.h"
 #include "model.h"
+#include "number.h"
 #include "player.h"
 #include "polygon.h"
+#include "ranking.h"
 #include "shadow.h"
 #include "sound.h"
 #include "title.h"
@@ -55,6 +57,12 @@ void InitTitle(void)
 	// ビルボードの初期化
 	InitBillboard();
 
+	// 数の初期化
+	InitNumber();
+
+	// ランキングの初期化
+	InitRanking();
+
 	// タイトルの時の読み込み
 	InitBillboardTitle();
 
@@ -84,6 +92,9 @@ void UninitTitle(void)
 
 	// ビルボードの終了
 	UninitBillboard();
+
+	// 数の終了
+	UninitNumber();
 
 	// 影の終了
 	UninitShadow();
@@ -151,6 +162,9 @@ void DrawTitle(void)
 
 	// ビルボードの描画
 	DrawBillboard(false, false);
+
+	// 数の描画
+	DrawNumber3D();
 
 	// 影の描画
 	DrawShadow();

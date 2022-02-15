@@ -591,7 +591,7 @@ void DrawGame(void)
 		if (s_gameState != GAMESTATE_START)
 		{
 			// êîÇÃï`âÊ
-			DrawNumber(USE_GAME);
+			DrawNumber2D(USE_GAME);
 		}
 
 		if (s_gameState == GAMESTATE_COUNTDOWN ||
@@ -604,14 +604,14 @@ void DrawGame(void)
 		if (s_gameState == GAMESTATE_START)
 		{
 			// êîÇÃï`âÊ
-			DrawNumber(USE_START);
+			DrawNumber2D(USE_START);
 		}
 
 		if (s_gameState == GAMESTATE_NORMAL ||
 			s_gameState == GAMESTATE_COUNTDOWN)
 		{
 			// êîÇÃï`âÊ
-			DrawNumber(USE_GAME_ONLY);
+			DrawNumber2D(USE_GAME_ONLY);
 		}
 
 		if (s_gameState == GAMESTATE_RESULT)
@@ -643,7 +643,7 @@ void DrawGame(void)
 				DrawResult();
 
 				// êîÇÃï`âÊ
-				DrawNumber(USE_RESULT);
+				DrawNumber2D(USE_RESULT);
 			}
 		}
 
