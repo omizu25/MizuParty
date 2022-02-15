@@ -748,8 +748,8 @@ static void InitDifference(void)
 
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (nDiff >= 0)
-	{// プラス
+	if (nDiff < 0)
+	{// マイナス
 		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
 
 		// テクスチャの読み込み
@@ -759,7 +759,7 @@ static void InitDifference(void)
 			&s_pTextureOperator);
 	}
 	else
-	{// マイナス
+	{// プラス
 		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 
 		// テクスチャの読み込み
@@ -897,12 +897,12 @@ static void InitDiffMeter(void)
 
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (nDiff >= 0)
-	{// プラス
+	if (nDiff < 0)
+	{// マイナス
 		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	else
-	{// マイナス
+	{// プラス
 		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 
@@ -961,12 +961,12 @@ static void InitDiffDecimal(void)
 
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	if (nDiff >= 0)
-	{// プラス
+	if (nDiff < 0)
+	{// マイナス
 		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
 	}
 	else
-	{// マイナス
+	{// プラス
 		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 

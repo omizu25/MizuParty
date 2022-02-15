@@ -233,8 +233,8 @@ static void NumberWalking(void)
 
 	int nWalking = s_nWalking;
 
-	if (nWalking >= 0)
-	{// プラス
+	if (nWalking < 0)
+	{// マイナス
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
@@ -242,7 +242,7 @@ static void NumberWalking(void)
 			&s_pTextureOperator);
 	}
 	else
-	{// マイナス
+	{// プラス
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
