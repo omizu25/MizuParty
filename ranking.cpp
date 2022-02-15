@@ -178,6 +178,52 @@ void SaveRanking(void)
 }
 
 //--------------------------------------------------
+// ウォーキングの設定
+//--------------------------------------------------
+void SetScoreWalking(int nScore)
+{
+	int nWalking = s_nWalking;
+	int nScoreSave = nScore;
+
+	if (nWalking < 0.0f)
+	{// マイナス
+		nWalking *= -1;
+	}
+
+	if (nScoreSave < 0.0f)
+	{// マイナス
+		nScoreSave *= -1;
+	}
+
+	if (nWalking > nScoreSave)
+	{// スコアが小さい
+		s_nWalking = nScore;
+	}
+}
+
+//--------------------------------------------------
+// 止めるの設定
+//--------------------------------------------------
+void SetScoreStop(int nScore)
+{
+	if (s_nStop > nScore)
+	{// スコアが小さい
+		s_nStop = nScore;
+	}
+}
+
+//--------------------------------------------------
+// 坂の設定
+//--------------------------------------------------
+void SetScoreSlope(int nScore)
+{
+	if (s_nSlope > nScore)
+	{// スコアが小さい
+		s_nSlope = nScore;
+	}
+}
+
+//--------------------------------------------------
 // ウォーキングの数字
 //--------------------------------------------------
 static void NumberWalking(void)

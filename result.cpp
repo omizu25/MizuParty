@@ -7,6 +7,7 @@
 //--------------------------------------------------
 // インクルード
 //--------------------------------------------------
+#include "main.h"
 #include "fade.h"
 #include "field.h"
 #include "game.h"
@@ -14,6 +15,7 @@
 #include "model.h"
 #include "number.h"
 #include "player.h"
+#include "ranking.h"
 #include "result.h"
 #include "setup.h"
 #include "sound.h"
@@ -513,6 +515,9 @@ static void InitPosNumber(void)
 
 		nPos = (int)(((fModel - fPlayer) + STOP_SCORE) * 10.0f);
 
+		// 止めるの設定
+		SetScoreStop(nPos);
+
 		break;
 
 	case MENU_SLOPE:		// 坂
@@ -521,6 +526,9 @@ static void InitPosNumber(void)
 		fPlayer = GetPlayer()->pos.x + GetPlayer()->fSize;
 
 		nPos = (int)(fModel - fPlayer);
+
+		// 坂の設定
+		SetScoreSlope(nPos);
 
 		break;
 
@@ -734,6 +742,9 @@ static void InitDifference(void)
 	int nTarget = GetTarget() * 10;
 
 	int nDiff = nTarget - nPos;
+
+	// ウォーキングの設定
+	SetScoreWalking(nDiff);
 
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
