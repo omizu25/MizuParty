@@ -1,7 +1,7 @@
 #==============================================================================
 #
-# 『モーションビューワ』スクリプトファイル [motion.txt]
-# Author : AKIRA TANAKA
+# Mizu Party !! [motion.txt]
+# Author : katsuki mizuki
 #
 #==============================================================================
 SCRIPT			# この行は絶対消さないこと！
@@ -14,15 +14,15 @@ NUM_MODEL = 9
 #------------------------------------------------------------------------------
 # モデルファイル名
 #------------------------------------------------------------------------------
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる縄.x				# [0]縄
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる頭.x				# [1]頭
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる体.x				# [2]体
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる右耳.x			# [3]右耳
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる左耳.x			# [4]左耳
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる天使の輪.x		# [5]天使の輪
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる天使の羽.x		# [6]天使の羽
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる悪魔の羽.x		# [7]悪魔の羽
-MODEL_FILENAME = data/MODEL/てるてる４期生/てるてる朝ココ.x			# [7]朝ココ
+MODEL_FILENAME = data/MODEL/TERUTERU/Rope.x				# [0]縄
+MODEL_FILENAME = data/MODEL/TERUTERU/Head.x				# [1]頭
+MODEL_FILENAME = data/MODEL/TERUTERU/Body.x				# [2]体
+MODEL_FILENAME = data/MODEL/TERUTERU/Right_ear.x		# [3]右耳
+MODEL_FILENAME = data/MODEL/TERUTERU/Left_ear.x			# [4]左耳
+MODEL_FILENAME = data/MODEL/TERUTERU/Angel_ring.x		# [5]天使の輪
+MODEL_FILENAME = data/MODEL/TERUTERU/Angel_wing.x		# [6]天使の羽
+MODEL_FILENAME = data/MODEL/TERUTERU/Devil_wing.x		# [7]悪魔の羽
+MODEL_FILENAME = data/MODEL/TERUTERU/Morning_koko.x		# [8]朝ココ
 
 
 #------------------------------------------------------------------------------

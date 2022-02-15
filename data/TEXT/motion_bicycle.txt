@@ -1,6 +1,6 @@
 #==================================================
 #
-# 3Dゲーム制作 [model.txt]
+# Mizu Party !! [model.txt]
 # Author : katsuki mizuki
 #
 #==================================================
@@ -14,9 +14,9 @@ NUM_MODEL = 3
 #--------------------------------------------------
 # モデルファイル名
 #--------------------------------------------------
-MODEL_FILENAME = data/MODEL/自転車/body.x			# [0]ボディ
-MODEL_FILENAME = data/MODEL/自転車/FrontWheel.x		# [1]前輪
-MODEL_FILENAME = data/MODEL/自転車/RearWheel.x		# [2]後輪
+MODEL_FILENAME = data/MODEL/BICYCLE/body.x				# [0]ボディ
+MODEL_FILENAME = data/MODEL/BICYCLE/FrontWheel.x		# [1]前輪
+MODEL_FILENAME = data/MODEL/BICYCLE/RearWheel.x			# [2]後輪
 
 #--------------------------------------------------
 # キャラクター情報

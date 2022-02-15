@@ -12,7 +12,6 @@
 #include "camera.h"
 #include "game.h"
 #include "input.h"
-#include "line.h"
 #include "field.h"
 #include "setup.h"
 #include "shadow.h"

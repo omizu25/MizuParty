@@ -1,6 +1,6 @@
 #==================================================
 #
-# 3Dゲーム制作 [system.txt]
+# Mizu Party !! [system.txt]
 # Author : katsuki mizuki
 #
 #==================================================
@@ -15,7 +15,7 @@ BILLBOARD_FILENAME = data/TEXT/billboard.txt
 # プレイヤーの情報
 #--------------------------------------------------
 PLAYER_SET
-	PLAYER_FILENAME = data/TEXT/motion.txt
+	PLAYER_FILENAME = data/TEXT/motion_teruteru.txt
 	POS = 0.0 20.0 0.0
 	ROT = 0.0 0.0 0.0
 END_PLAYER_SET
@@ -24,7 +24,7 @@ END_PLAYER_SET
 # プレイヤーの情報
 #--------------------------------------------------
 PLAYER_SET
-	PLAYER_FILENAME = data/TEXT/model.txt
+	PLAYER_FILENAME = data/TEXT/motion_bicycle.txt
 	POS = -90.0 0.0 0.0
 	ROT = 0.0 1.57 0.0
 END_PLAYER_SET
