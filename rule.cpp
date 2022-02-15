@@ -24,6 +24,8 @@
 #define A_OR_D_HEIGHT		(70.0f)			// AorDの高さ
 #define STICK_WIDTH			(220.0f)		// スティックの幅
 #define STICK_HEIGHT		(100.0f)		// スティックの高さ
+#define SPACE_WIDTH			(170.0f)		// スペースの幅
+#define SPACE_HEIGHT		(70.0f)			// スペースの高さ
 #define HINT_WIDTH			(300.0f)		// ヒントの幅
 #define HINT_HEIGHT			(80.0f)			// ヒントの高さ
 
@@ -539,8 +541,8 @@ static void InitSpace(void)
 	// 頂点情報をロックし、頂点情報へのポインタを取得
 	s_pVtxBuffSpace->Lock(0, 0, (void**)&pVtx, 0);
 
-	float fWidth = STICK_WIDTH * 0.5f;
-	float fHeight = STICK_HEIGHT * 0.5f;
+	float fWidth = SPACE_WIDTH * 0.5f;
+	float fHeight = SPACE_HEIGHT * 0.5f;
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.075f, 0.0f);
 
 	// 頂点座標の設定

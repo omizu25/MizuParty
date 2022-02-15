@@ -127,6 +127,8 @@ void InitModel(void)
 		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 		s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
+		s_model.nRepeat = 0;
+
 		//世界の種子の初期化
 		srand((unsigned)time(NULL));
 
@@ -206,8 +208,8 @@ void UpdateModel(void)
 			{
 				s_bCollision = true;
 
-				// パーティクルの設定
-				SetParticle(s_model.pos, 20.0f, true);
+				// 爆発の設定
+				SetExplosion(s_model.pos, 20.0f, true);
 
 				// リザルトの設定
 				SetResult(RESULT_GAMEOVER);
@@ -242,16 +244,22 @@ void UpdateModel(void)
 				{// 止めるの上手
 					// サウンドの再生
 					PlaySound(SOUND_LABEL_SE_止めるの上手);
+
+					s_model.nRepeat = 10;
 				}
 				else if (fDiff <= STOP_NORMAL)
 				{// 止めるの普通
 					// サウンドの再生
 					PlaySound(SOUND_LABEL_SE_止めるの普通);
+
+					s_model.nRepeat = 3;
 				}
 				else
 				{// 止めるの下手
 					// サウンドの再生
 					PlaySound(SOUND_LABEL_SE_止めるの下手);
+
+					s_model.nRepeat = 1;
 				}
 			}
 		}

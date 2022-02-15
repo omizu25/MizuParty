@@ -43,21 +43,26 @@
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;				// テクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;				// 頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;			// メートルのテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMeter = NULL;			// メートルの頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureMinus = NULL;			// マイナスのテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMinus = NULL;			// マイナスの頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureDecimal = NULL;		// 小数点のテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffDecimal = NULL;		// 小数点の頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureGameOver = NULL;		// ゲームオーバーのテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameOver = NULL;		// ゲームオーバーの頂点バッファのポインタ
-static LPDIRECT3DTEXTURE9			s_pTextureOperator = NULL;		// プラスのテクスチャへのポインタ
-static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffOperator = NULL;		// 演算子の頂点バッファのポインタ
-static int							s_nTime;						// タイム
-static int							s_nDigit;						// 桁数
-static RESULT						s_result;						// リザルト
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;					// テクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;					// 頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMeter = NULL;				// メートルのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMeter = NULL;				// メートルの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMinus = NULL;				// マイナスのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffMinus = NULL;				// マイナスの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureDecimal = NULL;			// 小数点のテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffDecimal = NULL;			// 小数点の頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureGameOver = NULL;			// ゲームオーバーのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffGameOver = NULL;			// ゲームオーバーの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureOperator = NULL;			// 演算子のテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffOperator = NULL;			// 演算子の頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureDiffMeter = NULL;			// 差のメートルのテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffDiffMeter = NULL;			// 差のメートルの頂点バッファのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureDiffDecimal = NULL;		// 差の小数点のテクスチャへのポインタ
+static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffDiffDecimal = NULL;		// 差の小数点の頂点バッファのポインタ
+static int							s_nTime;							// タイム
+static int							s_nDigit;							// 桁数
+static int							s_nDiffDigit;						// 差の桁数
+static RESULT						s_result;							// リザルト
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -65,10 +70,12 @@ static RESULT						s_result;						// リザルト
 static void InitClear(void);
 static void InitGameOver(void);
 static void InitPosNumber(void);
-static void InitDifference(void);
 static void InitMeter(void);
 static void InitDecimal(void);
 static void InitMinus(void);
+static void InitDifference(void);
+static void InitDiffMeter(void);
+static void InitDiffDecimal(void);
 static void DrawClear(void);
 static void DrawGameOver(void);
 
@@ -79,6 +86,7 @@ void InitResult(void)
 {
 	s_nTime = 0;
 	s_nDigit = 0;
+	s_nDiffDigit = 0;
 
 	switch (s_result)
 	{
@@ -143,10 +151,28 @@ void UninitResult(void)
 		s_pVtxBuffMeter = NULL;
 	}
 
+	if (s_pTextureMinus != NULL)
+	{// テクスチャの破棄
+		s_pTextureMinus->Release();
+		s_pTextureMinus = NULL;
+	}
+
 	if (s_pVtxBuffMinus != NULL)
 	{// 頂点バッファの破棄
 		s_pVtxBuffMinus->Release();
 		s_pVtxBuffMinus = NULL;
+	}
+
+	if (s_pTextureDecimal != NULL)
+	{// テクスチャの破棄
+		s_pTextureDecimal->Release();
+		s_pTextureDecimal = NULL;
+	}
+
+	if (s_pVtxBuffDecimal != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffDecimal->Release();
+		s_pVtxBuffDecimal = NULL;
 	}
 
 	if (s_pTextureGameOver != NULL)
@@ -171,6 +197,30 @@ void UninitResult(void)
 	{// 頂点バッファの破棄
 		s_pVtxBuffOperator->Release();
 		s_pVtxBuffOperator = NULL;
+	}
+
+	if (s_pTextureDiffMeter != NULL)
+	{// テクスチャの破棄
+		s_pTextureDiffMeter->Release();
+		s_pTextureDiffMeter = NULL;
+	}
+
+	if (s_pVtxBuffDiffMeter != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffDiffMeter->Release();
+		s_pVtxBuffDiffMeter = NULL;
+	}
+
+	if (s_pTextureDiffDecimal != NULL)
+	{// テクスチャの破棄
+		s_pTextureDiffDecimal->Release();
+		s_pTextureDiffDecimal = NULL;
+	}
+
+	if (s_pVtxBuffDiffDecimal != NULL)
+	{// 頂点バッファの破棄
+		s_pVtxBuffDiffDecimal->Release();
+		s_pVtxBuffDiffDecimal = NULL;
 	}
 }
 
@@ -371,7 +421,13 @@ static void InitClear(void)
 	if (GetTitle() == MENU_WALKING)
 	{// ウォーキング
 		// 差
-		//InitDifference();
+		InitDifference();
+
+		// 差のメートル
+		InitDiffMeter();
+
+		// 差の小数点
+		InitDiffDecimal();
 	}
 }
 
@@ -515,117 +571,6 @@ static void InitPosNumber(void)
 }
 
 //--------------------------------------------------
-// 差
-//--------------------------------------------------
-static void InitDifference(void)
-{
-	// デバイスへのポインタの取得
-	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	int nPos = (int)(GetPlayer()->pos.x / 3);
-	int nTarget = GetTarget() * 10;
-
-	int nDiff = nTarget - nPos;
-
-	if (nDiff >= 0)
-	{// プラス
-		// テクスチャの読み込み
-		D3DXCreateTextureFromFile(
-			pDevice,
-			"data/TEXTURE/plus.png",
-			&s_pTextureOperator);
-	}
-	else
-	{// マイナス
-		// テクスチャの読み込み
-		D3DXCreateTextureFromFile(
-			pDevice,
-			"data/TEXTURE/minus.png",
-			&s_pTextureOperator);
-	}
-
-	// 頂点バッファの生成
-	pDevice->CreateVertexBuffer(
-		sizeof(VERTEX_2D) * 4,
-		D3DUSAGE_WRITEONLY,
-		FVF_VERTEX_2D,
-		D3DPOOL_MANAGED,
-		&s_pVtxBuffOperator,
-		NULL);
-
-	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
-
-	// 頂点情報をロックし、頂点情報へのポインタを取得
-	s_pVtxBuffOperator->Lock(0, 0, (void**)&pVtx, 0);
-
-	float fWidth = MINUS_WIDTH * 0.5f;
-	float fHeight = MINUS_HEIGHT * 0.5f;
-
-	float fPosX = (SCREEN_WIDTH * 0.85f) - DECIMAL_INTERVAL - (NUMBER_WIDTH * s_nDigit);
-
-	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX - fWidth, SCREEN_HEIGHT * 0.2f, 0.0f);
-
-	// 頂点座標の設定
-	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
-
-	// rhwの初期化
-	Initrhw(pVtx);
-
-	// 頂点カラーの初期化
-	Initcol(pVtx);
-
-	// テクスチャ座標の初期化
-	Inittex(pVtx);
-
-	// 頂点バッファをアンロックする
-	s_pVtxBuffOperator->Unlock();
-
-	int nNumber = nPos;
-
-	while (1)
-	{// 無限ループ
-		if (nNumber >= 10)
-		{// 2桁以上
-			nNumber /= 10;
-			s_nDigit++;
-		}
-		else
-		{// 1桁
-			s_nDigit++;
-
-			if (s_nDigit < MIN_RESULT)
-			{
-				s_nDigit = MIN_RESULT;
-			}
-
-			break;
-		}
-	}
-
-	int aNumber[MAX_RESULT];
-
-	pos = D3DXVECTOR3(SCREEN_WIDTH * 0.85f, SCREEN_HEIGHT * 0.75f, 0.0f);
-
-	for (int i = 0; i < s_nDigit; i++)
-	{// １桁ずつに分ける
-		aNumber[i] = nPos % 10;
-		nPos /= 10;
-
-		float fInterval = (NUMBER_WIDTH * i);
-
-		float fDecimal = 0.0f;
-
-		if (i >= 1)
-		{
-			fDecimal = DECIMAL_INTERVAL;
-		}
-
-		// 数の設定処理
-		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_RESULT);
-	}
-}
-
-//--------------------------------------------------
 // メートル
 //--------------------------------------------------
 static void InitMeter(void)
@@ -655,7 +600,7 @@ static void InitMeter(void)
 
 	float fWidth = METER_WIDTH * 0.5f;
 	float fHeight = METER_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.825f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.8f, 0.0f);
 
 	// 頂点座標の設定
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -753,7 +698,7 @@ static void InitMinus(void)
 	float fHeight = MINUS_HEIGHT * 0.5f;
 
 	float fPosX = (SCREEN_WIDTH * 0.85f) - DECIMAL_INTERVAL - (NUMBER_WIDTH * s_nDigit);
-	
+
 	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX - fWidth, SCREEN_HEIGHT * 0.75f, 0.0f);
 
 	// 頂点座標の設定
@@ -770,6 +715,221 @@ static void InitMinus(void)
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuffMinus->Unlock();
+}
+
+//--------------------------------------------------
+// 差
+//--------------------------------------------------
+static void InitDifference(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	int nPos = (int)(GetPlayer()->pos.x / 3);
+	int nTarget = GetTarget() * 10;
+
+	int nDiff = nTarget - nPos;
+
+	if (nDiff >= 0)
+	{// プラス
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(
+			pDevice,
+			"data/TEXTURE/plus.png",
+			&s_pTextureOperator);
+	}
+	else
+	{// マイナス
+		// テクスチャの読み込み
+		D3DXCreateTextureFromFile(
+			pDevice,
+			"data/TEXTURE/minus.png",
+			&s_pTextureOperator);
+	}
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffOperator,
+		NULL);
+
+	if (nDiff < 0.0f)
+	{// マイナス
+		nDiff *= -1;
+	}
+
+	int nNumber = nDiff;
+
+	while (1)
+	{// 無限ループ
+		if (nNumber >= 10)
+		{// 2桁以上
+			nNumber /= 10;
+			s_nDiffDigit++;
+		}
+		else
+		{// 1桁
+			s_nDiffDigit++;
+
+			if (s_nDiffDigit < MIN_RESULT)
+			{
+				s_nDiffDigit = MIN_RESULT;
+			}
+
+			break;
+		}
+	}
+
+	int aNumber[MAX_RESULT];
+
+	float fNumberWidth = NUMBER_WIDTH * 0.8f;
+	float fNumberHeight = NUMBER_HEIGHT * 0.8f;
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.9f, SCREEN_HEIGHT * 0.15f, 0.0f);
+
+	for (int i = 0; i < s_nDiffDigit; i++)
+	{// １桁ずつに分ける
+		aNumber[i] = nDiff % 10;
+		nDiff /= 10;
+
+		float fInterval = (fNumberWidth * i);
+
+		float fDecimal = 0.0f;
+
+		if (i >= 1)
+		{
+			fDecimal = DECIMAL_INTERVAL;
+		}
+
+		// 数の設定処理
+		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), fNumberWidth, fNumberHeight * 0.5f, aNumber[i], i, USE_RESULT);
+	}
+
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffOperator->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = (MINUS_WIDTH * 0.8f) * 0.5f;
+	float fHeight = (MINUS_HEIGHT * 0.8f) * 0.5f;
+
+	float fPosX = (SCREEN_WIDTH * 0.9f) - DECIMAL_INTERVAL - (fNumberWidth * s_nDiffDigit);
+
+	pos = D3DXVECTOR3(fPosX - fWidth, SCREEN_HEIGHT * 0.15f, 0.0f);
+
+	// 頂点座標の設定
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhwの初期化
+	Initrhw(pVtx);
+
+	// 頂点カラーの初期化
+	Initcol(pVtx);
+
+	// テクスチャ座標の初期化
+	Inittex(pVtx);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuffOperator->Unlock();
+}
+
+//--------------------------------------------------
+// 差のメートル
+//--------------------------------------------------
+static void InitDiffMeter(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/METER/m.png",
+		&s_pTextureDiffMeter);
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffDiffMeter,
+		NULL);
+
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffDiffMeter->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = (METER_WIDTH * 0.8f) * 0.5f;
+	float fHeight = (METER_HEIGHT * 0.8f) * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.925f, SCREEN_HEIGHT * 0.19f, 0.0f);
+
+	// 頂点座標の設定
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhwの初期化
+	Initrhw(pVtx);
+
+	// 頂点カラーの初期化
+	Initcol(pVtx);
+
+	// テクスチャ座標の初期化
+	Inittex(pVtx);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuffDiffMeter->Unlock();
+}
+
+//--------------------------------------------------
+// 差の小数点
+//--------------------------------------------------
+static void InitDiffDecimal(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/decimal.png",
+		&s_pTextureDiffDecimal);
+
+	// 頂点バッファの生成
+	pDevice->CreateVertexBuffer(
+		sizeof(VERTEX_2D) * 4,
+		D3DUSAGE_WRITEONLY,
+		FVF_VERTEX_2D,
+		D3DPOOL_MANAGED,
+		&s_pVtxBuffDiffDecimal,
+		NULL);
+
+	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
+
+	// 頂点情報をロックし、頂点情報へのポインタを取得
+	s_pVtxBuffDiffDecimal->Lock(0, 0, (void**)&pVtx, 0);
+
+	float fWidth = (DECIMAL_WIDTH * 0.8f) * 0.5f;
+	float fHeight = (DECIMAL_HEIGHT * 0.8f) * 0.5f;
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.825f, SCREEN_HEIGHT * 0.17f, 0.0f);
+
+	// 頂点座標の設定
+	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
+
+	// rhwの初期化
+	Initrhw(pVtx);
+
+	// 頂点カラーの初期化
+	Initcol(pVtx);
+
+	// テクスチャ座標の初期化
+	Inittex(pVtx);
+
+	// 頂点バッファをアンロックする
+	s_pVtxBuffDiffDecimal->Unlock();
 }
 
 //--------------------------------------------------
@@ -843,23 +1003,53 @@ static void DrawClear(void)
 			2);							// プリミティブ(ポリゴン)数
 	}
 
-	//if (GetTitle() == MENU_WALKING)
-	//{// ウォーキング
-	//	// 頂点バッファをデータストリームに設定
-	//	pDevice->SetStreamSource(0, s_pVtxBuffOperator, 0, sizeof(VERTEX_2D));
+	if (GetTitle() == MENU_WALKING)
+	{// ウォーキング
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, s_pVtxBuffOperator, 0, sizeof(VERTEX_2D));
 
-	//	// 頂点フォーマットの設定
-	//	pDevice->SetFVF(FVF_VERTEX_2D);
+		// 頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
 
-	//	// テクスチャの設定
-	//	pDevice->SetTexture(0, s_pTextureOperator);
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTextureOperator);
 
-	//	// ポリゴンの描画
-	//	pDevice->DrawPrimitive(
-	//		D3DPT_TRIANGLESTRIP,		// プリミティブの種類
-	//		0,							// 描画する最初の頂点インデックス
-	//		2);							// プリミティブ(ポリゴン)数
-	//}
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+			0,							// 描画する最初の頂点インデックス
+			2);							// プリミティブ(ポリゴン)数
+
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, s_pVtxBuffDiffMeter, 0, sizeof(VERTEX_2D));
+
+		// 頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTextureDiffMeter);
+
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+			0,							// 描画する最初の頂点インデックス
+			2);							// プリミティブ(ポリゴン)数
+
+		// 頂点バッファをデータストリームに設定
+		pDevice->SetStreamSource(0, s_pVtxBuffDiffDecimal, 0, sizeof(VERTEX_2D));
+
+		// 頂点フォーマットの設定
+		pDevice->SetFVF(FVF_VERTEX_2D);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, s_pTextureDiffDecimal);
+
+		// ポリゴンの描画
+		pDevice->DrawPrimitive(
+			D3DPT_TRIANGLESTRIP,		// プリミティブの種類
+			0,							// 描画する最初の頂点インデックス
+			2);							// プリミティブ(ポリゴン)数
+	}
 }
 
 //--------------------------------------------------

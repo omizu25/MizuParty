@@ -14,6 +14,7 @@
 //--------------------------------------------------
 void InitParticle(void);
 void UpdateParticle(void);
-void SetParticle(D3DXVECTOR3 pos, float fSize, bool bAdd);
+void SetParticle(D3DXVECTOR3 pos, float fDistance, float fSize, bool bAdd, int nRepeat);
+void SetExplosion(D3DXVECTOR3 pos, float fSize, bool bAdd);
 
 #endif // !_PARTICLE_H_

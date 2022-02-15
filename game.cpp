@@ -370,6 +370,13 @@ void UpdateGame(void)
 
 				// ゲームの設定
 				SetGameState(GAMESTATE_RESULT);
+
+				D3DXVECTOR3 pos = GetModel()->pos;
+
+				pos.y = 0.0f;
+
+				// パーティクルの設定
+				SetParticle(pos, 360.0f, 20.0f, true, GetModel()->nRepeat);
 			}
 
 			break;
