@@ -1268,7 +1268,7 @@ static void TitleMove(Player *pPlayer)
 	// 移動の入力
 	InputMove();
 
-	float fRot = 0.0f;
+	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	/* ↓モデルの移動↓ */
 
@@ -1276,159 +1276,64 @@ static void TitleMove(Player *pPlayer)
 	{// キーボード
 		if (GetKeyboardPress(DIK_A))
 		{// キーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// キーが押された
-				fRot = -D3DX_PI * 0.25f;
-				pPlayer->rotDest.y = D3DX_PI * 0.75f;
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// キーが押された
-				fRot = -D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = -D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = D3DX_PI * 0.5f;
-			}
+			vec.x -= 1.0f;
 		}
-		else if (GetKeyboardPress(DIK_D))
+		if (GetKeyboardPress(DIK_D))
 		{// キーが押された
-			if (GetKeyboardPress(DIK_W))
-			{// キーが押された
-				fRot = D3DX_PI * 0.25f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
-			}
-			else if (GetKeyboardPress(DIK_S))
-			{// キーが押された
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-			}
+			vec.x += 1.0f;
 		}
-		else if (GetKeyboardPress(DIK_W))
+		if (GetKeyboardPress(DIK_W))
 		{// キーが押された
-			fRot = 0.0f;
-			pPlayer->rotDest.y = D3DX_PI;
+			vec.z += 1.0f;
 		}
-		else if (GetKeyboardPress(DIK_S))
+		if (GetKeyboardPress(DIK_S))
 		{// キーが押された
-			fRot = D3DX_PI;
-			pPlayer->rotDest.y = 0.0f;
+			vec.z -= 1.0f;
 		}
 
-		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
-		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
 	}
 	else if (s_bJoyPad)
 	{// ジョイパッド
 		if (GetJoypadPress(JOYKEY_LEFT))
 		{// ボタンが押された
-			if (GetJoypadPress(JOYKEY_UP))
-			{// ボタンが押された
-				fRot = -D3DX_PI * 0.25f;
-				pPlayer->rotDest.y = D3DX_PI * 0.75f;
-			}
-			else if (GetJoypadPress(JOYKEY_DOWN))
-			{// ボタンが押された
-				fRot = -D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = -D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = D3DX_PI * 0.5f;
-			}
+			vec.x -= 1.0f;
 		}
-		else if (GetJoypadPress(JOYKEY_RIGHT))
+		if (GetJoypadPress(JOYKEY_RIGHT))
 		{// ボタンが押された
-			if (GetJoypadPress(JOYKEY_UP))
-			{// ボタンが押された
-				fRot = D3DX_PI * 0.25f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
-			}
-			else if (GetJoypadPress(JOYKEY_DOWN))
-			{// ボタンが押された
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-			}
+			vec.x += 1.0f;
 		}
 		else if (GetJoypadPress(JOYKEY_UP))
 		{// ボタンが押された
-			fRot = 0.0f;
-			pPlayer->rotDest.y = D3DX_PI;
+			vec.z += 1.0f;
 		}
 		else if (GetJoypadPress(JOYKEY_DOWN))
 		{// ボタンが押された
-			fRot = D3DX_PI;
-			pPlayer->rotDest.y = 0.0f;
+			vec.z -= 1.0f;
 		}
 
-		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
-		pPlayer->move.z += cosf(fRot) * pPlayer->fMove;
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
 	}
 	else if (s_bStick)
 	{// スティック
-		D3DXVECTOR3 stick = GetJoypadStick(JOYKEY_LEFT_STICK, 0);
+		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-		if (stick.x < -DEAD_ZONE)
-		{// 左
-			if (stick.y < -DEAD_ZONE)
-			{// 上
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = D3DX_PI * 0.75f;
-			}
-			else if (stick.y > DEAD_ZONE)
-			{// 下
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = D3DX_PI * 0.5f;
-			}
-		}
-		else if (stick.x > DEAD_ZONE)
-		{// 右
-			if (stick.y < -DEAD_ZONE)
-			{// 上
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.75f;
-			}
-			else if (stick.y > DEAD_ZONE)
-			{// 下
-				fRot = D3DX_PI * 0.75f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.25f;
-			}
-			else
-			{
-				fRot = D3DX_PI * 0.5f;
-				pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-			}
-		}
-		else if (stick.y < -DEAD_ZONE)
-		{// 上
-			fRot = D3DX_PI;
-			pPlayer->rotDest.y = D3DX_PI;
-		}
-		else if (stick.y > DEAD_ZONE)
-		{// 下
-			fRot = D3DX_PI;
-			pPlayer->rotDest.y = 0.0f;
-		}
+		stick.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
+		stick.z = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y;
 
-		pPlayer->move.x += sinf(fRot) * stick.x * pPlayer->fMove;
-		pPlayer->move.z += cosf(fRot) * stick.y * pPlayer->fMove;
+		// ベクトルの正規化
+		D3DXVec3Normalize(&stick, &stick);
+
+		pPlayer->rotDest.y = atan2f(stick.x, stick.z) + D3DX_PI;
+		pPlayer->move += stick * pPlayer->fMove;
 	}
 
 	// 移動
@@ -1466,7 +1371,7 @@ static void Move(Player *pPlayer)
 	// 移動の入力
 	InputMove();
 
-	float fRot = 0.0f;
+	D3DXVECTOR3 vec = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	/* ↓モデルの移動↓ */
 
@@ -1474,50 +1379,47 @@ static void Move(Player *pPlayer)
 	{// キーボード
 		if (GetKeyboardPress(DIK_A))
 		{// キーが押された
-			fRot = -D3DX_PI * 0.5f;
-
-			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			vec.x -= 1.0f;
 		}
-		else if (GetKeyboardPress(DIK_D))
+		if (GetKeyboardPress(DIK_D))
 		{// キーが押された
-			fRot = D3DX_PI * 0.5f;
-
-			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			vec.x += 1.0f;
 		}
 
-		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
 	}
 	else if (s_bJoyPad)
 	{// ジョイパッド
 		if (GetJoypadPress(JOYKEY_LEFT))
 		{// ボタンが押された
-			fRot = -D3DX_PI * 0.5f;
-			pPlayer->rotDest.y = D3DX_PI * 0.5f;
+			vec.x -= 1.0f;
 		}
-		else if (GetJoypadPress(JOYKEY_RIGHT))
+		if (GetJoypadPress(JOYKEY_RIGHT))
 		{// ボタンが押された
-			fRot = D3DX_PI * 0.5f;
-			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
+			vec.x += 1.0f;
 		}
 
-		pPlayer->move.x += sinf(fRot) * pPlayer->fMove;
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
 	}
 	else if (s_bStick)
 	{// スティック
-		D3DXVECTOR3 stick = GetJoypadStick(JOYKEY_LEFT_STICK, 0);
+		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-		fRot = D3DX_PI * 0.5f;
+		stick.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
 
-		if (stick.x < -DEAD_ZONE)
-		{// 左
-			pPlayer->rotDest.y = D3DX_PI * 0.5f;
-		}
-		else if (stick.x > DEAD_ZONE)
-		{// 右
-			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
-		}
+		// ベクトルの正規化
+		D3DXVec3Normalize(&stick, &stick);
 
-		pPlayer->move.x += sinf(fRot) * stick.x * pPlayer->fMove;
+		pPlayer->rotDest.y = atan2f(stick.x, stick.z) + D3DX_PI;
+		pPlayer->move += stick * pPlayer->fMove;
 	}
 
 	// 移動

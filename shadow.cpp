@@ -209,6 +209,11 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
 
 		float Alpha = 1.0f - (pos.y * 0.005f);
 
+		if (Alpha >= 0.75f) 
+		{
+			Alpha = 0.75f;
+		}
+
 		// ’¸“_ƒJƒ‰[‚Ìİ’è
 		Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));
 
