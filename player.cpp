@@ -77,7 +77,8 @@ static bool			s_bSoundRun;			// 走るサウンドを流したか
 static bool			s_bSoundFall;			// 落ちるサウンドを流したか
 static bool			s_bKeyBoard;			// キーボード入力があるかどうか
 static bool			s_bJoyPad;				// ジョイパッド入力があるかどうか
-static bool			s_bStick;				// スティック入力があるかどうか
+static bool			s_bStickLeft;			// 左スティック入力があるかどうか
+static bool			s_bStickRight;			// 右スティック入力があるかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -155,7 +156,8 @@ void InitPlayer(void)
 	s_bSoundFall = false;
 	s_bKeyBoard = false;
 	s_bJoyPad = false;
-	s_bStick = false;
+	s_bStickLeft = false;
+	s_bStickRight = false;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -1322,12 +1324,25 @@ static void TitleMove(Player *pPlayer)
 		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
 		pPlayer->move += vec * pPlayer->fMove;
 	}
-	else if (s_bStick)
-	{// スティック
+	else if (s_bStickLeft)
+	{// 左スティック
 		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 		stick.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
 		stick.z = -GetJoypadStick(JOYKEY_LEFT_STICK, 0).y;
+
+		// ベクトルの正規化
+		D3DXVec3Normalize(&stick, &stick);
+
+		pPlayer->rotDest.y = atan2f(stick.x, stick.z) + D3DX_PI;
+		pPlayer->move += stick * pPlayer->fMove;
+	}
+	else if (s_bStickRight)
+	{// 右スティック
+		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+		stick.x = GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x;
+		stick.z = -GetJoypadStick(JOYKEY_RIGHT_STICK, 0).y;
 
 		// ベクトルの正規化
 		D3DXVec3Normalize(&stick, &stick);
@@ -1409,11 +1424,23 @@ static void Move(Player *pPlayer)
 		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
 		pPlayer->move += vec * pPlayer->fMove;
 	}
-	else if (s_bStick)
+	else if (s_bStickLeft)
 	{// スティック
 		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 		stick.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
+
+		// ベクトルの正規化
+		D3DXVec3Normalize(&stick, &stick);
+
+		pPlayer->rotDest.y = atan2f(stick.x, stick.z) + D3DX_PI;
+		pPlayer->move += stick * pPlayer->fMove;
+	}
+	else if (s_bStickRight)
+	{// スティック
+		D3DXVECTOR3 stick = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+		stick.x = GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x;
 
 		// ベクトルの正規化
 		D3DXVec3Normalize(&stick, &stick);
@@ -1450,7 +1477,8 @@ static void InputMove(void)
 {
 	s_bKeyBoard = false;
 	s_bJoyPad = false;
-	s_bStick = false;
+	s_bStickLeft = false;
+	s_bStickRight = false;
 
 	switch (GetMode())
 	{
@@ -1472,8 +1500,16 @@ static void InputMove(void)
 			GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < -DEAD_ZONE ||
 			GetJoypadStick(JOYKEY_LEFT_STICK, 0).y > DEAD_ZONE ||
 			GetJoypadStick(JOYKEY_LEFT_STICK, 0).y < -DEAD_ZONE)
-		{// スティックが傾いた
-			s_bStick = true;
+		{// 左スティックが傾いた
+			s_bStickLeft = true;
+		}
+
+		if (GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x > DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x < -DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_RIGHT_STICK, 0).y > DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_RIGHT_STICK, 0).y < -DEAD_ZONE)
+		{// 右スティックが傾いた
+			s_bStickRight = true;
 		}
 		
 		break;
@@ -1492,8 +1528,14 @@ static void InputMove(void)
 
 		if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x > DEAD_ZONE || 
 			GetJoypadStick(JOYKEY_LEFT_STICK, 0).x < -DEAD_ZONE)
-		{// スティックが傾いた
-			s_bStick = true;
+		{// 左スティックが傾いた
+			s_bStickLeft = true;
+		}
+
+		if (GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x > DEAD_ZONE ||
+			GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x < -DEAD_ZONE)
+		{// 右スティックが傾いた
+			s_bStickRight = true;
 		}
 
 		break;

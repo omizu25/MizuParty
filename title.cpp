@@ -96,6 +96,9 @@ void UninitTitle(void)
 	// 数の終了
 	UninitNumber();
 
+	// ランキングの終了
+	UninitRanking();
+
 	// 影の終了
 	UninitShadow();
 

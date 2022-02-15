@@ -79,8 +79,10 @@ void InitCountdown(void)
 	//頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 0.25f, 0.54f, 1.0f);
+
 	//数の設定処理
-	SetMiddleNumber(s_pos, NUMBER_WIDTH * 0.5f, NUMBER_HEIGHT * 0.5f, s_nCountdown, -1, USE_GAME);
+	SetMiddleNumber(s_pos, col, NUMBER_WIDTH * 0.5f, NUMBER_HEIGHT * 0.5f, s_nCountdown, -1, USE_GAME);
 }
 
 //--------------------------------------------------

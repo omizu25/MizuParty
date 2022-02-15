@@ -303,6 +303,8 @@ static void InitStartNumber(void)
 		aNumber[i] = 0;
 	}
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 	for (int i = 0; i < MAX_DIGITS; i++)
 	{// ‚PŒ…‚¸‚Â‚É•ª‚¯‚é
 		aNumber[i] = nTarget % 10;
@@ -314,7 +316,7 @@ static void InitStartNumber(void)
 		D3DXVECTOR3 posNumber = D3DXVECTOR3((pos.x) - fInterval + fCenter + (START_NUMBER_WIDTH * 0.5f), pos.y, 0.0f);
 
 		// ”‚ÌÝ’è
-		SetRightNumber(posNumber, START_NUMBER_WIDTH, START_NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_START);
+		SetRightNumber(posNumber, col, START_NUMBER_WIDTH, START_NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_START);
 	}
 }
 
@@ -431,6 +433,8 @@ static void InitGameNumber(void)
 		aNumber[i] = 0;
 	}
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 	for (int i = 0; i < MAX_DIGITS; i++)
 	{// ‚PŒ…‚¸‚Â‚É•ª‚¯‚é
 		aNumber[i] = nTarget % 10;
@@ -442,7 +446,7 @@ static void InitGameNumber(void)
 		D3DXVECTOR3 posNumber = D3DXVECTOR3((pos.x) - fInterval + fCenter + (GAME_NUMBER_WIDTH * 0.5f), pos.y, 0.0f);
 
 		// ”‚ÌÝ’è
-		SetRightNumber(posNumber, GAME_NUMBER_WIDTH, GAME_NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME);
+		SetRightNumber(posNumber, col, GAME_NUMBER_WIDTH, GAME_NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME);
 	}
 }
 

@@ -284,9 +284,9 @@ void SetNumber3D(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int 
 
 //--------------------------------------------------
 // 設定 (右に中心)
-// 1.位置 2.幅 3.高さ 4.数 5.桁数 6.使用者
+// 1.位置 2.色 3.幅 4.高さ 5.数 6.桁数 7.使用者
 //--------------------------------------------------
-void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
+void SetRightNumber(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
 {
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
@@ -317,6 +317,9 @@ void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, i
 		// 頂点座標の設定
 		Setpos(pVtx, pos, fWidth, fHeight, SETPOS_RIGHT);
 
+		// 頂点カラーの設定
+		Setcol(pVtx, col);
+
 		float fTex = 1.0f / MAX_TEX;
 		float fNumberTex = fTex * nNumber;
 		
@@ -332,9 +335,9 @@ void SetRightNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, i
 
 //--------------------------------------------------
 // 設定 (真ん中に中心)
-// 1.位置 2.幅 3.高さ 4.数 5.桁数 6.順位
+// 1.位置 2.色 3.幅 4.高さ 5.数 6.桁数 7.順位
 //--------------------------------------------------
-void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
+void SetMiddleNumber(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, int nNumber, int nDigit, USE use)
 {
 	for (int i = 0; i < MAX_NUMBER; i++)
 	{
@@ -366,7 +369,7 @@ void SetMiddleNumber(D3DXVECTOR3 pos, float fWidth, float fHeight, int nNumber, 
 		Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
 
 		// 頂点カラーの設定
-		Setcol(pVtx, D3DXCOLOR(0.25f, 1.0f, 0.5f, 1.0f));
+		Setcol(pVtx, col);
 
 		float fTex = 1.0f / MAX_TEX;
 		float fNumberTex = fTex * nNumber;

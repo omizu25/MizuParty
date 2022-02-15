@@ -554,6 +554,8 @@ static void InitPosNumber(void)
 
 	int aNumber[MAX_RESULT];
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 	for (int i = 0; i < s_nDigit; i++)
 	{// １桁ずつに分ける
 		aNumber[i] = nPos % 10;
@@ -569,7 +571,7 @@ static void InitPosNumber(void)
 		}
 
 		// 数の設定処理
-		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_RESULT);
+		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), col, NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_RESULT);
 	}
 }
 
@@ -733,8 +735,12 @@ static void InitDifference(void)
 
 	int nDiff = nTarget - nPos;
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 	if (nDiff >= 0)
 	{// プラス
+		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
+
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
@@ -743,6 +749,8 @@ static void InitDifference(void)
 	}
 	else
 	{// マイナス
+		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
@@ -808,7 +816,7 @@ static void InitDifference(void)
 		}
 
 		// 数の設定処理
-		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), fNumberWidth, fNumberHeight * 0.5f, aNumber[i], i, USE_RESULT);
+		SetRightNumber(D3DXVECTOR3(pos.x - fInterval - fDecimal, pos.y, 0.0f), col, fNumberWidth, fNumberHeight * 0.5f, aNumber[i], i, USE_RESULT);
 	}
 
 	VERTEX_2D *pVtx;		// 頂点情報へのポインタ
@@ -829,8 +837,8 @@ static void InitDifference(void)
 	// rhwの初期化
 	Initrhw(pVtx);
 
-	// 頂点カラーの初期化
-	Initcol(pVtx);
+	// 頂点カラーの設定
+	Setcol(pVtx, col);
 
 	// テクスチャ座標の初期化
 	Inittex(pVtx);
@@ -870,6 +878,22 @@ static void InitDiffMeter(void)
 	float fWidth = (METER_WIDTH * 0.8f) * 0.5f;
 	float fHeight = (METER_HEIGHT * 0.8f) * 0.5f;
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.925f, SCREEN_HEIGHT * 0.19f, 0.0f);
+	
+	int nPos = (int)(GetPlayer()->pos.x / 3);
+	int nTarget = GetTarget() * 10;
+
+	int nDiff = nTarget - nPos;
+
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	if (nDiff >= 0)
+	{// プラス
+		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+	else
+	{// マイナス
+		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	}
 
 	// 頂点座標の設定
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
@@ -877,8 +901,8 @@ static void InitDiffMeter(void)
 	// rhwの初期化
 	Initrhw(pVtx);
 
-	// 頂点カラーの初期化
-	Initcol(pVtx);
+	// 頂点カラーの設定
+	Setcol(pVtx, col);
 
 	// テクスチャ座標の初期化
 	Inittex(pVtx);
@@ -919,14 +943,30 @@ static void InitDiffDecimal(void)
 	float fHeight = (DECIMAL_HEIGHT * 0.8f) * 0.5f;
 	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.825f, SCREEN_HEIGHT * 0.17f, 0.0f);
 
+	int nPos = (int)(GetPlayer()->pos.x / 3);
+	int nTarget = GetTarget() * 10;
+
+	int nDiff = nTarget - nPos;
+
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+	if (nDiff >= 0)
+	{// プラス
+		col = D3DXCOLOR(0.0f, 1.0f, 0.0f, 1.0f);
+	}
+	else
+	{// マイナス
+		col = D3DXCOLOR(1.0f, 0.0f, 0.0f, 1.0f);
+	}
+
 	// 頂点座標の設定
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);
 
 	// rhwの初期化
 	Initrhw(pVtx);
 
-	// 頂点カラーの初期化
-	Initcol(pVtx);
+	// 頂点カラーの設定
+	Setcol(pVtx, col);
 
 	// テクスチャ座標の初期化
 	Inittex(pVtx);

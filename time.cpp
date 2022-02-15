@@ -53,6 +53,8 @@ void InitTime(void)
 		aNumber[i] = 0;
 	}
 
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 	for (int i = 0; i < MAX_TIME; i++)
 	{// ‚PŒ…‚¸‚Â‚É•ª‚¯‚é
 		aNumber[i] = nTime % 10;
@@ -62,7 +64,7 @@ void InitTime(void)
 		float fCenter = (NUMBER_WIDTH * 0.5) * (MAX_TIME - 1) + (WIDTH_INTERVAL * 0.5f) * (MAX_TIME - 1);
 
 		// ”‚ÌÝ’è
-		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME_ONLY);
+		SetRightNumber(D3DXVECTOR3((s_pos.x) - fInterval + fCenter + (NUMBER_WIDTH * 0.5f), s_pos.y, 0.0f), col, NUMBER_WIDTH, NUMBER_HEIGHT * 0.5f, aNumber[i], i, USE_GAME_ONLY);
 	}
 }
 

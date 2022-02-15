@@ -11,6 +11,7 @@
 // プロトタイプ宣言
 //--------------------------------------------------
 void InitRanking(void);
+void UninitRanking(void);
 void LoadRanking(void);
 void SaveRanking(void);
 
