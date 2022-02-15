@@ -40,11 +40,18 @@
 #define TITLE_WIDTH			(150.0f)		// メニューの幅
 #define TITLE_HEIGHT		(100.0f)		// メニューの高さ
 #define RULE_WIDTH			(200.0f)		// ルールの幅
-#define RULE_HEIGHT			(180.0f)		// ルールの高さ
+#define RULE_HEIGHT			(200.0f)		// ルールの高さ
 #define MOVE_WIDTH			(200.0f)		// 移動の幅
 #define MOVE_HEIGHT			(100.0f)		// 移動の高さ
-#define REMIX_WIDTH			(150.0f)		// リミックス幅
-#define REMIX_HEIGHT		(60.0f)			// リミックス高さ
+#define REMIX_WIDTH			(150.0f)		// リミックスの幅
+#define REMIX_HEIGHT		(60.0f)			// リミックスの高さ
+#define MIZU_WIDTH			(150.0f)		// Mizuの幅
+#define MIZU_HEIGHT			(100.0f)		// Mizuの高さ
+#define PARTY_WIDTH			(150.0f)		// Partyの幅
+#define PARTY_HEIGHT		(100.0f)		// Partyの高さ
+#define LOGO_WIDTH			(100.0f)		// !!の幅
+#define LOGO_HEIGHT			(100.0f)		// !!の高さ
+#define LOGO_CHANGE			(0.4f)			// ロゴの変化
 
 //--------------------------------------------------
 // 構造体
@@ -75,8 +82,12 @@ static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// 坂のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureRule;					// 説明のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureMove;					// 移動のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureRemix;				// リミックスのテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureMizu;					// Mizuのテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureParty;				// Partyのテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureLogo;					// !!のテクスチャへのポインタ
 static Billboard					s_billboard[MAX_BILLBOARD];		// ビルボードの情報
 static int							s_nUseTex;						// テクスチャの使用数
+static int							s_nTime;						// タイム
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -85,6 +96,7 @@ static void System(FILE *pFile, char *aFile);
 static void Load(FILE *pFile);
 static void TitleMenu(void);
 static void TitleRule(void);
+static void TitleLogo(void);
 
 //--------------------------------------------------
 // 初期化
@@ -93,6 +105,8 @@ void InitBillboard(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	s_nTime = 0;
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
@@ -133,7 +147,7 @@ void UninitBillboard(void)
 		for (int i = 0; i < s_nUseTex; i++)
 		{
 			if (s_pTexture[i] != NULL)
-			{
+			{// テクスチャの解放
 				s_pTexture[i]->Release();
 				s_pTexture[i] = NULL;
 			}
@@ -196,6 +210,30 @@ void UninitBillboard(void)
 		s_pTextureMove->Release();
 		s_pTextureMove = NULL;
 	}
+
+	if (s_pTextureRemix != NULL)
+	{// テクスチャの解放
+		s_pTextureRemix->Release();
+		s_pTextureRemix = NULL;
+	}
+
+	if (s_pTextureMizu != NULL)
+	{// テクスチャの解放
+		s_pTextureMizu->Release();
+		s_pTextureMizu = NULL;
+	}
+
+	if (s_pTextureParty != NULL)
+	{// テクスチャの解放
+		s_pTextureParty->Release();
+		s_pTextureParty = NULL;
+	}
+
+	if (s_pTextureLogo != NULL)
+	{// テクスチャの解放
+		s_pTextureLogo->Release();
+		s_pTextureLogo = NULL;
+	}
 }
 
 //--------------------------------------------------
@@ -203,18 +241,77 @@ void UninitBillboard(void)
 //--------------------------------------------------
 void UpdateBillboard(void)
 {
-	for (int i = 0; i < MAX_BILLBOARD; i++)
-	{
-		Billboard *pBillboard = &s_billboard[i];
+	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
-		if (!pBillboard->bUse || pBillboard->pTexture != s_pTexturePlayer)
-		{//使用されていない
-			continue;
+	float fSize = 0.0f, fWidth = 0.0f, fHeight = 0.0f;
+
+	switch (GetMode())
+	{
+	case MODE_TITLE:		// タイトル
+
+		s_nTime++;
+		fSize = sinf((s_nTime * 0.01f) * (D3DX_PI * 2.0f)) * LOGO_CHANGE;
+		fSize = fSize;
+
+		for (int i = 0; i < MAX_BILLBOARD; i++)
+		{
+			Billboard *pBillboard = &s_billboard[i];
+
+			if (!pBillboard->bUse)
+			{//使用されていない
+				continue;
+			}
+			
+			if (pBillboard->pTexture != s_pTextureMizu &&
+				pBillboard->pTexture != s_pTextureParty &&
+				pBillboard->pTexture != s_pTextureLogo)
+			{// テクスチャが違う
+				continue;
+			}
+
+			/*↓ 使用している ↓*/
+
+			fWidth = pBillboard->fWidth;
+			fHeight = pBillboard->fHeight;
+
+			pBillboard->fWidth += fSize;
+			pBillboard->fHeight += fSize;
+
+			// 頂点情報をロックし、頂点情報へのポインタを取得
+			s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
+
+			pVtx += (i * 4);		//該当の位置まで進める
+
+			// 頂点座標の設定
+			Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pBillboard->fWidth, pBillboard->fHeight, 0.0f);
+
+			// 頂点バッファをアンロックする
+			s_pVtxBuff->Unlock();
 		}
 
-		D3DXVECTOR3 pos = D3DXVECTOR3(GetPlayer()->pos.x, GetPlayer()->pos.y, 0.0f);
+		break;
 
-		pBillboard->pos = pos;
+	case MODE_GAME:			// ゲーム
+
+		for (int i = 0; i < MAX_BILLBOARD; i++)
+		{
+			Billboard *pBillboard = &s_billboard[i];
+
+			if (!pBillboard->bUse || pBillboard->pTexture != s_pTexturePlayer)
+			{//使用されていない
+				continue;
+			}
+
+			D3DXVECTOR3 pos = D3DXVECTOR3(GetPlayer()->pos.x, GetPlayer()->pos.y, 0.0f);
+
+			pBillboard->pos = pos;
+		}
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 }
 
@@ -311,7 +408,7 @@ void DrawBillboard(bool bResult, bool bCamera)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
+void SetBillboard(D3DXVECTOR3 pos, D3DXCOLOR col, float fWidth, float fHeight, bool bYRot, bool bResult, bool bCamera, LPDIRECT3DTEXTURE9 *pTexture)
 {
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -345,6 +442,9 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool
 
 		// 頂点の法線の設定
 		Setnor(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
+
+		// 頂点カラーの設定
+		Setcol(pVtx, col);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -494,10 +594,10 @@ void InitBillboardSlope(void)
 	float fPosX = (GetField()->pos.x + GetField()->vtxMax.x);
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(fPosX, fHeight + 100.0f, 30.0f);
-	D3DXVECTOR3 move = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureTarget);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureTarget);
 
 	fWidth = CHEAT_WIDTH * 0.5f;
 	fHeight = CHEAT_HEIGHT * 0.5f;
@@ -507,7 +607,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(fPosX, 0.0f, 0.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, true, &s_pTextureTargetCheat);
 
 	fWidth = PLAYER_WIDTH * 0.5f;
 	fHeight = PLAYER_HEIGHT * 0.5f;
@@ -515,7 +615,7 @@ void InitBillboardSlope(void)
 	pos = D3DXVECTOR3(GetPlayer()->pos.x * 0.5f, GetPlayer()->pos.y + 400.0f, 30.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, true, &s_pTexturePlayer);
 }
 
 //--------------------------------------------------
@@ -528,6 +628,9 @@ void InitBillboardTitle(void)
 
 	// タイトルのメニュー
 	TitleMenu();
+
+	// タイトルロゴ
+	TitleLogo();
 }
 
 //--------------------------------------------------
@@ -720,8 +823,10 @@ static void Load(FILE *pFile)
 				bCamera = false;
 			}
 
+			D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
 			// 設定
-			SetBillboard(pText[i].pos, pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
+			SetBillboard(pText[i].pos, col, pText[i].fWidth, pText[i].fHeight, bYRot, bResult, bCamera, &pText[i].pTexture);
 		}
 
 		delete[] pText;
@@ -764,9 +869,10 @@ static void TitleMenu(void)
 	float fHeight = TITLE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -90.0f);
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureWalking);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureWalking);
@@ -774,7 +880,7 @@ static void TitleMenu(void)
 	pos.x = 0.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureStop);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureStop);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureStop);
@@ -782,7 +888,7 @@ static void TitleMenu(void)
 	pos.x = 200.0f;
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureSlope);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureSlope);
 
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureSlope);
@@ -811,10 +917,11 @@ static void TitleRule(void)
 	float fWidth = RULE_WIDTH * 0.5f;
 	float fHeight = RULE_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, 90.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, 70.0f);
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureRule);
 
 	if (GetTitleCnt() >= REMIX_OK)
 	{// リミックス出来る
@@ -827,10 +934,10 @@ static void TitleRule(void)
 		fWidth = REMIX_WIDTH * 0.5f;
 		fHeight = REMIX_HEIGHT * 0.5f;
 
-		pos = D3DXVECTOR3(0.0f, 0.0f, 85.0f);
+		pos = D3DXVECTOR3(0.0f, 0.0f, 30.0f);
 
 		// ビルボードの設定
-		SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRemix);
+		SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureRemix);
 
 		// 枠の設定
 		SetFrame(pos, fWidth, fHeight, &s_pTextureRemix);
@@ -839,8 +946,60 @@ static void TitleRule(void)
 	fWidth = MOVE_WIDTH * 0.5f;
 	fHeight = MOVE_HEIGHT * 0.5f;
 
-	pos = D3DXVECTOR3(200.0f, 0.0f, 120.0f);
+	pos = D3DXVECTOR3(200.0f, 0.0f, 30.0f);
 	
 	// ビルボードの設定
-	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMove);
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureMove);
+}
+
+//--------------------------------------------------
+// タイトルロゴ
+//--------------------------------------------------
+static void TitleLogo(void)
+{
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/title002.png",
+		&s_pTextureMizu);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/title003.png",
+		&s_pTextureParty);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data/TEXTURE/title004.png",
+		&s_pTextureLogo);
+
+	float fWidth = MIZU_WIDTH * 0.5f;
+	float fHeight = MIZU_HEIGHT * 0.5f;
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(-30.0f, 0.0f, 130.0f);
+	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureMizu);
+
+	fWidth = PARTY_WIDTH * 0.5f;
+	fHeight = PARTY_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(140.0f, 0.0f, 130.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureParty);
+
+	fWidth = LOGO_WIDTH * 0.5f;
+	fHeight = LOGO_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(275.0f, 0.0f, 125.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureLogo);
 }

@@ -515,7 +515,8 @@ static void InitWalking(void)
 		fRand = (float)((rand() % nPosX) + (nPosX * i));
 		fRand += (30.0f * 10.0f);
 
-		pAudience->pos = D3DXVECTOR3(-fRand, 0.0f, 200.0f);
+		pAudience->pos = D3DXVECTOR3(-0.0f, 0.0f, 0.0f);
+		pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 
 	for (int i = 0; i < s_nRight; i++)
@@ -526,7 +527,8 @@ static void InitWalking(void)
 		fRand = (float)((rand() % nPosX) + (nPosX * i));
 		fRand += (30.0f * 10.0f);
 
-		pAudience->pos = D3DXVECTOR3(fRand, 0.0f, 200.0f);
+		pAudience->pos = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		pAudience->rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	}
 }
 
@@ -713,7 +715,7 @@ static void RandomUse(void)
 		Audience *pAudience = &s_pAudience[i];
 
 		int nUse = (rand() % s_nNumFileName);
-		nUse = 14;
+		nUse = 1;
 
 		Text *pText = &s_pText[nUse];
 

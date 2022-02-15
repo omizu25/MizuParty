@@ -1492,13 +1492,11 @@ static void Move(Player *pPlayer)
 		if (GetJoypadPress(JOYKEY_LEFT))
 		{// ボタンが押された
 			fRot = -D3DX_PI * 0.5f;
-
 			pPlayer->rotDest.y = D3DX_PI * 0.5f;
 		}
 		else if (GetJoypadPress(JOYKEY_RIGHT))
 		{// ボタンが押された
 			fRot = D3DX_PI * 0.5f;
-
 			pPlayer->rotDest.y = -D3DX_PI * 0.5f;
 		}
 

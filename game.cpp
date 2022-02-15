@@ -118,10 +118,10 @@ void InitGame(void)
 	InitPlayer();
 
 	// 観客の読み込み
-	//LoadAudience();
+	LoadAudience();
 
 	// 観客の初期化
-	//InitAudience();
+	InitAudience();
 
 	// ビルボードの初期化
 	InitBillboard();
@@ -246,7 +246,7 @@ void UninitGame(void)
 	UninitModel();
 
 	// 観客の終了
-	//UninitAudience();
+	UninitAudience();
 
 	// プレイヤーの終了
 	UninitPlayer();
@@ -455,7 +455,7 @@ void UpdateGame(void)
 	UpdateTarget();
 
 	// 観客の更新
-	//UpdateAudience();
+	UpdateAudience();
 
 	// プレイヤーの更新
 	UpdatePlayer();
@@ -572,7 +572,7 @@ void DrawGame(void)
 		DrawModel();
 
 		// 観客の描画
-		//DrawAudience();
+		DrawAudience();
 
 		// プレイヤーの描画
 		DrawPlayer();

@@ -35,7 +35,7 @@ static int		s_nCount;		// 何回タイトルに来たかのカウント
 //--------------------------------------------------
 void InitTitle(void)
 {
-	s_nCount++; 
+	s_nCount++;
 
 	// ポリゴンの初期化
 	InitPolygon();
@@ -103,6 +103,9 @@ void UninitTitle(void)
 //--------------------------------------------------
 void UpdateTitle(void)
 {
+	// ビルボードの更新
+	UpdateBillboard();
+
 	// プレイヤーの更新
 	UpdatePlayer();
 
