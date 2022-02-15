@@ -14,5 +14,6 @@ void InitTarget(void);
 void UninitTarget(void);
 void UpdateTarget(void);
 void DrawTarget(void);
+int GetTarget(void);
 
 #endif // !_TARGET_H_

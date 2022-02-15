@@ -22,8 +22,8 @@
 #define RULE_HEIGHT			(100.0f)		// 説明の高さ
 #define A_OR_D_WIDTH		(170.0f)		// AorDの幅
 #define A_OR_D_HEIGHT		(70.0f)			// AorDの高さ
-#define STICK_WIDTH			(170.0f)		// スティックの幅
-#define STICK_HEIGHT		(70.0f)			// スティックの高さ
+#define STICK_WIDTH			(220.0f)		// スティックの幅
+#define STICK_HEIGHT		(100.0f)		// スティックの高さ
 #define HINT_WIDTH			(300.0f)		// ヒントの幅
 #define HINT_HEIGHT			(80.0f)			// ヒントの高さ
 
@@ -349,7 +349,7 @@ static void InitAorD(void)
 
 	float fWidth = A_OR_D_WIDTH * 0.5f;
 	float fHeight = A_OR_D_HEIGHT * 0.5f;
-	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.075f, 0.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(SCREEN_WIDTH * 0.75f, SCREEN_HEIGHT * 0.085f, 0.0f);
 
 	// 頂点座標の設定処理
 	Setpos(pVtx, pos, fWidth, fHeight, SETPOS_MIDDLE);

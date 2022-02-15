@@ -20,8 +20,8 @@
 // マクロ定義
 //--------------------------------------------------
 #define MAX_DIGITS					(2)				// 桁数の最大値
-#define MIN_TARGET					(37)			// 目標の最小値
-#define MAX_RANDOM					(30)			// ランダムの最大値
+#define MIN_TARGET					(33)			// 目標の最小値
+#define MAX_RANDOM					(42)			// ランダムの最大値
 #define START_NUMBER_WIDTH			(120.0f)		// スタートの数の幅
 #define START_NUMBER_HEIGHT			(200.0f)		// スタートの数の高さ
 #define START_WIDTH_INTERVAL		(5.0f)			// スタートの数の幅の間隔
@@ -274,6 +274,14 @@ void DrawTarget(void)
 		assert(false);
 		break;
 	}
+}
+
+//--------------------------------------------------
+// 取得
+//--------------------------------------------------
+int GetTarget(void)
+{
+	return s_nTarget;
 }
 
 //--------------------------------------------------

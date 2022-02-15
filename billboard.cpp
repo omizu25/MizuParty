@@ -37,12 +37,12 @@
 #define CHEAT_HEIGHT		(2000.0f)		// ずるをした目標地点の高さ
 #define PLAYER_WIDTH		(300.0f)		// 自転車の幅
 #define PLAYER_HEIGHT		(2000.0f)		// 自転車の高さ
-#define TITLE_WIDTH			(150.0f)		// メニューの幅
-#define TITLE_HEIGHT		(100.0f)		// メニューの高さ
-#define RULE_WIDTH			(200.0f)		// ルールの幅
-#define RULE_HEIGHT			(200.0f)		// ルールの高さ
-#define MOVE_WIDTH			(200.0f)		// 移動の幅
-#define MOVE_HEIGHT			(100.0f)		// 移動の高さ
+#define TITLE_WIDTH			(180.0f)		// メニューの幅
+#define TITLE_HEIGHT		(130.0f)		// メニューの高さ
+#define RULE_WIDTH			(180.0f)		// ルールの幅
+#define RULE_HEIGHT			(180.0f)		// ルールの高さ
+#define MOVE_WIDTH			(180.0f)		// 移動の幅
+#define MOVE_HEIGHT			(80.0f)			// 移動の高さ
 #define REMIX_WIDTH			(150.0f)		// リミックスの幅
 #define REMIX_HEIGHT		(60.0f)			// リミックスの高さ
 #define MIZU_WIDTH			(150.0f)		// Mizuの幅
@@ -917,7 +917,7 @@ static void TitleRule(void)
 	float fWidth = RULE_WIDTH * 0.5f;
 	float fHeight = RULE_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, 70.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-210.0f, 0.0f, 100.0f);
 	D3DXCOLOR col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// ビルボードの設定
@@ -934,7 +934,7 @@ static void TitleRule(void)
 		fWidth = REMIX_WIDTH * 0.5f;
 		fHeight = REMIX_HEIGHT * 0.5f;
 
-		pos = D3DXVECTOR3(0.0f, 0.0f, 30.0f);
+		pos = D3DXVECTOR3(0.0f, 0.0f, 50.0f);
 
 		// ビルボードの設定
 		SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureRemix);
@@ -946,7 +946,7 @@ static void TitleRule(void)
 	fWidth = MOVE_WIDTH * 0.5f;
 	fHeight = MOVE_HEIGHT * 0.5f;
 
-	pos = D3DXVECTOR3(200.0f, 0.0f, 30.0f);
+	pos = D3DXVECTOR3(200.0f, 0.0f, 50.0f);
 	
 	// ビルボードの設定
 	SetBillboard(pos, col, fWidth, fHeight, true, false, false, &s_pTextureMove);
