@@ -28,6 +28,7 @@ typedef struct
 {
 	D3DXVECTOR3		pos;			// 位置
 	D3DXVECTOR3		rot;			// 向き
+	D3DXVECTOR3		size;			// サイズ
 	D3DXMATRIX		mtxWorld;		// ワールドマトリックス
 	bool			bUse;			// 使用しているかどうか
 }Shadow;
@@ -175,11 +176,11 @@ void DrawShadow(void)
 //--------------------------------------------------
 // 設定
 //--------------------------------------------------
-int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
+int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size)
 {
 	int i;
 	VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
-
+	
 	for (i = 0; i < MAX_SHADOW; i++)
 	{
 		Shadow *pShadow = &s_shadow[i];
@@ -193,11 +194,8 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
 
 		pShadow->pos = pos;
 		pShadow->rot = rot;
+		pShadow->size = size;
 		pShadow->bUse = true;
-
-		polygon *pPolygon = GetPolygon();
-
-		pShadow->pos.y = pPolygon->pos.y + 0.1f;
 
 		// 頂点情報をロックし、頂点情報へのポインタを取得
 		s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
@@ -205,7 +203,7 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), size.x, BASIC_HEIGHT, size.z);
 
 		float Alpha = 1.0f - (pos.y * 0.005f);
 
@@ -229,17 +227,14 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fSize)
 //--------------------------------------------------
 // 位置の設定
 //--------------------------------------------------
-void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
+void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos, D3DXVECTOR3 rot)
 {
 	Shadow *pShadow = &s_shadow[nIdxShadow];
 
 	if (pShadow->bUse)
 	{//使用されている
 		pShadow->pos = pos;
-
-		polygon *pPolygon = GetPolygon();
-
-		pShadow->pos.y = pPolygon->pos.y + 0.1f;
+		pShadow->rot = rot;
 
 		VERTEX_3D *pVtx = NULL;		// 頂点情報へのポインタ
 
@@ -248,12 +243,16 @@ void SetPosShadow(int nIdxShadow, D3DXVECTOR3 pos)
 
 		pVtx += (nIdxShadow * 4);		//該当の位置まで進める
 
-		float fSize = pos.y * 0.15f;
-
-		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), BASIC_WIDTH + fSize, BASIC_HEIGHT, BASIC_DEPTH + fSize);
-
 		float Alpha = 1.0f - (pos.y * 0.005f);
+
+		if (Alpha >= 0.75f)
+		{
+			Alpha = 0.75f;
+		}
+		else if (Alpha <= 0.25f)
+		{
+			Alpha = 0.25f;
+		}
 
 		// 頂点カラーの設定
 		Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, Alpha));

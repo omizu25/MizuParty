@@ -142,8 +142,11 @@ void InitModel(void)
 			s_model.fMove = MIN_MOVE;
 		}
 
-		// 影の設定
-		s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, s_model.vtxMax.x);
+		//D3DXVECTOR3 pos = D3DXVECTOR3(s_model.pos.x, 0.2f, s_model.pos.z);
+		//D3DXVECTOR3 size = D3DXVECTOR3(s_model.vtxMax.x, 0.0f, s_model.vtxMax.z);
+
+		//// 影の設定
+		//s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, size);
 	}
 
 	s_bStop = false;
@@ -196,6 +199,11 @@ void UpdateModel(void)
 			if (!s_bStop)
 			{// 止まらない
 				s_model.pos.y -= s_model.fMove;
+
+				D3DXVECTOR3 pos = D3DXVECTOR3(s_model.pos.x, 0.2f, s_model.pos.z);
+
+				//// 影の位置の設定
+				//SetPosShadow(s_model.nIdxShadow, pos, s_model.rot);
 			}
 
 			float fModel = GetModel()->pos.y;
@@ -218,6 +226,9 @@ void UpdateModel(void)
 
 				// サウンドの再生
 				PlaySound(SOUND_LABEL_SE_KO);
+
+				//// 影の使うのを止める
+				//UseStopShadow(s_model.nIdxShadow);
 			}
 		}
 

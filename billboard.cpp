@@ -911,6 +911,7 @@ static void TitleRule(void)
 	float fHeight = RULE_HEIGHT * 0.5f;
 
 	D3DXVECTOR3 pos = D3DXVECTOR3(-210.0f, 0.0f, 100.0f);
+
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRule);
 

@@ -205,8 +205,28 @@ void InitPlayer(void)
 
 	Player *pPlayer = &s_player[s_nSelectPlayer];
 
+	D3DXVECTOR3 pos = D3DXVECTOR3(pPlayer->pos.x, 0.1f, pPlayer->pos.z);
+	D3DXVECTOR3 size = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	switch (s_nSelectPlayer)
+	{
+	case 0:		// ‚Ä‚é‚Ä‚é
+		pos.y = 0.1f;
+		size = D3DXVECTOR3(pPlayer->fSize, 0.0f, pPlayer->fSize);
+		break;
+
+	case 1:		// Ž©“]ŽÔ
+		pos.y = pPlayer->pos.y + 0.1f;
+		size = D3DXVECTOR3(15.0f, 0.0f, 140.0f);
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	// ‰e‚ÌÝ’è
-	pPlayer->nIdxShadow = SetShadow(pPlayer->pos, pPlayer->rot, pPlayer->fSize);
+	pPlayer->nIdxShadow = SetShadow(pos, pPlayer->rot, size);
 }
 
 //--------------------------------------------------
@@ -335,8 +355,26 @@ void UpdatePlayer(void)
 		break;
 	}
 
+	D3DXVECTOR3 pos = D3DXVECTOR3(pPlayer->pos.x, 0.1f, pPlayer->pos.z);
+	
+	switch (s_nSelectPlayer)
+	{
+	case 0:		// ‚Ä‚é‚Ä‚é
+		pos.y = 0.1f;
+		
+		break;
+
+	case 1:		// Ž©“]ŽÔ
+		pos.y = pPlayer->pos.y + 0.1f;
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
 	// ‰e‚ÌˆÊ’u‚ÌÝ’è
-	SetPosShadow(pPlayer->nIdxShadow, pPlayer->pos);
+	SetPosShadow(pPlayer->nIdxShadow, pos, pPlayer->rot);
 }
 
 //--------------------------------------------------
