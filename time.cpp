@@ -10,6 +10,7 @@
 //--------------------------------------------------
 #include "main.h"
 #include "game.h"
+#include "input.h"
 #include "number.h"
 #include "player.h"
 #include "result.h"
@@ -24,6 +25,7 @@
 #define WIDTH_INTERVAL		(5.0f)			// 幅の間隔
 #define START_TIME			(10)			// 最初の値
 #define ONE_SECONDS			(60)			// １秒
+#define SKIP_TIME			(5)				// 飛ばす時間
 
 //--------------------------------------------------
 // スタティック変数
@@ -74,6 +76,16 @@ void InitTime(void)
 void SubTime(int nValue)
 {
 	s_nSecond += nValue;
+
+	if (s_nTime > 0 && s_nTime <= SKIP_TIME)
+	{// まだ時間がある
+		if (GetKeyboardTrigger(DIK_RETURN) || GetKeyboardTrigger(DIK_SPACE) ||
+			GetJoypadTrigger(JOYKEY_B) || GetJoypadTrigger(JOYKEY_A) ||
+			GetJoypadTrigger(JOYKEY_START))
+		{// スペースキーが押された
+			s_nTime = 0;
+		}
+	}
 
 	if (s_nSecond % ONE_SECONDS == 0 && s_nTime > 0)
 	{// １秒経過、まだ時間がある
