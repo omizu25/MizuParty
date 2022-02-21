@@ -45,6 +45,8 @@
 #define TITLE_WIDTH			(255.0f)		// タイトルの移動制限
 #define TITLE_DEPTH			(135.0f)		// タイトルの移動制限
 #define DEAD_ZONE			(0.1f)			// スティックの遊び
+#define UP_SPEED			(0.75f)			// 上がる速度
+#define DOWN_SPEED			(1.15f)			// 下がる速度
 
 //--------------------------------------------------
 // 構造体
@@ -75,7 +77,8 @@ static float		s_fSlopeMove;			// 坂の移動量
 static int			s_nEndTime;				// エンドの時間
 static bool			s_bSoundRun;			// 走るサウンドを流したか
 static bool			s_bSoundFall;			// 落ちるサウンドを流したか
-static bool			s_bKeyBoard;			// キーボード入力があるかどうか
+static bool			s_bKeyBoardWASD;		// WASDのキーボード入力があるかどうか
+static bool			s_bKeyBoardArrow;		// やじるしのキーボード入力があるかどうか
 static bool			s_bJoyPad;				// ジョイパッド入力があるかどうか
 static bool			s_bStickLeft;			// 左スティック入力があるかどうか
 static bool			s_bStickRight;			// 右スティック入力があるかどうか
@@ -155,7 +158,8 @@ void InitPlayer(void)
 	s_nEndTime = 0;
 	s_bSoundRun = false;
 	s_bSoundFall = false;
-	s_bKeyBoard = false;
+	s_bKeyBoardWASD = false;
+	s_bKeyBoardArrow = false;
 	s_bJoyPad = false;
 	s_bStickLeft = false;
 	s_bStickRight = false;
@@ -1314,7 +1318,7 @@ static void TitleMove(Player *pPlayer)
 
 	/* ↓モデルの移動↓ */
 
-	if (s_bKeyBoard)
+	if (s_bKeyBoardWASD)
 	{// キーボード
 		if (GetKeyboardPress(DIK_A))
 		{// キーが押された
@@ -1329,6 +1333,31 @@ static void TitleMove(Player *pPlayer)
 			vec.z += 1.0f;
 		}
 		if (GetKeyboardPress(DIK_S))
+		{// キーが押された
+			vec.z -= 1.0f;
+		}
+
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
+	}
+	else if (s_bKeyBoardArrow)
+	{// キーボード
+		if (GetKeyboardPress(DIK_LEFT))
+		{// キーが押された
+			vec.x -= 1.0f;
+		}
+		if (GetKeyboardPress(DIK_RIGHT))
+		{// キーが押された
+			vec.x += 1.0f;
+		}
+		if (GetKeyboardPress(DIK_UP))
+		{// キーが押された
+			vec.z += 1.0f;
+		}
+		if (GetKeyboardPress(DIK_DOWN))
 		{// キーが押された
 			vec.z -= 1.0f;
 		}
@@ -1430,7 +1459,7 @@ static void Move(Player *pPlayer)
 
 	/* ↓モデルの移動↓ */
 
-	if (s_bKeyBoard)
+	if (s_bKeyBoardWASD)
 	{// キーボード
 		if (GetKeyboardPress(DIK_A))
 		{// キーが押された
@@ -1438,6 +1467,25 @@ static void Move(Player *pPlayer)
 			s_bRot = true;
 		}
 		if (GetKeyboardPress(DIK_D))
+		{// キーが押された
+			vec.x += 1.0f;
+			s_bRot = false;
+		}
+
+		// ベクトルの正規化
+		D3DXVec3Normalize(&vec, &vec);
+
+		pPlayer->rotDest.y = atan2f(vec.x, vec.z) + D3DX_PI;
+		pPlayer->move += vec * pPlayer->fMove;
+	}
+	else if (s_bKeyBoardArrow)
+	{// キーボード
+		if (GetKeyboardPress(DIK_LEFT))
+		{// キーが押された
+			vec.x -= 1.0f;
+			s_bRot = true;
+		}
+		if (GetKeyboardPress(DIK_RIGHT))
 		{// キーが押された
 			vec.x += 1.0f;
 			s_bRot = false;
@@ -1517,11 +1565,11 @@ static void Move(Player *pPlayer)
 	{// 坂の時
 		if (s_bRot)
 		{// 左
-			pPlayer->move.x *= 0.75f;
+			pPlayer->move.x *= UP_SPEED;
 		}
 		else
 		{// 右
-			pPlayer->move.x *= 1.25f;
+			pPlayer->move.x *= DOWN_SPEED;
 		}
 	}
 
@@ -1551,7 +1599,8 @@ static void Move(Player *pPlayer)
 //--------------------------------------------------
 static void InputMove(void)
 {
-	s_bKeyBoard = false;
+	s_bKeyBoardWASD = false;
+	s_bKeyBoardArrow = false;
 	s_bJoyPad = false;
 	s_bStickLeft = false;
 	s_bStickRight = false;
@@ -1563,7 +1612,13 @@ static void InputMove(void)
 		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D) ||
 			GetKeyboardPress(DIK_W) || GetKeyboardPress(DIK_S))
 		{// キーが押された
-			s_bKeyBoard = true;
+			s_bKeyBoardWASD = true;
+		}
+
+		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT) ||
+			GetKeyboardPress(DIK_UP) || GetKeyboardPress(DIK_DOWN))
+		{// キーが押された
+			s_bKeyBoardArrow = true;
 		}
 
 		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT) ||
@@ -1594,7 +1649,12 @@ static void InputMove(void)
 
 		if (GetKeyboardPress(DIK_A) || GetKeyboardPress(DIK_D))
 		{// キーが押された
-			s_bKeyBoard = true;
+			s_bKeyBoardWASD = true;
+		}
+
+		if (GetKeyboardPress(DIK_LEFT) || GetKeyboardPress(DIK_RIGHT))
+		{// キーが押された
+			s_bKeyBoardArrow = true;
 		}
 
 		if (GetJoypadPress(JOYKEY_LEFT) || GetJoypadPress(JOYKEY_RIGHT))
@@ -1871,11 +1931,11 @@ static void MotionSlope(Player *pPlayer)
 			{// 坂の時
 				if (s_bRot)
 				{// 左
-					fRot *= 0.75f;
+					fRot *= UP_SPEED;
 				}
 				else
 				{// 右
-					fRot *= 1.25f;
+					fRot *= DOWN_SPEED;
 				}
 			}
 
