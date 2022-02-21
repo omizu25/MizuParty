@@ -79,6 +79,7 @@ static bool			s_bKeyBoard;			// キーボード入力があるかどうか
 static bool			s_bJoyPad;				// ジョイパッド入力があるかどうか
 static bool			s_bStickLeft;			// 左スティック入力があるかどうか
 static bool			s_bStickRight;			// 右スティック入力があるかどうか
+static bool			s_bRot;					// 向き false : 右 true : 左
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -158,6 +159,7 @@ void InitPlayer(void)
 	s_bJoyPad = false;
 	s_bStickLeft = false;
 	s_bStickRight = false;
+	s_bRot = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -1433,10 +1435,12 @@ static void Move(Player *pPlayer)
 		if (GetKeyboardPress(DIK_A))
 		{// キーが押された
 			vec.x -= 1.0f;
+			s_bRot = true;
 		}
 		if (GetKeyboardPress(DIK_D))
 		{// キーが押された
 			vec.x += 1.0f;
+			s_bRot = false;
 		}
 
 		// ベクトルの正規化
@@ -1450,10 +1454,14 @@ static void Move(Player *pPlayer)
 		if (GetJoypadPress(JOYKEY_LEFT))
 		{// ボタンが押された
 			vec.x -= 1.0f;
+
+			s_bRot = true;
 		}
 		if (GetJoypadPress(JOYKEY_RIGHT))
 		{// ボタンが押された
 			vec.x += 1.0f;
+
+			s_bRot = false;
 		}
 
 		// ベクトルの正規化
@@ -1468,6 +1476,15 @@ static void Move(Player *pPlayer)
 
 		stick.x = GetJoypadStick(JOYKEY_LEFT_STICK, 0).x;
 
+		if (stick.x < 0.0f)
+		{// 左
+			s_bRot = true;
+		}
+		else
+		{// 右
+			s_bRot = false;
+		}
+
 		// ベクトルの正規化
 		D3DXVec3Normalize(&stick, &stick);
 
@@ -1480,11 +1497,32 @@ static void Move(Player *pPlayer)
 
 		stick.x = GetJoypadStick(JOYKEY_RIGHT_STICK, 0).x;
 
+		if (stick.x < 0.0f)
+		{// 左
+			s_bRot = true;
+		}
+		else
+		{// 右
+			s_bRot = false;
+		}
+
 		// ベクトルの正規化
 		D3DXVec3Normalize(&stick, &stick);
 
 		pPlayer->rotDest.y = atan2f(stick.x, stick.z) + D3DX_PI;
 		pPlayer->move += stick * pPlayer->fMove;
+	}
+
+	if (GetTitle() == MENU_SLOPE)
+	{// 坂の時
+		if (s_bRot)
+		{// 左
+			pPlayer->move.x *= 0.75f;
+		}
+		else
+		{// 右
+			pPlayer->move.x *= 1.25f;
+		}
 	}
 
 	// 移動
@@ -1811,6 +1849,8 @@ static void MotionBlend(Player *pPlayer)
 //--------------------------------------------------
 static void MotionSlope(Player *pPlayer)
 {
+	float fRot = 0.025f;
+
 	switch (GetGame())
 	{
 	case GAMESTATE_NONE:			// 何もしていない状態
@@ -1826,8 +1866,21 @@ static void MotionSlope(Player *pPlayer)
 
 		if (pPlayer->move.x >= 0.1f || pPlayer->move.x <= -0.1f)
 		{// 移動している
-			pPlayer->parts[1].rot.x += -D3DX_PI * 0.025f;
-			pPlayer->parts[2].rot.x += -D3DX_PI * 0.025f;
+
+			if (GetTitle() == MENU_SLOPE)
+			{// 坂の時
+				if (s_bRot)
+				{// 左
+					fRot *= 0.75f;
+				}
+				else
+				{// 右
+					fRot *= 1.25f;
+				}
+			}
+
+			pPlayer->parts[1].rot.x += -D3DX_PI * fRot;
+			pPlayer->parts[2].rot.x += -D3DX_PI * fRot;
 		}
 
 		break;
