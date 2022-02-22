@@ -83,6 +83,7 @@ static bool			s_bJoyPad;				// ジョイパッド入力があるかどうか
 static bool			s_bStickLeft;			// 左スティック入力があるかどうか
 static bool			s_bStickRight;			// 右スティック入力があるかどうか
 static bool			s_bRot;					// 向き false : 右 true : 左
+static bool			s_bDraw;				// 描画するかどうか
 
 //--------------------------------------------------
 // プロトタイプ宣言
@@ -164,6 +165,7 @@ void InitPlayer(void)
 	s_bStickLeft = false;
 	s_bStickRight = false;
 	s_bRot = true;
+	s_bDraw = true;
 
 	for (int i = 0; i < s_nNumPlayer; i++)
 	{
@@ -397,72 +399,75 @@ void DrawPlayer(void)
 
 	Player *pPlayer = &s_player[s_nSelectPlayer];
 
-	for (int j = 0; j < pPlayer->nNumParts; j++)
-	{
-		PlayerParts *pParts = &pPlayer->parts[j];
-
-		// パーツのワールドマトリックスの初期化
-		D3DXMatrixIdentity(&pParts->mtxWorld);
-
-		// パーツの向きを反映
-		D3DXMatrixRotationYawPitchRoll(&mtxRot, pParts->rot.y, pParts->rot.x, pParts->rot.z);
-		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxRot);
-
-		// パーツの位置を反映
-		D3DXMatrixTranslation(&mtxTrans, pParts->pos.x, pParts->pos.y, pParts->pos.z);
-		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxTrans);
-
-		D3DXMATRIX mtxParent;
-
-		if (pParts->nIdxParent == IDX_PARENT)
-		{// 親
-			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&pPlayer->mtxWorld);
-
-			// 向きを反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, pPlayer->rot.y, pPlayer->rot.x, pPlayer->rot.z);
-			D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxRot);
-
-			// 位置を反映
-			D3DXMatrixTranslation(&mtxTrans, pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
-			D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxTrans);
-
-			mtxParent = pPlayer->mtxWorld;
-		}
-		else
-		{// 子
-			mtxParent = pPlayer->parts[pParts->nIdxParent].mtxWorld;
-		}
-
-		// 親モデルとのマトリックスの掛け算
-		D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxParent);
-
-		// ワールドマトリックスの設定
-		pDevice->SetTransform(D3DTS_WORLD, &pParts->mtxWorld);
-
-		// 現在のマテリアル保持
-		pDevice->GetMaterial(&matDef);
-
-		// マテリアルデータへのポインタを取得
-		pMat = (D3DXMATERIAL*)pParts->pBuffMat->GetBufferPointer();
-
-		for (int k = 0; k < (int)pParts->nNumMat; k++)
+	if (s_bDraw)
+	{// 描画する
+		for (int j = 0; j < pPlayer->nNumParts; j++)
 		{
-			// マテリアルの設定
-			pDevice->SetMaterial(&pMat[k].MatD3D);
+			PlayerParts *pParts = &pPlayer->parts[j];
+
+			// パーツのワールドマトリックスの初期化
+			D3DXMatrixIdentity(&pParts->mtxWorld);
+
+			// パーツの向きを反映
+			D3DXMatrixRotationYawPitchRoll(&mtxRot, pParts->rot.y, pParts->rot.x, pParts->rot.z);
+			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxRot);
+
+			// パーツの位置を反映
+			D3DXMatrixTranslation(&mtxTrans, pParts->pos.x, pParts->pos.y, pParts->pos.z);
+			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxTrans);
+
+			D3DXMATRIX mtxParent;
+
+			if (pParts->nIdxParent == IDX_PARENT)
+			{// 親
+				// ワールドマトリックスの初期化
+				D3DXMatrixIdentity(&pPlayer->mtxWorld);
+
+				// 向きを反映
+				D3DXMatrixRotationYawPitchRoll(&mtxRot, pPlayer->rot.y, pPlayer->rot.x, pPlayer->rot.z);
+				D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxRot);
+
+				// 位置を反映
+				D3DXMatrixTranslation(&mtxTrans, pPlayer->pos.x, pPlayer->pos.y, pPlayer->pos.z);
+				D3DXMatrixMultiply(&pPlayer->mtxWorld, &pPlayer->mtxWorld, &mtxTrans);
+
+				mtxParent = pPlayer->mtxWorld;
+			}
+			else
+			{// 子
+				mtxParent = pPlayer->parts[pParts->nIdxParent].mtxWorld;
+			}
+
+			// 親モデルとのマトリックスの掛け算
+			D3DXMatrixMultiply(&pParts->mtxWorld, &pParts->mtxWorld, &mtxParent);
+
+			// ワールドマトリックスの設定
+			pDevice->SetTransform(D3DTS_WORLD, &pParts->mtxWorld);
+
+			// 現在のマテリアル保持
+			pDevice->GetMaterial(&matDef);
+
+			// マテリアルデータへのポインタを取得
+			pMat = (D3DXMATERIAL*)pParts->pBuffMat->GetBufferPointer();
+
+			for (int k = 0; k < (int)pParts->nNumMat; k++)
+			{
+				// マテリアルの設定
+				pDevice->SetMaterial(&pMat[k].MatD3D);
+
+				// テクスチャの設定
+				pDevice->SetTexture(0, pParts->pTexture[k]);
+
+				// パーツの描画
+				pParts->pMesh->DrawSubset(k);
+			}
+
+			// 保存していたマテリアルを戻す
+			pDevice->SetMaterial(&matDef);
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, pParts->pTexture[k]);
-
-			// パーツの描画
-			pParts->pMesh->DrawSubset(k);
+			pDevice->SetTexture(0, NULL);
 		}
-
-		// 保存していたマテリアルを戻す
-		pDevice->SetMaterial(&matDef);
-
-		// テクスチャの設定
-		pDevice->SetTexture(0, NULL);
 	}
 }
 
@@ -516,6 +521,20 @@ void SetSlopePlayer(void)
 {
 	float fPosX = s_player[s_nSelectPlayer].pos.x * -0.02f;
 	s_fSlopeMove = fPosX;
+}
+
+//--------------------------------------------------
+// 描画するかの設定
+//--------------------------------------------------
+void SetDrawPlayer(bool bDraw)
+{
+	s_bDraw = bDraw;
+
+	if (!bDraw)
+	{
+		// 影を使うのを止める
+		UseStopShadow(s_player[s_nSelectPlayer].nIdxShadow);
+	}
 }
 
 //--------------------------------------------------

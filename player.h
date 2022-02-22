@@ -103,5 +103,6 @@ Player *GetPlayer(void);
 void LoadPlayer(void);
 void NextMotion(MOTION motion);
 void SetSlopePlayer(void);
+void SetDrawPlayer(bool bDraw);
 
 #endif // !_PLAYER_H_

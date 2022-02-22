@@ -15,7 +15,7 @@
 #include "title.h"
 
 #include <assert.h>
-#include <time.h>
+
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -81,9 +81,6 @@ void InitTarget(void)
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
-
-		//世界の種子の初期化
-		srand((unsigned)time(NULL));
 
 		s_nTarget = (rand() % MAX_RANDOM) + MIN_TARGET;
 

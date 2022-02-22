@@ -22,7 +22,6 @@ typedef struct
 	LPD3DXBUFFER			pBuffMat;		// マテリアル情報へのポインタ
 	LPDIRECT3DTEXTURE9		*pTexture;		// テクスチャへのポインタ
 	DWORD					nNumMat;		// マテリアル情報の数
-	float					fMove;			// 移動量
 	int						nRepeat;		// エフェクトの繰り返し回数
 	int						nIdxShadow;		// 使用している影の番号
 }Model;

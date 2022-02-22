@@ -18,6 +18,7 @@
 #define START_WIDTH			(700.0f)		//スタートの幅
 #define START_HEIGHT		(300.0f)		//スタートの高さ
 #define ONE_SECOND			(60)			//１秒
+#define START_SECOND		(30)			//スタートの消える秒数
 
 //--------------------------------------------------
 //スタティック変数
@@ -148,10 +149,21 @@ void AddCountdown(int nValue)
 {
 	s_nSecond += nValue;
 
-	if (s_nSecond % ONE_SECOND == 0)
+	if (s_nCountdown > 0)
 	{
-		s_nCountdown--;
+		if (s_nSecond % ONE_SECOND == 0)
+		{
+			s_nCountdown--;
+		}
 	}
+	else
+	{
+		if (s_nSecond % START_SECOND == 0)
+		{
+			s_nCountdown--;
+		}
+	}
+	
 
 	if (s_nCountdown > 0)
 	{

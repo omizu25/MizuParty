@@ -25,7 +25,6 @@
 #define WIDTH_INTERVAL		(5.0f)			// 幅の間隔
 #define START_TIME			(10)			// 最初の値
 #define ONE_SECONDS			(60)			// １秒
-#define SKIP_TIME			(5)				// 飛ばす時間
 
 //--------------------------------------------------
 // スタティック変数
@@ -77,7 +76,7 @@ void SubTime(int nValue)
 {
 	s_nSecond += nValue;
 
-	if (s_nTime > 0 && s_nTime <= SKIP_TIME)
+	if (s_nTime > 0)
 	{// まだ時間がある
 		if (GetKeyboardTrigger(DIK_RETURN) || GetKeyboardTrigger(DIK_SPACE) ||
 			GetJoypadTrigger(JOYKEY_B) || GetJoypadTrigger(JOYKEY_A) ||

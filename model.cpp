@@ -21,25 +21,26 @@
 #include "sound.h"
 #include "title.h"
 
-#include <time.h>
+#include <assert.h>
+
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define START_POS_Y		(300.0f)		// スタートの高さ
-#define START_POS_Z		(-15.0f)		// スタートの奥行き
-#define MAX_MOVE		(6.0f)			// 移動量の最大値
-#define MIN_MOVE		(5.0f)			// 移動量の最小値
-#define MAX_RANDOM		(2)				// ランダムの最大値
-#define STOP_GOOD		(15.0f)			// 止めるの上手
-#define STOP_NORMAL		(70.0f)			// 止めるの普通
+#define START_POS_Y			(132.0f)		// スタートの高さ
+#define START_POS_X			(-79.0f)		// スタートの幅
+#define MAX_ROTATION		(0.03f)			// 回転量の最大値
+#define MAX_RANDOM			(2)				// ランダムの最大値
+#define STOP_GOOD			(15.0f)			// 止めるの上手
+#define STOP_NORMAL			(70.0f)			// 止めるの普通
+#define START_TIME			(60)			// 始まる時間
 
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
 static Model		s_model;			// モデルの情報
-static int			s_nRand;			// ランダム
 static bool			s_bStop;			// 止めるかどうか
 static bool			s_bCollision;		// 当たったかどうか
+static int			s_nTime;			// 時間
 
 //--------------------------------------------------
 // 初期化
@@ -122,35 +123,19 @@ void InitModel(void)
 			}
 		}
 
-		s_model.pos = D3DXVECTOR3(0.0f, START_POS_Y, START_POS_Z);
-		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+		float fRand = (rand() % 100) * 0.01f * D3DX_PI * 0.5f;
+		fRand -= D3DX_PI * 0.25f;
+
+		s_model.pos = D3DXVECTOR3(START_POS_X, START_POS_Y, 0.0f);
+		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, (D3DX_PI * 0.5f) + fRand);
 		s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 		s_model.nRepeat = 0;
-
-		//世界の種子の初期化
-		srand((unsigned)time(NULL));
-
-		int nRand = (rand() % MAX_RANDOM);
-		
-		if (nRand == 0)
-		{
-			s_model.fMove = MAX_MOVE;
-		}
-		else if (nRand == 1)
-		{
-			s_model.fMove = MIN_MOVE;
-		}
-
-		//D3DXVECTOR3 pos = D3DXVECTOR3(s_model.pos.x, 0.2f, s_model.pos.z);
-		//D3DXVECTOR3 size = D3DXVECTOR3(s_model.vtxMax.x, 0.0f, s_model.vtxMax.z);
-
-		//// 影の設定
-		//s_model.nIdxShadow = SetShadow(s_model.pos, s_model.rot, size);
 	}
 
 	s_bStop = false;
 	s_bCollision = false;
+	s_nTime = 0;
 }
 
 //--------------------------------------------------
@@ -191,85 +176,135 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-	if (GetTitle() == MENU_STOP)
-	{// 止める
+	switch (GetGame())
+	{
+	case GAMESTATE_NORMAL:			// ゲーム中
+	case GAMESTATE_END:				// 終わり
+	case GAMESTATE_RESULT:			// リザルト
 
-		if (!s_bCollision)
+		s_nTime++;
+
+		break;
+
+	case GAMESTATE_NONE:			// 何もなし
+	case GAMESTATE_COUNTDOWN:		// カウントダウン
+	case GAMESTATE_START:			// 始まり
+
+		/* 処理なし */
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+
+	if (s_nTime > START_TIME)
+	{
+		switch (GetGame())
 		{
+		case GAMESTATE_NORMAL:			// ゲーム中
+		case GAMESTATE_END:				// 終わり
+		case GAMESTATE_RESULT:			// リザルト
+
 			if (!s_bStop)
-			{// 止まらない
-				s_model.pos.y -= s_model.fMove;
+			{// 止まってない
+				s_model.rot.z -= D3DX_PI * MAX_ROTATION;
 
-				D3DXVECTOR3 pos = D3DXVECTOR3(s_model.pos.x, 0.2f, s_model.pos.z);
-
-				//// 影の位置の設定
-				//SetPosShadow(s_model.nIdxShadow, pos, s_model.rot);
+				// 角度の正規化
+				NormalizeRot(&s_model.rot.z);
 			}
 
-			float fModel = GetModel()->pos.y;
-			float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+			if (!s_bCollision)
+			{// 当たってない
+				if (s_model.rot.z < -D3DX_PI * 0.5f)
+				{// 衝突
+					s_bCollision = true;
 
-			float fPos = (fModel - fPlayer) + 1.0f;
+					D3DXVECTOR3 pos = GetPlayer()->pos;
 
-			if (fPos < 0.0f)
-			{
-				s_bCollision = true;
+					pos.y += 50.0f;
 
-				// 爆発の設定
-				SetExplosion(s_model.pos, 20.0f, true);
+					// プレイヤーの描画するかの設定
+					SetDrawPlayer(false);
 
-				// リザルトの設定
-				SetResult(RESULT_GAMEOVER);
+					// 爆発の設定
+					SetExplosion(pos, 20.0f, true);
 
-				// ゲームの設定
-				SetGameState(GAMESTATE_END);
+					// リザルトの設定
+					SetResult(RESULT_GAMEOVER);
 
-				// サウンドの再生
-				PlaySound(SOUND_LABEL_SE_KO);
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
 
-				//// 影の使うのを止める
-				//UseStopShadow(s_model.nIdxShadow);
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_KO);
+				}
 			}
+			else
+			{// 当たってる
+				if (s_model.rot.z < -D3DX_PI * 0.75f)
+				{
+					s_bStop = true;
+				}
+			}
+
+			break;
+
+		case GAMESTATE_NONE:			// 何もなし
+		case GAMESTATE_COUNTDOWN:		// カウントダウン
+		case GAMESTATE_START:			// 始まり
+
+			/* 処理なし */
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 
-		if (!s_bCollision && !s_bStop)
+		if (GetGame() == GAMESTATE_NORMAL)
 		{
-			if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
-				GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
-				GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
-			{// F4キーが押された
-				s_bStop = true;
+			if (!s_bCollision && !s_bStop)
+			{
+				if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
+					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
+					GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
+				{// F4キーが押された
+					s_bStop = true;
 
-				// リザルトの設定
-				SetResult(RESULT_CLEAR);
+					// リザルトの設定
+					SetResult(RESULT_CLEAR);
 
-				// ゲームの設定
-				SetGameState(GAMESTATE_END);
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
 
-				float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+					float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
 
-				float fDiff = s_model.pos.y - fPlayer;
+					float fDiff = s_model.pos.y - fPlayer;
 
-				if (fDiff <= STOP_GOOD)
-				{// 止めるの上手
-					// サウンドの再生
-					PlaySound(SOUND_LABEL_SE_止めるの上手);
+					if (fDiff <= STOP_GOOD)
+					{// 止めるの上手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの上手);
 
-					s_model.nRepeat = 10;
-				}
-				else if (fDiff <= STOP_NORMAL)
-				{// 止めるの普通
-					// サウンドの再生
-					PlaySound(SOUND_LABEL_SE_止めるの普通);
+						s_model.nRepeat = 10;
+					}
+					else if (fDiff <= STOP_NORMAL)
+					{// 止めるの普通
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの普通);
 
-					s_model.nRepeat = 3;
-				}
-				else
-				{// 止めるの下手
-					// サウンドの再生
-					PlaySound(SOUND_LABEL_SE_止めるの下手);
+						s_model.nRepeat = 3;
+					}
+					else
+					{// 止めるの下手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの下手);
 
-					s_model.nRepeat = 1;
+						s_model.nRepeat = 1;
+					}
 				}
 			}
 		}
@@ -289,46 +324,43 @@ void DrawModel(void)
 		D3DMATERIAL9 matDef;				// 現在のマテリアル保存用
 		D3DXMATERIAL *pMat;					// マテリアルデータへのポインタ
 
-		if (!s_bCollision)
-		{// 当たってない
 			// ワールドマトリックスの初期化
-			D3DXMatrixIdentity(&s_model.mtxWorld);
+		D3DXMatrixIdentity(&s_model.mtxWorld);
 
-			// 向きを反映
-			D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
-			D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
+		// 向きを反映
+		D3DXMatrixRotationYawPitchRoll(&mtxRot, s_model.rot.y, s_model.rot.x, s_model.rot.z);
+		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxRot);
 
-			// 位置を反映
-			D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
-			D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
+		// 位置を反映
+		D3DXMatrixTranslation(&mtxTrans, s_model.pos.x, s_model.pos.y, s_model.pos.z);
+		D3DXMatrixMultiply(&s_model.mtxWorld, &s_model.mtxWorld, &mtxTrans);
 
-			// ワールドマトリックスの設定
-			pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
+		// ワールドマトリックスの設定
+		pDevice->SetTransform(D3DTS_WORLD, &s_model.mtxWorld);
 
-			// 現在のマテリアル保持
-			pDevice->GetMaterial(&matDef);
+		// 現在のマテリアル保持
+		pDevice->GetMaterial(&matDef);
 
-			// マテリアルデータへのポインタを取得
-			pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
+		// マテリアルデータへのポインタを取得
+		pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
 
-			for (int i = 0; i < (int)s_model.nNumMat; i++)
-			{
-				// マテリアルの設定
-				pDevice->SetMaterial(&pMat[i].MatD3D);
-
-				// テクスチャの設定
-				pDevice->SetTexture(0, s_model.pTexture[i]);
-
-				// モデルパーツの描画
-				s_model.pMesh->DrawSubset(i);
-			}
-
-			// 保存していたマテリアルを戻す
-			pDevice->SetMaterial(&matDef);
+		for (int i = 0; i < (int)s_model.nNumMat; i++)
+		{
+			// マテリアルの設定
+			pDevice->SetMaterial(&pMat[i].MatD3D);
 
 			// テクスチャの設定
-			pDevice->SetTexture(0, NULL);
+			pDevice->SetTexture(0, s_model.pTexture[i]);
+
+			// モデルパーツの描画
+			s_model.pMesh->DrawSubset(i);
 		}
+
+		// 保存していたマテリアルを戻す
+		pDevice->SetMaterial(&matDef);
+
+		// テクスチャの設定
+		pDevice->SetTexture(0, NULL);
 	}
 }
 

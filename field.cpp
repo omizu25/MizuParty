@@ -19,7 +19,6 @@
 #include "result.h"
 #include "title.h"
 
-#include <time.h>
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
@@ -112,9 +111,6 @@ void InitField(void)
 			s_field.pTexture[i] = NULL;
 		}
 	}
-
-	//世界の種子の初期化
-	srand((unsigned)time(NULL));
 
 	float fRand = (float)(rand() % MAX_RANDOM);
 

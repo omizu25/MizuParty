@@ -20,6 +20,7 @@
 
 #include <stdio.h>
 #include <assert.h>
+#include <time.h>
 
 //--------------------------------------------------
 // マクロ定義
@@ -288,6 +289,9 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		s_pD3DDevice, 18, 0, 0, 0, FALSE, SHIFTJIS_CHARSET,
 		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH,
 		"Terminal", &s_pFont);
+
+	//世界の種子の初期化
+	srand((unsigned)time(NULL));
 
 	// 入力処理の初期化
 	if (FAILED(InitInput(hInstance, hWnd)))

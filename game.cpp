@@ -334,9 +334,6 @@ void UpdateGame(void)
 				break;
 			}
 
-			// モデルの更新
-			UpdateModel();
-
 			if (GetTitle() != MENU_STOP)
 			{// 止めるじゃない
 				// タイムの減算
@@ -420,10 +417,31 @@ void UpdateGame(void)
 		break;
 	}
 
-	if (GetTitle() == MENU_SLOPE)
+	switch (GetTitle())
 	{
+	case MENU_WALKING:		// ウォーキング
+
+		/* 処理なし */
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		// モデルの更新
+		UpdateModel();
+
+		break;
+
+	case MENU_SLOPE:		// 坂
+
 		// ビルボードの更新
 		UpdateBillboard();
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
 
 	// パーティクルの更新

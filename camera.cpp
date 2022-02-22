@@ -37,8 +37,8 @@
 #define MAX_ROT_FACTOR		(0.2f)			// 向きの減衰係数
 #define START_WALKING_Y		(100.0f)		// Yの位置の最初の値
 #define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
-#define START_STOP_Y		(180.0f)		// Yの位置の最初の値
-#define START_STOP_Z		(-500.0f)		// Zの位置の最初の値
+#define START_STOP_Y		(115.0f)		// Yの位置の最初の値
+#define START_STOP_Z		(-350.0f)		// Zの位置の最初の値
 #define START_SLOPE_Y		(250.0f)		// Yの位置の最初の値
 #define START_SLOPE_Z		(-1300.0f)		// Zの位置の最初の値
 #define MOVE_Y				(5.0f)			// Yの移動量
@@ -294,27 +294,7 @@ static void UpdateGameMode(void)
 	{
 	case MENU_STOP:			// 止める
 
-		if (GetCountdown())
-		{
-			if (!GetStop())
-			{
-				if (!s_bStop)
-				{// 止まらない
-					if (GetGame() == GAMESTATE_NORMAL)
-					{
-						s_camera[0].posV.z += MOVE_Y;
-						s_camera[0].posR.z += MOVE_Y;
-						s_camera[0].posV.y += MOVE_Z;
-						s_camera[0].posR.y += MOVE_Z;
-					}
-
-					if (s_camera[0].posV.y <= STOP_POS_Y)
-					{
-						s_bStop = true;
-					}
-				}
-			}
-		}
+		/* 処理なし */
 
 		break;
 
