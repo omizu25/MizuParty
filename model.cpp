@@ -32,7 +32,7 @@
 #define MAX_RANDOM			(2)				// ランダムの最大値
 #define STOP_GOOD			(15.0f)			// 止めるの上手
 #define STOP_NORMAL			(70.0f)			// 止めるの普通
-#define START_TIME			(60)			// 始まる時間
+#define START_TIME			(45)			// 始まる時間
 
 //--------------------------------------------------
 // スタティック変数
@@ -280,10 +280,8 @@ void UpdateModel(void)
 					// ゲームの設定
 					SetGameState(GAMESTATE_END);
 
-					float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
-
-					float fDiff = s_model.pos.y - fPlayer;
-
+					float fDiff = 90.0f + (GetModel()->rot.z * (180 / D3DX_PI));
+					
 					if (fDiff <= STOP_GOOD)
 					{// 止めるの上手
 						// サウンドの再生

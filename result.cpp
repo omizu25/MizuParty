@@ -43,7 +43,6 @@
 #define DECIMAL_INTERVAL		(40.0f)			// 小数の間隔
 #define MAX_RESULT				(4)				// リザルトの最大数
 #define MIN_RESULT				(2)				// リザルトの最小数
-#define STOP_SCORE				(-1)			// 止めるのスコアの微調整
 
 //--------------------------------------------------
 // スタティック変数
@@ -510,10 +509,9 @@ static void InitPosNumber(void)
 
 	case MENU_STOP:			// 止める
 		
-		fModel = GetModel()->pos.y;
-		fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
-
-		nPos = (int)(((fModel - fPlayer) + STOP_SCORE) * 10.0f);
+		fModel = GetModel()->rot.z * (180 / D3DX_PI);
+		
+		nPos = (90 + (int)fModel) * 10;
 
 		// 止めるの設定
 		SetScoreStop(nPos);
