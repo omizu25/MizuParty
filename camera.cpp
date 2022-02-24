@@ -142,7 +142,7 @@ void InitCamera(void)
 	}
 	else
 	{
-		s_bOverlap = true;;
+		s_bOverlap = true;
 	}
 	
 	s_bStop = false;

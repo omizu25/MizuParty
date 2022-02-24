@@ -172,13 +172,17 @@
     <ClCompile Include="polygon.cpp" />
     <ClCompile Include="ranking.cpp" />
     <ClCompile Include="result.cpp" />
+    <ClCompile Include="rotation.cpp" />
     <ClCompile Include="rule.cpp" />
     <ClCompile Include="setup.cpp" />
     <ClCompile Include="shadow.cpp" />
+    <ClCompile Include="slope.cpp" />
     <ClCompile Include="sound.cpp" />
+    <ClCompile Include="stop.cpp" />
     <ClCompile Include="target.cpp" />
     <ClCompile Include="time.cpp" />
     <ClCompile Include="title.cpp" />
+    <ClCompile Include="walking.cpp" />
     <ClCompile Include="wall.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -201,13 +205,17 @@
     <ClInclude Include="polygon.h" />
     <ClInclude Include="ranking.h" />
     <ClInclude Include="result.h" />
+    <ClInclude Include="rotation.h" />
     <ClInclude Include="rule.h" />
     <ClInclude Include="setup.h" />
     <ClInclude Include="shadow.h" />
+    <ClInclude Include="slope.h" />
     <ClInclude Include="sound.h" />
+    <ClInclude Include="stop.h" />
     <ClInclude Include="target.h" />
     <ClInclude Include="time.h" />
     <ClInclude Include="title.h" />
+    <ClInclude Include="walking.h" />
     <ClInclude Include="wall.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

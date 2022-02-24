@@ -291,7 +291,7 @@ static HRESULT Init(HINSTANCE hInstance, HWND hWnd, BOOL bWindow)
 		"Terminal", &s_pFont);
 
 	//¢ŠE‚Ìíq‚Ì‰Šú‰»
-	srand((unsigned)time(NULL));
+	srand((unsigned int)time(NULL));
 
 	// “ü—Íˆ—‚Ì‰Šú‰»
 	if (FAILED(InitInput(hInstance, hWnd)))

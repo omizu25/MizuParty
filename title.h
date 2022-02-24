@@ -13,6 +13,7 @@
 typedef enum
 {
 	MENU_WALKING = 0,		// ウォーキング
+	MENU_ROTATION,			// 回転
 	MENU_STOP,				// 止める
 	MENU_SLOPE,				// 坂
 	MENU_MAX
