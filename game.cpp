@@ -36,6 +36,44 @@ static bool				s_bRemixWalking = false;		// リミックスのウォーキングをしたかどう
 //--------------------------------------------------
 void InitGame(void)
 {
+	if (s_bRemix)
+	{// リミックス
+		if (s_bRemixWalking)
+		{// リミックスのウォーキングをした
+
+			// タイトルの設定
+			switch (GetTitle())
+			{
+			case MENU_WALKING:		// ウォーキング
+				SetTitle(MENU_ROTATION);
+				break;
+
+			case MENU_ROTATION:		// 回転
+				SetTitle(MENU_STOP);
+				break;
+
+			case MENU_STOP:			// 止める
+				SetTitle(MENU_SLOPE);
+				break;
+
+			case MENU_SLOPE:		// 坂
+
+				/* ここは通らない */
+				assert(false);
+
+				break;
+
+			default:
+				assert(false);
+				break;
+			}
+		}
+		else
+		{// リミックスのウォーキングをしてない
+			s_bRemixWalking = true;
+		}
+	}
+
 	s_gameState = GAMESTATE_START;
 
 	switch (GetTitle())

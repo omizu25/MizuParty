@@ -117,7 +117,8 @@ void InitResult(void)
 
 	case RESULT_NONE:			// まだ決まってない
 
-		/* 処理なし */
+		/* ここは通らない */
+		assert(false);
 
 		break;
 
@@ -239,9 +240,7 @@ void UpdateResult(void)
 
 		if (GetRemix())
 		{// リミックス中
-			int nMenu = (int)GetTitle() + 1;
-
-			if (nMenu >= MENU_MAX)
+			if (GetTitle() >= (MENU_MAX - 1))
 			{// 終わり
 				// モード処理
 				SetFade(MODE_TITLE);
@@ -265,9 +264,7 @@ void UpdateResult(void)
 	{// リミックス中
 		if (s_nTime >= 180)
 		{// 180秒経ちました
-			int nMenu = (int)GetTitle() + 1;
-
-			if (nMenu >= MENU_MAX)
+			if (GetTitle() >= (MENU_MAX - 1))
 			{// 終わり
 				// モード処理
 				SetFade(MODE_TITLE);
@@ -314,7 +311,8 @@ void DrawResult(void)
 
 	case RESULT_NONE:			// まだ決まってない
 
-		/* 処理なし */
+		/* ここは通らない */
+		assert(false);
 
 		break;
 
