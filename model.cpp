@@ -10,6 +10,7 @@
 //--------------------------------------------------
 #include "main.h"
 #include "camera.h"
+#include "countdown.h"
 #include "game.h"
 #include "input.h"
 #include "model.h"
@@ -26,13 +27,17 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define START_POS_Y			(132.0f)		// スタートの高さ
-#define START_POS_X			(-79.0f)		// スタートの幅
-#define MAX_ROTATION		(0.03f)			// 回転量の最大値
-#define MAX_RANDOM			(2)				// ランダムの最大値
-#define STOP_GOOD			(15.0f)			// 止めるの上手
-#define STOP_NORMAL			(70.0f)			// 止めるの普通
-#define START_TIME			(45)			// 始まる時間
+#define START_ROTATION_X		(-79.0f)		// 回転のスタートの幅
+#define START_ROTATION_Y		(132.0f)		// 回転のスタートの高さ
+#define START_STOP_X			(-79.0f)		// 止めるのスタートの幅
+#define START_STOP_Y			(354.0f)		// 止めるのスタートの高さ
+#define MAX_ROTATION			(0.03f)			// 回転量の最大値
+#define MAX_RANDOM				(2)				// ランダムの最大値
+#define MAX_MOVE				(6.0f)			// 移動量の最大値
+#define STOP_GOOD				(15.0f)			// 止めるの上手
+#define STOP_NORMAL				(70.0f)			// 止めるの普通
+#define STOP_COLLISION			(0.0f)			// 止めるの当たる位置
+#define START_TIME				(45)			// 始まる時間
 
 //--------------------------------------------------
 // スタティック変数
@@ -40,102 +45,131 @@
 static Model		s_model;			// モデルの情報
 static bool			s_bStop;			// 止めるかどうか
 static bool			s_bCollision;		// 当たったかどうか
-static int			s_nTime;			// 時間
+static bool			s_bDraw;			// 描画するかどうか
+
+//--------------------------------------------------
+// プロトタイプ宣言
+//--------------------------------------------------
+static void UpdateRotation(void);
+static void UpdateStop(void);
 
 //--------------------------------------------------
 // 初期化
 //--------------------------------------------------
 void InitModel(void)
 {
-	if (GetTitle() == MENU_STOP)
-	{// 止める
-		// デバイスへのポインタの取得
-		LPDIRECT3DDEVICE9 pDevice = GetDevice();
+	// デバイスへのポインタの取得
+	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
-		int nNumVtx;		// 頂点数
-		DWORD SizeFVF;		// 頂点フォーマットのサイズ
-		BYTE *pVexBuff;		// 頂点バッファへのポインタ
+	int nNumVtx;		// 頂点数
+	DWORD SizeFVF;		// 頂点フォーマットのサイズ
+	BYTE *pVexBuff;		// 頂点バッファへのポインタ
 
-		// Xファイルの読み込み
-		D3DXLoadMeshFromX(
-			"data\\MODEL\\Hammer.x",
-			D3DXMESH_SYSTEMMEM,
-			pDevice,
-			NULL,
-			&s_model.pBuffMat,
-			NULL,
-			&s_model.nNumMat,
-			&s_model.pMesh);
+	// Xファイルの読み込み
+	D3DXLoadMeshFromX(
+		"data\\MODEL\\Hammer.x",
+		D3DXMESH_SYSTEMMEM,
+		pDevice,
+		NULL,
+		&s_model.pBuffMat,
+		NULL,
+		&s_model.nNumMat,
+		&s_model.pMesh);
 
-		s_model.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
-		s_model.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
+	s_model.vtxMin = D3DXVECTOR3(FLT_MAX, FLT_MAX, FLT_MAX);
+	s_model.vtxMax = D3DXVECTOR3(-FLT_MAX, -FLT_MAX, -FLT_MAX);
 
-		// 頂点数を取得
-		nNumVtx = s_model.pMesh->GetNumVertices();
+	// 頂点数を取得
+	nNumVtx = s_model.pMesh->GetNumVertices();
 
-		// フォーマットのサイズを取得
-		SizeFVF = D3DXGetFVFVertexSize(s_model.pMesh->GetFVF());
+	// フォーマットのサイズを取得
+	SizeFVF = D3DXGetFVFVertexSize(s_model.pMesh->GetFVF());
 
-		// 頂点バッファのロック
-		s_model.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
+	// 頂点バッファのロック
+	s_model.pMesh->LockVertexBuffer(D3DLOCK_READONLY, (void**)&pVexBuff);
 
-		for (int i = 0; i < nNumVtx; i++)
-		{
-			// 頂点情報の代入
-			D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
+	for (int i = 0; i < nNumVtx; i++)
+	{
+		// 頂点情報の代入
+		D3DXVECTOR3 pos = *(D3DXVECTOR3*)pVexBuff;
 
-			// 小さい・大きい [x]
-			VtxSmallBig(&s_model.vtxMin.x, &s_model.vtxMax.x, pos.x);
+		// 小さい・大きい [x]
+		VtxSmallBig(&s_model.vtxMin.x, &s_model.vtxMax.x, pos.x);
 
-			// 小さい・大きい [y]
-			VtxSmallBig(&s_model.vtxMin.y, &s_model.vtxMax.y, pos.y);
+		// 小さい・大きい [y]
+		VtxSmallBig(&s_model.vtxMin.y, &s_model.vtxMax.y, pos.y);
 
-			// 小さい・大きい [z]
-			VtxSmallBig(&s_model.vtxMin.z, &s_model.vtxMax.z, pos.z);
+		// 小さい・大きい [z]
+		VtxSmallBig(&s_model.vtxMin.z, &s_model.vtxMax.z, pos.z);
 
-			// 頂点フォーマットのサイズ分ポインタを進める
-			pVexBuff += SizeFVF;
+		// 頂点フォーマットのサイズ分ポインタを進める
+		pVexBuff += SizeFVF;
+	}
+
+	// 頂点バッファのアンロック
+	s_model.pMesh->UnlockVertexBuffer();
+
+	// メッシュに使用されているテクスチャ用の配列を用意する
+	s_model.pTexture = new LPDIRECT3DTEXTURE9[s_model.nNumMat];
+
+	// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
+	D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
+
+	// 各メッシュのマテリアル情報を取得する
+	for (int i = 0; i < (int)s_model.nNumMat; i++)
+	{
+		s_model.pTexture[i] = NULL;
+
+		if (pMat[i].pTextureFilename != NULL)
+		{// マテリアルで設定されているテクスチャ読み込み
+			D3DXCreateTextureFromFileA(pDevice,
+				pMat[i].pTextureFilename,
+				&s_model.pTexture[i]);
 		}
-
-		// 頂点バッファのアンロック
-		s_model.pMesh->UnlockVertexBuffer();
-
-		// メッシュに使用されているテクスチャ用の配列を用意する
-		s_model.pTexture = new LPDIRECT3DTEXTURE9[s_model.nNumMat];
-
-		// バッファの先頭ポインタをD3DXMATERIALにキャストして取得
-		D3DXMATERIAL *pMat = (D3DXMATERIAL*)s_model.pBuffMat->GetBufferPointer();
-
-		// 各メッシュのマテリアル情報を取得する
-		for (int i = 0; i < (int)s_model.nNumMat; i++)
+		else
 		{
 			s_model.pTexture[i] = NULL;
-
-			if (pMat[i].pTextureFilename != NULL)
-			{// マテリアルで設定されているテクスチャ読み込み
-				D3DXCreateTextureFromFileA(pDevice,
-					pMat[i].pTextureFilename,
-					&s_model.pTexture[i]);
-			}
-			else
-			{
-				s_model.pTexture[i] = NULL;
-			}
 		}
+	}
 
-		float fRand = (rand() % 100) * 0.01f * D3DX_PI * 0.5f;
+	float fRand = 0.0f;
+
+	switch (GetTitle())
+	{
+	case MENU_WALKING:		// ウォーキング
+	case MENU_SLOPE:		// 坂
+
+		break;
+
+	case MENU_ROTATION:		// 回転
+
+		fRand = (rand() % 100) * 0.01f * D3DX_PI * 0.5f;
 		fRand -= D3DX_PI * 0.25f;
 
-		s_model.pos = D3DXVECTOR3(START_POS_X, START_POS_Y, 0.0f);
+		s_model.pos = D3DXVECTOR3(START_ROTATION_X, START_ROTATION_Y, 0.0f);
 		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, (D3DX_PI * 0.5f) + fRand);
-		s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
-		s_model.nRepeat = 0;
+		break;
+
+	case MENU_STOP:			// 止める
+
+		s_model.pos = D3DXVECTOR3(START_STOP_X, START_STOP_Y, 0.0f);
+		s_model.rot = D3DXVECTOR3(0.0f, 0.0f, -D3DX_PI * 0.5f);
+
+		break;
+
+	default:
+		assert(false);
+		break;
 	}
+	
+	s_model.rotDest = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
+	s_model.nRepeat = 0;
 
 	s_bStop = false;
 	s_bCollision = false;
-	s_nTime = 0;
+	s_bDraw = true;
 }
 
 //--------------------------------------------------
@@ -176,21 +210,24 @@ void UninitModel(void)
 //--------------------------------------------------
 void UpdateModel(void)
 {
-	switch (GetGame())
+	switch (GetTitle())
 	{
-	case GAMESTATE_NORMAL:			// ゲーム中
-	case GAMESTATE_END:				// 終わり
-	case GAMESTATE_RESULT:			// リザルト
-
-		s_nTime++;
+	case MENU_WALKING:		// ウォーキング
+	case MENU_SLOPE:		// 坂
+		
+		/* 処理なし */
 
 		break;
 
-	case GAMESTATE_NONE:			// 何もなし
-	case GAMESTATE_COUNTDOWN:		// カウントダウン
-	case GAMESTATE_START:			// 始まり
+	case MENU_ROTATION:		// 回転
+		
+		UpdateRotation();
+		
+		break;
 
-		/* 処理なし */
+	case MENU_STOP:			// 止める
+
+		UpdateStop();
 
 		break;
 
@@ -199,114 +236,6 @@ void UpdateModel(void)
 		break;
 	}
 
-	if (s_nTime > START_TIME)
-	{
-		switch (GetGame())
-		{
-		case GAMESTATE_NORMAL:			// ゲーム中
-		case GAMESTATE_END:				// 終わり
-		case GAMESTATE_RESULT:			// リザルト
-
-			if (!s_bStop)
-			{// 止まってない
-				s_model.rot.z -= D3DX_PI * MAX_ROTATION;
-
-				// 角度の正規化
-				NormalizeRot(&s_model.rot.z);
-			}
-
-			if (!s_bCollision)
-			{// 当たってない
-				if (s_model.rot.z < -D3DX_PI * 0.5f)
-				{// 衝突
-					s_bCollision = true;
-
-					D3DXVECTOR3 pos = GetPlayer()->pos;
-
-					pos.y += 50.0f;
-
-					// プレイヤーの描画するかの設定
-					SetDrawPlayer(false);
-
-					// 爆発の設定
-					SetExplosion(pos, 20.0f, true);
-
-					// リザルトの設定
-					SetResult(RESULT_GAMEOVER);
-
-					// ゲームの設定
-					SetGameState(GAMESTATE_END);
-
-					// サウンドの再生
-					PlaySound(SOUND_LABEL_SE_KO);
-				}
-			}
-			else
-			{// 当たってる
-				if (s_model.rot.z < -D3DX_PI * 0.75f)
-				{
-					s_bStop = true;
-				}
-			}
-
-			break;
-
-		case GAMESTATE_NONE:			// 何もなし
-		case GAMESTATE_COUNTDOWN:		// カウントダウン
-		case GAMESTATE_START:			// 始まり
-
-			/* 処理なし */
-
-			break;
-
-		default:
-			assert(false);
-			break;
-		}
-
-		if (GetGame() == GAMESTATE_NORMAL)
-		{
-			if (!s_bCollision && !s_bStop)
-			{
-				if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
-					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
-					GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
-				{// F4キーが押された
-					s_bStop = true;
-
-					// リザルトの設定
-					SetResult(RESULT_CLEAR);
-
-					// ゲームの設定
-					SetGameState(GAMESTATE_END);
-
-					float fDiff = 90.0f + (GetModel()->rot.z * (180 / D3DX_PI));
-					
-					if (fDiff <= STOP_GOOD)
-					{// 止めるの上手
-						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_止めるの上手);
-
-						s_model.nRepeat = 10;
-					}
-					else if (fDiff <= STOP_NORMAL)
-					{// 止めるの普通
-						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_止めるの普通);
-
-						s_model.nRepeat = 3;
-					}
-					else
-					{// 止めるの下手
-						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_止めるの下手);
-
-						s_model.nRepeat = 1;
-					}
-				}
-			}
-		}
-	}
 }
 
 //--------------------------------------------------
@@ -314,8 +243,8 @@ void UpdateModel(void)
 //--------------------------------------------------
 void DrawModel(void)
 {
-	if (GetTitle() == MENU_STOP)
-	{// 止める
+	if (s_bDraw)
+	{// 描画する
 		// デバイスへのポインタの取得
 		LPDIRECT3DDEVICE9 pDevice = GetDevice();
 		D3DXMATRIX mtxRot, mtxTrans;		// 計算用マトリックス
@@ -387,53 +316,226 @@ bool GetCollision(void)
 }
 
 //--------------------------------------------------
-// 当たり判定
+// 回転
 //--------------------------------------------------
-void CollisionModel(D3DXVECTOR3 *pPos, D3DXVECTOR3 *pPosOld, D3DXVECTOR3 size)
+static void UpdateRotation(void)
 {
-	float fLeft = s_model.pos.x + s_model.vtxMin.x;
-	float fRight = s_model.pos.x + s_model.vtxMax.x;
-	float fBottom = s_model.pos.y + s_model.vtxMin.y;
-	float fTop = s_model.pos.y + s_model.vtxMax.y;
-	float fFront = s_model.pos.z + s_model.vtxMin.z;
-	float fBack = s_model.pos.z + s_model.vtxMax.z;
+	if (GetCountdown())
+	{// カウントダウン終わった
+		switch (GetGame())
+		{
+		case GAMESTATE_NORMAL:			// ゲーム中
+		case GAMESTATE_END:				// 終わり
+		case GAMESTATE_RESULT:			// リザルト
 
-	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
-		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
-	{// x, yが範囲内
-		if ((pPosOld->z + size.z <= fFront) && (pPos->z + size.z > fFront))
-		{// 前
-			pPos->z = fFront - size.z;
+			if (!s_bStop)
+			{// 止まってない
+				s_model.rot.z -= D3DX_PI * MAX_ROTATION;
+
+				// 角度の正規化
+				NormalizeRot(&s_model.rot.z);
+			}
+
+			if (!s_bCollision)
+			{// 当たってない
+				if (s_model.rot.z < -D3DX_PI * 0.5f)
+				{// 衝突
+					s_bCollision = true;
+
+					D3DXVECTOR3 pos = GetPlayer()->pos;
+
+					pos.y += 50.0f;
+
+					// プレイヤーの描画するかの設定
+					SetDrawPlayer(false);
+
+					// 爆発の設定
+					SetExplosion(pos, 20.0f, true);
+
+					// リザルトの設定
+					SetResult(RESULT_GAMEOVER);
+
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
+
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_KO);
+				}
+			}
+			else
+			{// 当たってる
+				if (s_model.rot.z < -D3DX_PI * 0.75f)
+				{// 止める
+					s_bStop = true;
+				}
+			}
+
+			break;
+
+		case GAMESTATE_NONE:			// 何もなし
+		case GAMESTATE_COUNTDOWN:		// カウントダウン
+		case GAMESTATE_START:			// 始まり
+
+			/* 処理なし */
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
-		else if ((pPosOld->z - size.z >= fBack) && (pPos->z - size.z < fBack))
-		{// 後
-			pPos->z = fBack + size.z;
+
+		if (GetGame() == GAMESTATE_NORMAL)
+		{// ゲーム中
+			if (!s_bCollision && !s_bStop)
+			{// 当たってない、止まってない
+				if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
+					GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
+					GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
+				{// F4キーが押された
+					s_bStop = true;
+
+					// リザルトの設定
+					SetResult(RESULT_CLEAR);
+
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
+
+					float fDiff = 90.0f + (s_model.rot.z * (180 / D3DX_PI));
+
+					if (fDiff <= STOP_GOOD)
+					{// 止めるの上手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの上手);
+
+						s_model.nRepeat = 10;
+					}
+					else if (fDiff <= STOP_NORMAL)
+					{// 止めるの普通
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの普通);
+
+						s_model.nRepeat = 3;
+					}
+					else
+					{// 止めるの下手
+						// サウンドの再生
+						PlaySound(SOUND_LABEL_SE_止めるの下手);
+
+						s_model.nRepeat = 1;
+					}
+				}
+			}
+		}
+	}
+}
+
+//--------------------------------------------------
+// 止める
+//--------------------------------------------------
+static void UpdateStop(void)
+{
+	if (GetCountdown())
+	{// カウントダウン終わった
+		switch (GetGame())
+		{
+		case GAMESTATE_NORMAL:			// ゲーム中
+		case GAMESTATE_END:				// 終わり
+		case GAMESTATE_RESULT:			// リザルト
+
+			if (!s_bCollision)
+			{
+				if (!s_bStop)
+				{// 止まらない
+					s_model.pos.y -= MAX_MOVE;
+				}
+
+				float fModel = s_model.pos.y - s_model.vtxMax.x;
+				float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+				float fPos = (fModel - fPlayer) + 1.0f;
+
+				if (fPos <= 0.0f)
+				{
+					s_bCollision = true;
+					s_bStop = true;
+					s_bDraw = false;
+
+					D3DXVECTOR3 pos = D3DXVECTOR3(GetPlayer()->pos.x, s_model.pos.y, s_model.pos.z);
+
+					// 爆発の設定
+					SetExplosion(pos, 20.0f, true);
+
+					// リザルトの設定
+					SetResult(RESULT_GAMEOVER);
+
+					// ゲームの設定
+					SetGameState(GAMESTATE_END);
+
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_KO);
+				}
+			}
+
+			break;
+
+		case GAMESTATE_NONE:			// 何もなし
+		case GAMESTATE_COUNTDOWN:		// カウントダウン
+		case GAMESTATE_START:			// 始まり
+
+			/* 処理なし */
+
+			break;
+
+		default:
+			assert(false);
+			break;
 		}
 	}
 
-	if ((pPos->z + size.z > fFront) && (pPos->z - size.z < fBack) &&
-		(pPos->y + size.y > fBottom) && (pPos->y < fTop))
-	{// z, yが範囲内
-		if ((pPosOld->x + size.x <= fLeft) && (pPos->x + size.x > fLeft))
-		{// 左
-			pPos->x = fLeft - size.x;
-		}
-		else if ((pPosOld->x - size.x >= fRight) && (pPos->x - size.x < fRight))
-		{// 右
-			pPos->x = fRight + size.x;
-		}
-	}
+	if (GetGame() == GAMESTATE_NORMAL)
+	{// ゲーム中
+		if (!s_bCollision && !s_bStop)
+		{
+			if (GetKeyboardTrigger(DIK_SPACE) || GetKeyboardTrigger(DIK_RETURN) ||
+				GetKeyboardTrigger(DIK_A) || GetKeyboardTrigger(DIK_B) ||
+				GetJoypadTrigger(JOYKEY_A) || GetJoypadTrigger(JOYKEY_B))
+			{// F4キーが押された
+				s_bStop = true;
 
-	if ((pPos->x + size.x > fLeft) && (pPos->x - size.x < fRight) &&
-		(pPos->z + size.z > fFront) && (pPos->z - size.z < fBack))
-	{// x, zが範囲内
-		if ((pPosOld->y + size.y <= fBottom) && (pPos->y + size.y > fBottom))
-		{// 下
-			pPos->y = fBottom - size.y;
-		}
-		if ((pPosOld->y >= fTop) && (pPos->y < fTop))
-		{// 上
-			pPos->y = fTop;
+				// リザルトの設定
+				SetResult(RESULT_CLEAR);
+
+				// ゲームの設定
+				SetGameState(GAMESTATE_END);
+
+				float fModel = s_model.pos.y - s_model.vtxMax.x;
+				float fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+				float fDiff = fModel - fPlayer;
+
+				if (fDiff <= STOP_GOOD)
+				{// 止めるの上手
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_止めるの上手);
+
+					s_model.nRepeat = 10;
+				}
+				else if (fDiff <= STOP_NORMAL)
+				{// 止めるの普通
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_止めるの普通);
+
+					s_model.nRepeat = 3;
+				}
+				else
+				{// 止めるの下手
+					// サウンドの再生
+					PlaySound(SOUND_LABEL_SE_止めるの下手);
+
+					s_model.nRepeat = 1;
+				}
+			}
 		}
 	}
 }

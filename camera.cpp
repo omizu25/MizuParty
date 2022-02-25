@@ -26,24 +26,26 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_CAMERA			(2)				// カメラの最大数
-#define MAX_NEAR			(10.0f)			// ニアの最大値
-#define MAX_FAR				(2500.0f)		// ファーの最大
-#define MAX_ROTATION		(0.035f)		// 回転の最大値
-#define MAX_DISTANCE		(50.0f)			// 距離の最大値
-#define MIN_DISTANCE		(0.0f)			// 距離の最小値
-#define START_DISTANCE		(30.0f)			// 距離の最初の値
-#define MAX_POS_FACTOR		(0.05f)			// 位置の減衰係数
-#define MAX_ROT_FACTOR		(0.2f)			// 向きの減衰係数
-#define START_WALKING_Y		(100.0f)		// Yの位置の最初の値
-#define START_WALKING_Z		(-300.0f)		// Zの位置の最初の値
-#define START_STOP_Y		(115.0f)		// Yの位置の最初の値
-#define START_STOP_Z		(-350.0f)		// Zの位置の最初の値
-#define START_SLOPE_Y		(250.0f)		// Yの位置の最初の値
-#define START_SLOPE_Z		(-1300.0f)		// Zの位置の最初の値
-#define MOVE_Y				(5.0f)			// Yの移動量
-#define MOVE_Z				(-3.0f)			// Zの移動量
-#define STOP_POS_Y			(100.0f)		// Yの位置の止まる場所
+#define MAX_CAMERA				(2)				// カメラの最大数
+#define MAX_NEAR				(10.0f)			// ニアの最大値
+#define MAX_FAR					(2500.0f)		// ファーの最大
+#define MAX_ROTATION			(0.035f)		// 回転の最大値
+#define MAX_DISTANCE			(50.0f)			// 距離の最大値
+#define MIN_DISTANCE			(0.0f)			// 距離の最小値
+#define START_DISTANCE			(30.0f)			// 距離の最初の値
+#define MAX_POS_FACTOR			(0.05f)			// 位置の減衰係数
+#define MAX_ROT_FACTOR			(0.2f)			// 向きの減衰係数
+#define START_WALKING_Y			(100.0f)		// ウォーキングのYの位置の最初の値
+#define START_WALKING_Z			(-300.0f)		// ウォーキングのZの位置の最初の値
+#define START_ROTATION_Y		(115.0f)		// 回転のYの位置の最初の値
+#define START_ROTATION_Z		(-350.0f)		// 回転のZの位置の最初の値
+#define START_STOP_Y			(180.0f)		// 止めるのYの位置の最初の値
+#define START_STOP_Z			(-500.0f)		// 止めるのZの位置の最初の値
+#define START_SLOPE_Y			(250.0f)		// 坂のYの位置の最初の値
+#define START_SLOPE_Z			(-1300.0f)		// 坂のZの位置の最初の値
+#define MOVE_Y					(5.0f)			// Yの移動量
+#define MOVE_Z					(-3.0f)			// Zの移動量
+#define STOP_POS_Y				(100.0f)		// Yの位置の止まる場所
 
 //--------------------------------------------------
 // スタティック変数
@@ -263,6 +265,14 @@ static void InitGameMode(void)
 
 		break;
 
+	case MENU_ROTATION:		// 回転
+
+		s_camera[0].posV = D3DXVECTOR3(0.0f, START_ROTATION_Y, START_ROTATION_Z);
+		s_camera[0].posR = D3DXVECTOR3(0.0f, START_ROTATION_Y, 0.0f);
+		s_camera[0].rot = D3DXVECTOR3((D3DX_PI * 0.6f), 0.0f, 0.0f);
+
+		break;
+
 	case MENU_STOP:			// 止める
 
 		s_camera[0].posV = D3DXVECTOR3(0.0f, START_STOP_Y, START_STOP_Z);
@@ -292,9 +302,35 @@ static void UpdateGameMode(void)
 {
 	switch (GetTitle())
 	{
-	case MENU_STOP:			// 止める
+	case MENU_ROTATION:		// 回転
 
 		/* 処理なし */
+
+		break;
+
+	case MENU_STOP:			// 止める
+
+		if (GetCountdown())
+		{// カウントダウン終わった
+			if (!GetStop())
+			{// 止まってない
+				if (!s_bStop)
+				{// 止まらない
+					if (GetGame() == GAMESTATE_NORMAL)
+					{
+						s_camera[0].posV.z += MOVE_Y;
+						s_camera[0].posR.z += MOVE_Y;
+						s_camera[0].posV.y += MOVE_Z;
+						s_camera[0].posR.y += MOVE_Z;
+					}
+
+					if (s_camera[0].posV.y <= STOP_POS_Y)
+					{
+						s_bStop = true;
+					}
+				}
+			}
+		}
 
 		break;
 

@@ -24,6 +24,7 @@
 #include "title.h"
 
 #include <assert.h>
+#include <math.h>
 
 //--------------------------------------------------
 // É}ÉNÉçíËã`
@@ -507,11 +508,23 @@ static void InitPosNumber(void)
 
 		break;
 
+	case MENU_ROTATION:		// âÒì]
+
+		fModel = GetModel()->rot.z * (180 / D3DX_PI);
+
+		nPos = (90 + (int)fModel) * 10;
+
+		// é~ÇﬂÇÈÇÃê›íË
+		SetScoreStop(nPos);
+
+		break;
+
 	case MENU_STOP:			// é~ÇﬂÇÈ
 		
-		fModel = GetModel()->rot.z * (180 / D3DX_PI);
-		
-		nPos = (90 + (int)fModel) * 10;
+		fModel = GetModel()->pos.y - GetModel()->vtxMax.x;
+		fPlayer = GetPlayer()->pos.y + GetPlayer()->fHeight;
+
+		nPos = (int)(fModel - fPlayer) * 10;
 
 		// é~ÇﬂÇÈÇÃê›íË
 		SetScoreStop(nPos);
