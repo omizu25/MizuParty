@@ -37,8 +37,8 @@
 #define CHEAT_HEIGHT		(2000.0f)		// ずるをした目標地点の高さ
 #define PLAYER_WIDTH		(300.0f)		// 自転車の幅
 #define PLAYER_HEIGHT		(2000.0f)		// 自転車の高さ
-#define TITLE_WIDTH			(180.0f)		// メニューの幅
-#define TITLE_HEIGHT		(130.0f)		// メニューの高さ
+#define TITLE_WIDTH			(130.0f)		// メニューの幅
+#define TITLE_HEIGHT		(120.0f)		// メニューの高さ
 #define RULE_WIDTH			(180.0f)		// ルールの幅
 #define RULE_HEIGHT			(180.0f)		// ルールの高さ
 #define MOVE_WIDTH			(180.0f)		// 移動の幅
@@ -77,6 +77,7 @@ static LPDIRECT3DTEXTURE9			s_pTextureTarget;				// 目標地点のテクスチャへのポイ
 static LPDIRECT3DTEXTURE9			s_pTextureTargetCheat;			// ずるをした目標地点のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTexturePlayer;				// 自転車のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureWalking;				// ウォーキングのテクスチャへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureRotation;				// 回転のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureStop;					// 止めるのテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureSlope;				// 坂のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9			s_pTextureRule;					// 説明のテクスチャへのポインタ
@@ -185,6 +186,12 @@ void UninitBillboard(void)
 	{// テクスチャの解放
 		s_pTextureWalking->Release();
 		s_pTextureWalking = NULL;
+	}
+
+	if (s_pTextureRotation != NULL)
+	{// テクスチャの解放
+		s_pTextureRotation->Release();
+		s_pTextureRotation = NULL;
 	}
 
 	if (s_pTextureStop != NULL)
@@ -495,6 +502,7 @@ void CollisionBillboard(void)
 		}
 
 		if (pBillboard->pTexture != s_pTextureWalking &&
+			pBillboard->pTexture != s_pTextureRotation &&
 			pBillboard->pTexture != s_pTextureStop && 
 			pBillboard->pTexture != s_pTextureSlope &&
 			pBillboard->pTexture != s_pTextureRemix)
@@ -525,6 +533,14 @@ void CollisionBillboard(void)
 				// リミックス設定
 				SetRemix(false);
 			}
+			else if (pBillboard->pTexture == s_pTextureRotation)
+			{
+				// タイトルの設定
+				SetTitle(MENU_ROTATION);
+
+				// リミックス設定
+				SetRemix(false);
+			}
 			else if (pBillboard->pTexture == s_pTextureStop)
 			{
 				// タイトルの設定
@@ -541,7 +557,7 @@ void CollisionBillboard(void)
 				// リミックス設定
 				SetRemix(false);
 			}
-			if (pBillboard->pTexture == s_pTextureRemix)
+			else if (pBillboard->pTexture == s_pTextureRemix)
 			{
 				// タイトルの設定
 				SetTitle(MENU_WALKING);
@@ -850,6 +866,12 @@ static void TitleMenu(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
+		"data/TEXTURE/menu003.png",
+		&s_pTextureRotation);
+
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
 		"data/TEXTURE/menu001.png",
 		&s_pTextureStop);
 
@@ -862,7 +884,7 @@ static void TitleMenu(void)
 	float fWidth = TITLE_WIDTH * 0.5f;
 	float fHeight = TITLE_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-200.0f, 0.0f, -90.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-210.0f, 0.0f, -90.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureWalking);
@@ -870,7 +892,15 @@ static void TitleMenu(void)
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureWalking);
 
-	pos.x = 0.0f;
+	pos.x = -70.0f;
+
+	// ビルボードの設定
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureRotation);
+
+	// 枠の設定
+	SetFrame(pos, fWidth, fHeight, &s_pTextureRotation);
+
+	pos.x = 70.0f;
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureStop);
@@ -878,7 +908,7 @@ static void TitleMenu(void)
 	// 枠の設定
 	SetFrame(pos, fWidth, fHeight, &s_pTextureStop);
 
-	pos.x = 200.0f;
+	pos.x = 210.0f;
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureSlope);

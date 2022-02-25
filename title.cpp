@@ -38,6 +38,7 @@ static int		s_nCount;		// 何回タイトルに来たかのカウント
 void InitTitle(void)
 {
 	//s_nCount++;
+	s_nCount = 2;
 
 	// ポリゴンの初期化
 	InitPolygon();

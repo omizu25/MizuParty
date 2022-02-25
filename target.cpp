@@ -101,6 +101,7 @@ void InitTarget(void)
 
 		break;
 
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// ストップ
 
 		// 止める
@@ -226,6 +227,7 @@ void DrawTarget(void)
 		
 		break;
 
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// ストップ
 
 		if (GetGame() == GAMESTATE_START)

@@ -15,6 +15,7 @@ void UninitRanking(void);
 void LoadRanking(void);
 void SaveRanking(void);
 void SetScoreWalking(int nScore);
+void SetScoreRotation(int nScore);
 void SetScoreStop(int nScore);
 void SetScoreSlope(int nScore);
 

@@ -36,6 +36,7 @@
 #define DECIMAL_INTERVAL			(10.0f)				// 小数の間隔
 #define OPERATOR_WIDTH				(15.0f)				// 演算子の幅
 #define OPERATOR_HEIGHT				(15.0f)				// 演算子の高さ
+#define NUMBER_POS_Y				(-10.0f)			// 数のYの位置
 
 //--------------------------------------------------
 // スタティック変数
@@ -44,17 +45,21 @@ static LPDIRECT3DTEXTURE9		s_pTextureMeter = NULL;			// メートルのテクスチャへの
 static LPDIRECT3DTEXTURE9		s_pTextureDecimal = NULL;		// 小数点のテクスチャへのポインタ
 static LPDIRECT3DTEXTURE9		s_pTextureOperator = NULL;		// 演算子のテクスチャへのポインタ
 static int						s_nWalking;						// ウォーキング
+static int						s_nRotation;					// 回転
 static int						s_nStop;						// 止める
 static int						s_nSlope;						// 坂
-static int						s_nDigitWalking;				// 桁数のウォーキング
-static int						s_nDigitStop;					// 桁数の止める
-static int						s_nDigitSlope;					// 桁数の坂
+static int						s_nDigitWalking;				// ウォーキングの桁数
+static int						s_nDigitRotation;				// 回転の桁数
+static int						s_nDigitStop;					// 止めるの桁数
+static int						s_nDigitSlope;					// 坂の桁数
 
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
 static void NumberWalking(void);
 static void InitWalking(void);
+static void NumberRotation(void);
+static void InitRotation(void);
 static void NumberStop(void);
 static void InitStop(void);
 static void NumberSlope(void);
@@ -81,6 +86,7 @@ void InitRanking(void)
 		&s_pTextureDecimal);
 
 	s_nDigitWalking = 0;
+	s_nDigitRotation = 0;
 	s_nDigitStop = 0;
 	s_nDigitSlope = 0;
 
@@ -89,6 +95,12 @@ void InitRanking(void)
 
 	// ウォーキングの初期化
 	InitWalking();
+
+	// 回転の数字
+	NumberRotation();
+
+	// 回転の初期化
+	InitRotation();
 
 	// 止めるの数字
 	NumberStop();
@@ -140,6 +152,7 @@ void LoadRanking(void)
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		fscanf(pFile, "%d", &s_nWalking);
+		fscanf(pFile, "%d", &s_nRotation);
 		fscanf(pFile, "%d", &s_nStop);
 		fscanf(pFile, "%d", &s_nSlope);
 
@@ -165,6 +178,7 @@ void SaveRanking(void)
 	if (pFile != NULL)
 	{// ファイルが開いた場合
 		fprintf(pFile, "%d\n\n", s_nWalking);
+		fprintf(pFile, "%d\n\n", s_nRotation);
 		fprintf(pFile, "%d\n\n", s_nStop);
 		fprintf(pFile, "%d\n\n", s_nSlope);
 
@@ -198,6 +212,17 @@ void SetScoreWalking(int nScore)
 	if (nWalking > nScoreSave)
 	{// スコアが小さい
 		s_nWalking = nScore;
+	}
+}
+
+//--------------------------------------------------
+// 回転の設定
+//--------------------------------------------------
+void SetScoreRotation(int nScore)
+{
+	if (s_nRotation > nScore)
+	{// スコアが小さい
+		s_nRotation = nScore;
 	}
 }
 
@@ -238,7 +263,7 @@ static void NumberWalking(void)
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
-			"data/TEXTURE/plus.png",
+			"data/TEXTURE/minus.png",
 			&s_pTextureOperator);
 	}
 	else
@@ -246,7 +271,7 @@ static void NumberWalking(void)
 		// テクスチャの読み込み
 		D3DXCreateTextureFromFile(
 			pDevice,
-			"data/TEXTURE/minus.png",
+			"data/TEXTURE/plus.png",
 			&s_pTextureOperator);
 	}
 
@@ -280,7 +305,7 @@ static void NumberWalking(void)
 	int aNumber[MAX_DIGIT];
 
 	// 位置を初期化する
-	D3DXVECTOR3 pos = D3DXVECTOR3(-170.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-175.0f, 0.0f, NUMBER_POS_Y);
 
 	for (int i = 0; i < s_nDigitWalking; i++)
 	{// １桁ずつに分ける
@@ -303,9 +328,9 @@ static void NumberWalking(void)
 	float fWidth = OPERATOR_WIDTH * 0.5f;
 	float fHeight = OPERATOR_HEIGHT * 0.5f;
 
-	float fPosX = -170.0f - DECIMAL_INTERVAL - (NUMBER_WIDTH * s_nDigitWalking) + (NUMBER_WIDTH * 0.5f);
+	float fPosX = pos.x - DECIMAL_INTERVAL - (NUMBER_WIDTH * s_nDigitWalking) + (NUMBER_WIDTH * 0.5f);
 
-	pos = D3DXVECTOR3(fPosX - fWidth, 0.0f, -5.0f);
+	pos.x = fPosX - fWidth;
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureOperator);
@@ -319,7 +344,7 @@ static void InitWalking(void)
 	float fWidth = METER_WIDTH * 0.5f;
 	float fHeight = METER_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(245.0f, 0.0f, -8.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(-155.0f, 0.0f, NUMBER_POS_Y - 3.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMeter);
@@ -327,7 +352,81 @@ static void InitWalking(void)
 	fWidth = DECIMAL_WIDTH * 0.5f;
 	fHeight = DECIMAL_HEIGHT * 0.5f;
 
-	pos = D3DXVECTOR3(210.0f, 0.0f, -6.0f);
+	pos = D3DXVECTOR3(-190.0f, 0.0f, NUMBER_POS_Y - 1.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureDecimal);
+}
+
+//--------------------------------------------------
+// 回転の数字
+//--------------------------------------------------
+static void NumberRotation(void)
+{
+	// 位置を初期化する
+	D3DXVECTOR3 pos = D3DXVECTOR3(-35.0f, 0.0f, NUMBER_POS_Y);
+
+	int nNumber = s_nRotation;
+
+	while (1)
+	{// 無限ループ
+		if (nNumber >= 10)
+		{// 2桁以上
+			nNumber /= 10;
+			s_nDigitRotation++;
+		}
+		else
+		{// 1桁
+			s_nDigitRotation++;
+
+			if (s_nDigitRotation < MIN_DIGIT)
+			{// 桁数が足りてない
+				s_nDigitRotation = MIN_DIGIT;
+			}
+
+			break;
+		}
+	}
+
+	int aNumber[MAX_DIGIT];
+	int nRotation = s_nRotation;
+
+	for (int i = 0; i < s_nDigitRotation; i++)
+	{// １桁ずつに分ける
+		aNumber[i] = nRotation % 10;
+		nRotation /= 10;
+
+		float fInterval = (NUMBER_WIDTH * i);
+
+		float fDecimal = 0.0f;
+
+		if (i >= 1)
+		{// 小数点が入る場所を空ける
+			fDecimal = DECIMAL_INTERVAL;
+		}
+
+		// 数の設定処理
+		SetNumber3D(D3DXVECTOR3(pos.x - fInterval - fDecimal, 0.0f, pos.z), NUMBER_WIDTH * 0.5f, NUMBER_HEIGHT * 0.5f, aNumber[i], i);
+	}
+}
+
+//--------------------------------------------------
+// 回転の数字
+//--------------------------------------------------
+static void InitRotation(void)
+{
+	float fWidth = METER_WIDTH * 0.5f;
+	float fHeight = METER_HEIGHT * 0.5f;
+
+	D3DXVECTOR3 pos = D3DXVECTOR3(-15.0f, 0.0f, NUMBER_POS_Y - 3.0f);
+
+	// ビルボードの設定
+	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMeter);
+
+	fWidth = DECIMAL_WIDTH * 0.5f;
+	fHeight = DECIMAL_HEIGHT * 0.5f;
+
+	pos = D3DXVECTOR3(-50.0f, 0.0f, NUMBER_POS_Y - 1.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureDecimal);
@@ -339,7 +438,7 @@ static void InitWalking(void)
 static void NumberStop(void)
 {
 	// 位置を初期化する
-	D3DXVECTOR3 pos = D3DXVECTOR3(30.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(105.0f, 0.0f, NUMBER_POS_Y);
 
 	int nNumber = s_nStop;
 
@@ -393,7 +492,7 @@ static void InitStop(void)
 	float fWidth = METER_WIDTH * 0.5f;
 	float fHeight = METER_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(50.0f, 0.0f, -8.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(125.0f, 0.0f, NUMBER_POS_Y - 3.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMeter);
@@ -401,7 +500,7 @@ static void InitStop(void)
 	fWidth = DECIMAL_WIDTH * 0.5f;
 	fHeight = DECIMAL_HEIGHT * 0.5f;
 
-	pos = D3DXVECTOR3(15.0f, 0.0f, -6.0f);
+	pos = D3DXVECTOR3(90.0f, 0.0f, NUMBER_POS_Y - 1.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureDecimal);
@@ -413,7 +512,7 @@ static void InitStop(void)
 static void NumberSlope(void)
 {
 	// 位置を初期化する
-	D3DXVECTOR3 pos = D3DXVECTOR3(225.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(245.0f, 0.0f, NUMBER_POS_Y);
 
 	int nNumber = s_nSlope;
 
@@ -467,7 +566,7 @@ static void InitSlope(void)
 	float fWidth = METER_WIDTH * 0.5f;
 	float fHeight = METER_HEIGHT * 0.5f;
 
-	D3DXVECTOR3 pos = D3DXVECTOR3(-150.0f, 0.0f, -8.0f);
+	D3DXVECTOR3 pos = D3DXVECTOR3(265.0f, 0.0f, NUMBER_POS_Y - 3.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureMeter);
@@ -475,7 +574,7 @@ static void InitSlope(void)
 	fWidth = DECIMAL_WIDTH * 0.5f;
 	fHeight = DECIMAL_HEIGHT * 0.5f;
 
-	pos = D3DXVECTOR3(-185.0f, 0.0f, -6.0f);
+	pos = D3DXVECTOR3(230.0f, 0.0f, NUMBER_POS_Y - 1.0f);
 
 	// ビルボードの設定
 	SetBillboard(pos, fWidth, fHeight, true, false, false, &s_pTextureDecimal);

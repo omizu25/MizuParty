@@ -124,6 +124,7 @@ void InitPlayer(void)
 		switch (GetTitle())
 		{// どのゲーム？
 		case MENU_WALKING:		// ウォーキング
+		case MENU_ROTATION:		// 回転
 		case MENU_STOP:			// 止める
 
 			s_nSelectPlayer = 0;
@@ -1079,7 +1080,7 @@ static void UpdateGame(Player *pPlayer)
 
 		break;
 
-		case MENU_SLOPE:		// 坂
+	case MENU_SLOPE:		// 坂
 
 		// 重力を加算
 		pPlayer->pos.y += -10.8f;
@@ -1156,6 +1157,9 @@ static void UpdateGame(Player *pPlayer)
 			break;
 		}
 
+		break;
+
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// 止める
 
 		/* 移動しない */
@@ -1175,6 +1179,7 @@ static void UpdateGame(Player *pPlayer)
 	switch (GetTitle())
 	{
 	case MENU_WALKING:		// ウォーキング
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// 止める
 
 		/* 処理なし */
@@ -1292,6 +1297,7 @@ static void UpdateGame(Player *pPlayer)
 
 		break;
 
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// 止める
 
 		if (s_bMotionBlend)
@@ -1771,6 +1777,7 @@ static void Motion(Player * pPlayer)
 
 				break;
 
+			case MENU_ROTATION:		// 回転
 			case MENU_STOP:			// 止める
 
 				/* 処理なし */

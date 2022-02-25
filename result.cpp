@@ -386,6 +386,7 @@ static void InitClear(void)
 	switch (GetTitle())
 	{// どのゲーム？
 	case MENU_WALKING:		// ウォーキング
+	case MENU_ROTATION:		// 回転
 	case MENU_STOP:			// 止める
 
 		// 頂点カラーの設定処理
@@ -515,7 +516,7 @@ static void InitPosNumber(void)
 		nPos = (90 + (int)fModel) * 10;
 
 		// 止めるの設定
-		SetScoreStop(nPos);
+		SetScoreRotation(nPos);
 
 		break;
 

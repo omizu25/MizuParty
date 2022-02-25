@@ -80,6 +80,7 @@ void InitRule(void)
 
 		break;
 
+	case MENU_ROTATION:		// ‰ñ“]
 	case MENU_STOP:			// Ž~‚ß‚é
 
 		// Ž~‚ß‚é
@@ -260,6 +261,7 @@ void DrawRule(void)
 
 		break;
 
+	case MENU_ROTATION:		// ‰ñ“]
 	case MENU_STOP:			// Ž~‚ß‚é
 
 		// Ž~‚ß‚é
