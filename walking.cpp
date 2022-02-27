@@ -14,6 +14,7 @@
 #include "countdown.h"
 #include "game.h"
 #include "light.h"
+#include "loop.h"
 #include "number.h"
 #include "player.h"
 #include "polygon.h"
@@ -131,6 +132,9 @@ void UninitWalking(void)
 
 	// リザルトの終了
 	UninitResult();
+
+	// ループの終了
+	UninitLoop();
 }
 
 //--------------------------------------------------
@@ -212,6 +216,12 @@ void UpdateWalking(void)
 
 		break;
 
+	case GAMESTATE_LOOP:		// 繰り返し状態 (リザルト終了後)
+
+		UpdateLoop();
+
+		break;
+
 	default:
 		assert(false);
 		break;
@@ -273,13 +283,16 @@ void DrawWalking(void)
 	// ビルボードの描画
 	DrawBillboard(false, false);
 
-	// ターゲットの描画
-	DrawTarget();
-
-	if (GetGame() != GAMESTATE_START)
+	if (GetGame() != GAMESTATE_LOOP)
 	{
-		// 数の描画
-		DrawNumber2D(USE_GAME);
+		// ターゲットの描画
+		DrawTarget();
+
+		if (GetGame() != GAMESTATE_START)
+		{
+			// 数の描画
+			DrawNumber2D(USE_GAME);
+		}
 	}
 
 	switch (GetGame())
@@ -321,6 +334,12 @@ void DrawWalking(void)
 			// 数の描画
 			DrawNumber2D(USE_RESULT);
 		}
+
+		break;
+	case GAMESTATE_LOOP:			// 繰り返し状態 (リザルト終了後)
+
+		// ループの描画
+		DrawLoop();
 
 		break;
 

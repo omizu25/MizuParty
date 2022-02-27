@@ -12,6 +12,7 @@
 #include "field.h"
 #include "game.h"
 #include "input.h"
+#include "loop.h"
 #include "model.h"
 #include "number.h"
 #include "player.h"
@@ -29,6 +30,8 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
+#define NEXT_TIME				(900)			// 次に行くまで時間
+#define REMIX_TIME				(180)			// リミックス中の次に行くまでの時間
 #define RESULT_WIDTH			(450.0f)		// 幅
 #define RESULT_HEIGHT			(180.0f)		// 高さ
 #define METER_WIDTH				(100.0f)		// メートルの幅
@@ -235,11 +238,12 @@ void UninitResult(void)
 //--------------------------------------------------
 void UpdateResult(void)
 {
-	if (GetKeyboardAllTrigger() || GetJoypadAllTrigger())
-	{// ボタンが押されたかどうか
+	s_nTime++;
 
-		if (GetRemix())
-		{// リミックス中
+	if (GetRemix())
+	{// リミックス中
+		if (GetKeyboardAllTrigger() || GetJoypadAllTrigger())
+		{// ボタンが押されたかどうか
 			if (GetTitle() >= (MENU_MAX - 1))
 			{// 終わり
 				// モード処理
@@ -251,18 +255,8 @@ void UpdateResult(void)
 				SetFade(MODE_GAME);
 			}
 		}
-		else
-		{// リミックスではない
-			// モード処理
-			SetFade(MODE_TITLE);
-		}
-	}
 
-	s_nTime++;
-
-	if (GetRemix())
-	{// リミックス中
-		if (s_nTime >= 180)
+		if (s_nTime >= REMIX_TIME)
 		{// 180秒経ちました
 			if (GetTitle() >= (MENU_MAX - 1))
 			{// 終わり
@@ -277,15 +271,25 @@ void UpdateResult(void)
 		}
 	}
 	else
-	{// リミックスではない
-		if (s_nTime >= 900)
+	{// リミックスしてない
+		if (GetKeyboardAllTrigger() || GetJoypadAllTrigger())
+		{// ボタンが押されたかどうか
+			// ゲームの設定
+			SetGameState(GAMESTATE_LOOP);
+
+			// ループの初期化
+			InitLoop();
+		}
+
+		if (s_nTime >= NEXT_TIME)
 		{// 15秒経ちました
-			// モード処理
-			SetFade(MODE_TITLE);
+			// ゲームの設定
+			SetGameState(GAMESTATE_LOOP);
+
+			// ループの初期化
+			InitLoop();
 		}
 	}
-
-	
 }
 
 //--------------------------------------------------

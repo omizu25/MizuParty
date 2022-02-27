@@ -1054,6 +1054,7 @@ static void UpdateGame(Player *pPlayer)
 		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
 		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
 		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+		case GAMESTATE_LOOP:			// 繰り返し状態 (リザルト終了後)
 
 			/* 処理なし */
 
@@ -1091,6 +1092,7 @@ static void UpdateGame(Player *pPlayer)
 		case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
 		case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
 		case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+		case GAMESTATE_LOOP:			// 繰り返し状態 (リザルト終了後)
 
 			/* 処理なし */
 
@@ -1943,6 +1945,7 @@ static void MotionSlope(Player *pPlayer)
 	case GAMESTATE_START:			// 開始状態 (ゲーム開始前)
 	case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
 	case GAMESTATE_RESULT:			// リザルト状態 (ゲーム終了後)
+	case GAMESTATE_LOOP:			// 繰り返し状態 (リザルト終了後)
 
 		/* 処理なし */
 

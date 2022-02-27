@@ -14,6 +14,7 @@
 #include "field.h"
 #include "game.h"
 #include "input.h"
+#include "loop.h"
 #include "model.h"
 #include "player.h"
 #include "result.h"
@@ -364,6 +365,7 @@ static void UpdateGameMode(void)
 
 		case GAMESTATE_NONE:			// âΩÇ‡Ç»Çµ
 		case GAMESTATE_START:			// énÇ‹ÇË
+		case GAMESTATE_LOOP:			// åJÇËï‘Çµ
 
 			/* èàóùÇ»Çµ */
 

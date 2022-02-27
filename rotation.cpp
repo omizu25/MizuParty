@@ -14,6 +14,7 @@
 #include "effect.h"
 #include "game.h"
 #include "light.h"
+#include "loop.h"
 #include "model.h"
 #include "number.h"
 #include "player.h"
@@ -135,6 +136,9 @@ void UninitRotation(void)
 
 	// リザルトの終了
 	UninitResult();
+
+	// ループの終了
+	UninitLoop();
 }
 
 //--------------------------------------------------
@@ -210,10 +214,17 @@ void UpdateRotation(void)
 
 		break;
 
-	case GAMESTATE_RESULT:		// リザルト状態(ゲーム終了後)
+	case GAMESTATE_RESULT:		// リザルト状態 (ゲーム終了後)
 
 		// リザルトの更新
 		UpdateResult();
+
+		break;
+
+	case GAMESTATE_LOOP:		// 繰り返し状態 (リザルト終了後)
+
+		// ループの更新
+		UpdateLoop();
 
 		break;
 
@@ -332,6 +343,13 @@ void DrawRotation(void)
 
 		// 数の描画
 		DrawNumber2D(USE_RESULT);
+
+		break;
+
+	case GAMESTATE_LOOP:			// 繰り返し状態(リザルト終了後)
+
+		// ループの描画
+		DrawLoop();
 
 		break;
 

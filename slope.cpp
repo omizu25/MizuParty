@@ -15,6 +15,7 @@
 #include "field.h"
 #include "game.h"
 #include "light.h"
+#include "loop.h"
 #include "mesh_field.h"
 #include "number.h"
 #include "player.h"
@@ -150,6 +151,9 @@ void UninitSlope(void)
 
 	// リザルトの終了
 	UninitResult();
+
+	// ループの終了
+	UninitLoop();
 }
 
 //--------------------------------------------------
@@ -210,7 +214,7 @@ void UpdateSlope(void)
 
 		break;
 
-	case GAMESTATE_END:		// 終了状態(ゲーム終了時)
+	case GAMESTATE_END:			// 終了状態(ゲーム終了時)
 
 		/* 処理なし */
 
@@ -220,6 +224,13 @@ void UpdateSlope(void)
 
 		// リザルトの更新
 		UpdateResult();
+
+		break;
+
+	case GAMESTATE_LOOP:		// 繰り返し状態 (リザルト終了後)
+
+		// ループの更新
+		UpdateLoop();
 
 		break;
 
@@ -283,6 +294,7 @@ void DrawSlope(void)
 	case GAMESTATE_COUNTDOWN:		// カウントダウン状態 (ゲーム開始中)
 	case GAMESTATE_NORMAL:			// 通常状態(ゲーム進行中)
 	case GAMESTATE_RESULT:			// リザルト状態(ゲーム終了後)
+	case GAMESTATE_LOOP:			// 繰り返し状態 (リザルト終了後)
 
 		nMax = 2;
 
@@ -335,9 +347,11 @@ void DrawSlope(void)
 		// 影の描画
 		DrawShadow();
 
-		// ビルボードの描画
-		DrawBillboard(false, bCamera);
-
+		if (GetGame() != GAMESTATE_LOOP)
+		{
+			// ビルボードの描画
+			DrawBillboard(false, bCamera);
+		}
 		// ターゲットの描画
 		DrawTarget();
 
@@ -367,7 +381,7 @@ void DrawSlope(void)
 
 			break;
 
-		case GAMESTATE_END:				// 終了状態(ゲーム終了時)
+		case GAMESTATE_END:			// 終了状態(ゲーム終了時)
 
 			/* 処理なし */
 
@@ -383,6 +397,13 @@ void DrawSlope(void)
 
 			// 数の描画
 			DrawNumber2D(USE_RESULT);
+
+			break;
+
+		case GAMESTATE_LOOP:		// 繰り返し状態 (リザルト終了後)
+
+			// ループの描画
+			DrawLoop();
 
 			break;
 

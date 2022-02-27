@@ -18,6 +18,7 @@ typedef enum
 	GAMESTATE_NORMAL,			// 通常状態 (ゲーム進行中)
 	GAMESTATE_END,				// 終了状態 (ゲーム終了時)
 	GAMESTATE_RESULT,			// リザルト状態 (ゲーム終了後)
+	GAMESTATE_LOOP,				// 繰り返し状態 (リザルト終了後)
 	GAMESTATE_MAX
 }GAMESTATE;
 

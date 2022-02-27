@@ -375,6 +375,7 @@ static void UpdateRotation(void)
 		case GAMESTATE_NONE:			// 何もなし
 		case GAMESTATE_COUNTDOWN:		// カウントダウン
 		case GAMESTATE_START:			// 始まり
+		case GAMESTATE_LOOP:			// 繰り返し
 
 			/* 処理なし */
 
@@ -482,6 +483,7 @@ static void UpdateStop(void)
 		case GAMESTATE_NONE:			// 何もなし
 		case GAMESTATE_COUNTDOWN:		// カウントダウン
 		case GAMESTATE_START:			// 始まり
+		case GAMESTATE_LOOP:			// 繰り返し
 
 			/* 処理なし */
 
