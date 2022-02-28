@@ -16,11 +16,22 @@
 //--------------------------------------------------
 // プロトタイプ宣言
 //--------------------------------------------------
+
+/*↓ 2D ↓*/
+
 static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
 static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
 static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
 static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
 static void SetBottompos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight);
+
+/*↓ 3D ↓*/
+
+static void SetMiddlepos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+static void SetLeftpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+static void SetRightpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+static void SetToppos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+static void SetBottompos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
 
 //--------------------------------------------------
 // 頂点座標の設定 [2D]
@@ -76,9 +87,9 @@ void Setpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, SETPO
 static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,  fHeight, 0.0f);
 }
 
 //--------------------------------------------------
@@ -86,10 +97,10 @@ static void SetMiddlepos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float f
 //--------------------------------------------------
 static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
-	pVtx[0].pos = pos + D3DXVECTOR3(0.0f, -fHeight, 0.0f);
+	pVtx[0].pos = pos + D3DXVECTOR3(  0.0f, -fHeight, 0.0f);
 	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(0.0f, fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(  0.0f,  fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth,  fHeight, 0.0f);
 }
 
 //--------------------------------------------------
@@ -98,9 +109,9 @@ static void SetLeftpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHe
 static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3(0.0f, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3(0.0f, fHeight, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3(   0.0f, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3(   0.0f,  fHeight, 0.0f);
 }
 
 //--------------------------------------------------
@@ -108,10 +119,10 @@ static void SetRightpos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fH
 //--------------------------------------------------
 static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
-	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, 0.0f, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, 0.0f, 0.0f);
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth,    0.0f, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth,    0.0f, 0.0f);
 	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, fHeight, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth, fHeight, 0.0f);
 }
 
 //--------------------------------------------------
@@ -120,9 +131,9 @@ static void SetToppos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHei
 static void SetBottompos(VERTEX_2D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, 0.0f);
-	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight, 0.0f);
-	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, 0.0f, 0.0f);
-	pVtx[3].pos = pos + D3DXVECTOR3(fWidth, 0.0f, 0.0f);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight, 0.0f);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,     0.0f, 0.0f);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,     0.0f, 0.0f);
 }
 
 //--------------------------------------------------
@@ -212,12 +223,104 @@ void InitAll(VERTEX_2D *pVtx)
 //--------------------------------------------------
 // 頂点座標の設定 [3D]
 //--------------------------------------------------
-void Setpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+void Setpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth, SETPOS setpos)
+{
+	switch (setpos)
+	{
+	case SETPOS_MIDDLE:		// 真ん中
+
+		// 頂点座標の設定 [3D] (真ん中に中心)
+		SetMiddlepos(pVtx, pos, fWidth, fHeight, fDepth);
+
+		break;
+
+	case SETPOS_LEFT:		// 左
+
+		// 頂点座標の設定 [3D] (左に中心)
+		SetLeftpos(pVtx, pos, fWidth, fHeight, fDepth);
+
+		break;
+
+	case SETPOS_RIGHT:		// 右
+
+		// 頂点座標の設定 [3D] (右に中心)
+		SetRightpos(pVtx, pos, fWidth, fHeight, fDepth);
+
+		break;
+
+	case SETPOS_TOP:		// 上
+
+		// 頂点座標の設定 [3D] (上に中心)
+		SetToppos(pVtx, pos, fWidth, fHeight, fDepth);
+
+		break;
+
+	case SETPOS_BOTTOM:		// 下
+
+		// 頂点座標の設定 [3D] (下に中心)
+		SetBottompos(pVtx, pos, fWidth, fHeight, fDepth);
+
+		break;
+
+	default:
+		assert(false);
+		break;
+	}
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [3D] (真ん中に中心)
+//--------------------------------------------------
+static void SetMiddlepos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
 {
 	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth,  fHeight,  fDepth);
 	pVtx[1].pos = pos + D3DXVECTOR3( fWidth,  fHeight,  fDepth);
 	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, -fHeight, -fDepth);
 	pVtx[3].pos = pos + D3DXVECTOR3( fWidth, -fHeight, -fDepth);
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [3D] (左に中心)
+//--------------------------------------------------
+static void SetLeftpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(  0.0f, -fHeight,  fDepth);
+	pVtx[1].pos = pos + D3DXVECTOR3(fWidth, -fHeight,  fDepth);
+	pVtx[2].pos = pos + D3DXVECTOR3(  0.0f,  fHeight, -fDepth);
+	pVtx[3].pos = pos + D3DXVECTOR3(fWidth,  fHeight, -fDepth);
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [3D] (右に中心)
+//--------------------------------------------------
+static void SetRightpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight,  fDepth);
+	pVtx[1].pos = pos + D3DXVECTOR3(   0.0f, -fHeight,  fDepth);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,  fHeight, -fDepth);
+	pVtx[3].pos = pos + D3DXVECTOR3(   0.0f,  fHeight, -fDepth);
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [3D] (上に中心)
+//--------------------------------------------------
+static void SetToppos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth,    0.0f,  fDepth);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth,    0.0f,  fDepth);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth, fHeight, -fDepth);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth, fHeight, -fDepth);
+}
+
+//--------------------------------------------------
+// 頂点座標の設定 [3D] (下に中心)
+//--------------------------------------------------
+static void SetBottompos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth)
+{
+	pVtx[0].pos = pos + D3DXVECTOR3(-fWidth, -fHeight,  fDepth);
+	pVtx[1].pos = pos + D3DXVECTOR3( fWidth, -fHeight,  fDepth);
+	pVtx[2].pos = pos + D3DXVECTOR3(-fWidth,     0.0f, -fDepth);
+	pVtx[3].pos = pos + D3DXVECTOR3( fWidth,     0.0f, -fDepth);
 }
 
 //--------------------------------------------------

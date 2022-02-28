@@ -203,7 +203,7 @@ int SetShadow(D3DXVECTOR3 pos, D3DXVECTOR3 rot, D3DXVECTOR3 size)
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), size.x, BASIC_HEIGHT, size.z);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), size.x, BASIC_HEIGHT, size.z, SETPOS_MIDDLE);
 
 		float Alpha = 1.0f - (pos.y * 0.005f);
 

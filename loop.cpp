@@ -387,7 +387,7 @@ static void Input(void)
 		}
 
 		//サウンドの再生
-		PlaySound(SOUND_LABEL_SE_選択音);
+		PlaySound(SOUND_LABEL_SE_決定音);
 	}
 }
 
@@ -430,6 +430,9 @@ static void SelectChange(bool bDirection)
 
 	s_nAlpha = 0;
 	s_nTime = 0;
+
+	// サウンドの再生
+	PlaySound(SOUND_LABEL_SE_選択音);
 }
 
 //--------------------------------------------------

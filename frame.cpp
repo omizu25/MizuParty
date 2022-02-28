@@ -224,7 +224,7 @@ void SetFrame(D3DXVECTOR3 pos, float fWidth, float fHeight, LPDIRECT3DTEXTURE9 *
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth + FRAME_SIZE, fHeight + FRAME_SIZE, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth + FRAME_SIZE, fHeight + FRAME_SIZE, 0.0f, SETPOS_MIDDLE);
 
 		// 頂点の法線の設定
 		Setnor(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));

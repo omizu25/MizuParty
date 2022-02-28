@@ -290,7 +290,7 @@ void UpdateBillboard(void)
 			pVtx += (i * 4);		//該当の位置まで進める
 
 			// 頂点座標の設定
-			Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pBillboard->fWidth, pBillboard->fHeight, 0.0f);
+			Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pBillboard->fWidth, pBillboard->fHeight, 0.0f, SETPOS_MIDDLE);
 
 			// 頂点バッファをアンロックする
 			s_pVtxBuff->Unlock();
@@ -445,7 +445,7 @@ void SetBillboard(D3DXVECTOR3 pos, float fWidth, float fHeight, bool bYRot, bool
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f, SETPOS_MIDDLE);
 
 		// 頂点の法線の設定
 		Setnor(pVtx, D3DXVECTOR3(0.0f, 0.0f, -1.0f));
@@ -570,7 +570,7 @@ void CollisionBillboard(void)
 			SetFade(MODE_GAME);
 
 			//サウンドの再生
-			PlaySound(SOUND_LABEL_SE_選択音);
+			PlaySound(SOUND_LABEL_SE_決定音);
 		}
 	}
 }

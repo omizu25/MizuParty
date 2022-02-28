@@ -43,7 +43,7 @@ void InitAll(VERTEX_2D *pVtx);
 
 /*Å´ í∏ì_èÓïÒ [3D] Å´*/
 
-void Setpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth);
+void Setpos(VERTEX_3D *pVtx, D3DXVECTOR3 pos, float fWidth, float fHeight, float fDepth, SETPOS setpos);
 void Setnor(VERTEX_3D *pVtx, D3DXVECTOR3 nor);
 void Setcol(VERTEX_3D *pVtx, D3DXCOLOR col);
 void Settex(VERTEX_3D *pVtx, float fULeft, float fURight, float fVTop, float fVBottom);

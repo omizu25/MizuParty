@@ -42,7 +42,8 @@ SOUNDPARAM g_aParam[SOUND_LABEL_MAX] =
 	{"data/SE/K.O.wav", 0},								// ハンマーに直撃音
 	{"data/SE/魔の時計塔の鐘.wav", 0},					// ゲームオーバー音
 	{"data/SE/ジャン！.wav", 0},						// ゲームクリア音
-	{"data/SE/決定、ボタン押下24.wav", 0},				// 選択音
+	{"data/SE/決定、ボタン押下24.wav", 0},				// 決定音
+	{"data/SE/パパッ.wav", 0},							// 選択音
 	{"data/SE/ピューンと逃げる.wav", 0},				// 坂の走り始め音
 	{"data/SE/間抜け2.wav", 0},							// 止めるの下手音
 	{"data/SE/魔王魂  戦闘10.wav", 0},					// 止めるの普通音

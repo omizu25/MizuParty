@@ -23,6 +23,7 @@ typedef enum
 	SOUND_LABEL_SE_KO,					// ハンマーに直撃音
 	SOUND_LABEL_SE_ゲームオーバー,		// ゲームオーバー音
 	SOUND_LABEL_SE_ゲームクリア,		// ゲームクリア音
+	SOUND_LABEL_SE_決定音,				// 決定音
 	SOUND_LABEL_SE_選択音,				// 選択音
 	SOUND_LABEL_SE_走る,				// 坂の走り始め音
 	SOUND_LABEL_SE_止めるの下手,		// 止めるの下手音

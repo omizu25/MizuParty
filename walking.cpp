@@ -15,6 +15,7 @@
 #include "game.h"
 #include "light.h"
 #include "loop.h"
+#include "measure.h"
 #include "number.h"
 #include "player.h"
 #include "polygon.h"
@@ -83,6 +84,9 @@ void InitWalking(void)
 	// ルールの初期化
 	InitRule();
 
+	// メジャーの初期化
+	InitMeasure();
+
 	s_nTime = 0;
 
 	// リザルトの設定
@@ -135,6 +139,9 @@ void UninitWalking(void)
 
 	// ループの終了
 	UninitLoop();
+
+	// メジャーの終了
+	UninitMeasure();
 }
 
 //--------------------------------------------------
@@ -213,11 +220,17 @@ void UpdateWalking(void)
 			// リザルトの更新
 			UpdateResult();
 		}
+		else
+		{// 重なってない
+			// メジャーの更新
+			UpdateMeasure();
+		}
 
 		break;
 
 	case GAMESTATE_LOOP:		// 繰り返し状態 (リザルト終了後)
 
+		// ループの更新
 		UpdateLoop();
 
 		break;
@@ -325,6 +338,9 @@ void DrawWalking(void)
 
 		// ビルボードの描画
 		DrawBillboard(true, false);
+
+		// メジャーの描画
+		DrawMeasure();
 		
 		if (GetOverlap())
 		{// 重なった

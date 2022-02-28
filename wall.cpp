@@ -181,7 +181,7 @@ void SetWall(D3DXVECTOR3 pos, D3DXVECTOR3 rot, float fWidth, float fHeight, floa
 		pVtx += (i * 4);		//該当の位置まで進める
 
 		// 頂点座標の設定
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f, SETPOS_MIDDLE);
 
 		if (bCulling)
 		{

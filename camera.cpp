@@ -361,6 +361,7 @@ static void UpdateGameMode(void)
 
 			// ƒŠƒUƒ‹ƒg‚ÌˆÚ“®
 			ResultMove();
+
 			break;
 
 		case GAMESTATE_NONE:			// ‰½‚à‚È‚µ

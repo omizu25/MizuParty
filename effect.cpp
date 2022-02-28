@@ -136,7 +136,7 @@ void UpdateEffect(void)
 		pVtx += (i * 4);		// 該当の位置まで進める
 
 		// 頂点座標の更新
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pEffect->fWidth, pEffect->fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), pEffect->fWidth, pEffect->fHeight, 0.0f, SETPOS_MIDDLE);
 
 		// 頂点バッファをアンロックする
 		s_pVtxBuff->Unlock();
@@ -269,7 +269,7 @@ void SetEffect(D3DXVECTOR3 pos, D3DXVECTOR3 move, D3DXCOLOR col, float fWidth, f
 		pVtx += (i * 4);		// 該当の位置まで進める
 
 		// 頂点座標の更新
-		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f);
+		Setpos(pVtx, D3DXVECTOR3(0.0f, 0.0f, 0.0f), fWidth, fHeight, 0.0f, SETPOS_MIDDLE);
 
 		// 頂点カラーの設定
 		Setcol(pVtx, col);
