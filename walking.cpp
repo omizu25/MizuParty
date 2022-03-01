@@ -16,6 +16,7 @@
 #include "light.h"
 #include "loop.h"
 #include "measure.h"
+#include "mesh_cylinder.h"
 #include "number.h"
 #include "player.h"
 #include "polygon.h"
@@ -87,6 +88,9 @@ void InitWalking(void)
 	// メジャーの初期化
 	InitMeasure();
 
+	// 円柱の初期化
+	InitMeshCylinder();
+
 	s_nTime = 0;
 
 	// リザルトの設定
@@ -142,6 +146,9 @@ void UninitWalking(void)
 
 	// メジャーの終了
 	UninitMeasure();
+
+	// 円柱の終了
+	UninitMeshCylinder();
 }
 
 //--------------------------------------------------
@@ -209,6 +216,9 @@ void UpdateWalking(void)
 
 			// カメラの初期化
 			InitCamera();
+
+			// 円柱の設定
+			SetMeshCylinder();
 		}
 
 		break;
@@ -219,11 +229,6 @@ void UpdateWalking(void)
 		{// 重なった
 			// リザルトの更新
 			UpdateResult();
-		}
-		else
-		{// 重なってない
-			// メジャーの更新
-			UpdateMeasure();
 		}
 
 		break;
@@ -257,6 +262,15 @@ void UpdateWalking(void)
 
 	// カメラの更新
 	UpdateCamera();
+
+	if (GetGame() == GAMESTATE_RESULT)
+	{// リザルト状態(ゲーム終了後)
+		// メジャーの更新
+		UpdateMeasure();
+
+		// 円柱の更新
+		UpdateMeshCylinder();
+	}
 
 	// ライトの更新
 	UpdateLight();
@@ -341,6 +355,9 @@ void DrawWalking(void)
 
 		// メジャーの描画
 		DrawMeasure();
+
+		// 円柱の描画
+		DrawMeshCylinder();
 		
 		if (GetOverlap())
 		{// 重なった

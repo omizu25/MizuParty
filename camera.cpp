@@ -44,6 +44,7 @@
 #define START_STOP_Z			(-500.0f)		// 止めるのZの位置の最初の値
 #define START_SLOPE_Y			(250.0f)		// 坂のYの位置の最初の値
 #define START_SLOPE_Z			(-1300.0f)		// 坂のZの位置の最初の値
+#define MOVE_X					(5.0f)			// Xの移動量
 #define MOVE_Y					(5.0f)			// Yの移動量
 #define MOVE_Z					(-3.0f)			// Zの移動量
 #define STOP_POS_Y				(100.0f)		// Yの位置の止まる場所
@@ -422,7 +423,7 @@ static void ResultMove(void)
 	if (!s_bOverlap)
 	{// 重なってない
 		D3DXVECTOR3 pos = GetPlayer()->pos;
-		float fMove = GetPlayer()->fMove * 2.5f;
+		float fMove = MOVE_X;
 		bool bDirection = true;		// true : 右向き  false : 左向き
 
 		if (pos.x <= 0.0f)

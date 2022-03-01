@@ -166,6 +166,7 @@
     <ClCompile Include="loop.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="measure.cpp" />
+    <ClCompile Include="mesh_cylinder.cpp" />
     <ClCompile Include="mesh_field.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="number.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="loop.h" />
     <ClInclude Include="main.h" />
     <ClInclude Include="measure.h" />
+    <ClInclude Include="mesh_cylinder.h" />
     <ClInclude Include="mesh_field.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="number.h" />

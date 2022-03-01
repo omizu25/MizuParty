@@ -37,7 +37,6 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static Measure						s_Measure;				// メジャーの情報
 
@@ -48,12 +47,6 @@ void InitMeasure(void)
 {
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
-
-	// テクスチャの読み込み
-	D3DXCreateTextureFromFile(
-		pDevice,
-		"data\\TEXTURE\\block005.png",
-		&s_pTexture);
 
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
@@ -74,13 +67,13 @@ void InitMeasure(void)
 	s_pVtxBuff->Lock(0, 0, (void**)&pVtx, 0);
 
 	// 頂点座標の設定
-	Setpos(pVtx, s_Measure.pos, s_Measure.fWidth, MAX_HEIGHT, MAX_DEPTH * 0.5f, SETPOS_MIDDLE);
+	Initpos(pVtx);
 
 	// 各頂点の法線の設定
 	Initnor(pVtx);
 
 	// 頂点カラーの設定
-	Initcol(pVtx);
+	Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
 
 	// テクスチャ座標の設定
 	Inittex(pVtx);
@@ -94,12 +87,6 @@ void InitMeasure(void)
 //--------------------------------------------------
 void UninitMeasure(void)
 {
-	if (s_pTexture != NULL)
-	{// テクスチャの解放
-		s_pTexture->Release();
-		s_pTexture = NULL;
-	}
-
 	if (s_pVtxBuff != NULL)
 	{// 頂点バッファの解放
 		s_pVtxBuff->Release();
@@ -164,7 +151,7 @@ void DrawMeasure(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	pDevice->SetTexture(0, NULL);
 	
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(
