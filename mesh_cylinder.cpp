@@ -19,9 +19,9 @@
 //--------------------------------------------------
 // マクロ定義
 //--------------------------------------------------
-#define MAX_HEIGHT				(25.0f)			// 高さの最大値
-#define START_POS_Z				(-60.0f)		// Zの位置の最初の値
-#define START_HORIZONTAL		(5)			// 横の最初の値
+#define MAX_HEIGHT				(50.0f)			// 高さの最大値
+#define START_POS_Z				(-35.0f)		// Zの位置の最初の値
+#define START_HORIZONTAL		(50)			// 横の最初の値
 #define START_VERTICAL			(1)				// 縦の最初の値
 #define MOVE_X					(5.0f)			// Xの移動量
 #define SIZE_RATIO				(0.01f)			// サイズの比率
@@ -54,12 +54,13 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
-static LPDIRECT3DTEXTURE9			s_pTexture = NULL;			// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;			// 頂点バッファへのポインタ
 static LPDIRECT3DINDEXBUFFER9		s_pIdxBuff = NULL;			// インデックスバッファへのポインタ
+static LPDIRECT3DTEXTURE9			s_pTextureLid = NULL;		// ふたのテクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuffLid = NULL;		// ふたの頂点バッファへのポインタ
 static Mesh							s_mesh;						// メッシュの情報
 static Number						s_Number;					// 数系の情報
+static float						s_fStartSize;				// 始まりのサイズ
 
 //--------------------------------------------------
 // 初期化
@@ -72,8 +73,8 @@ void InitMeshCylinder(void)
 	// テクスチャの読み込み
 	D3DXCreateTextureFromFile(
 		pDevice,
-		"data\\TEXTURE\\InuiToko003.jpg",
-		&s_pTexture);
+		"data\\TEXTURE\\lid.png",
+		&s_pTextureLid);
 
 	// メモリのクリア
 	memset(&s_mesh, 0, sizeof(s_mesh));
@@ -82,9 +83,6 @@ void InitMeshCylinder(void)
 	//横・縦の初期化
 	s_Number.nHorizontal = START_HORIZONTAL;
 	s_Number.nVertical = START_VERTICAL;
-
-	// 設定
-	SetMeshCylinder();
 }
 
 //--------------------------------------------------
@@ -92,12 +90,6 @@ void InitMeshCylinder(void)
 //--------------------------------------------------
 void UninitMeshCylinder(void)
 {
-	if (s_pTexture != NULL)
-	{// テクスチャの解放
-		s_pTexture->Release();
-		s_pTexture = NULL;
-	}
-
 	if (s_pVtxBuff != NULL)
 	{// 頂点バッファの解放
 		s_pVtxBuff->Release();
@@ -108,6 +100,12 @@ void UninitMeshCylinder(void)
 	{// インデックスバッファの解放
 		s_pIdxBuff->Release();
 		s_pIdxBuff = NULL;
+	}
+
+	if (s_pTextureLid != NULL)
+	{// テクスチャの解放
+		s_pTextureLid->Release();
+		s_pTextureLid = NULL;
 	}
 
 	if (s_pVtxBuffLid != NULL)
@@ -186,6 +184,8 @@ void UpdateMeshCylinder(void)
 		// 頂点情報をロックし、頂点情報へのポインタを取得
 		s_pVtxBuffLid->Lock(0, 0, (void**)&pVtx, 0);
 
+		float fScaleUV = s_mesh.fSize / s_fStartSize;
+
 		for (int i = 1; i <= nXLine; i++)
 		{
 			float fRot = ((D3DX_PI * 2.0f) / s_Number.nHorizontal) * i;
@@ -198,6 +198,12 @@ void UpdateMeshCylinder(void)
 
 			// 頂点座標の設定
 			pVtx[i].pos = D3DXVECTOR3(fXPos, MAX_HEIGHT, fYPos);
+
+			float fTexU = cosf(fRot)/* * 0.5f */ * fScaleUV + 0.5f;
+			float fTexV = sinf(fRot)/* * 0.5f */ * fScaleUV + 0.5f;
+
+			// テクスチャ座標の設定
+			pVtx[i].tex = D3DXVECTOR2(fTexU, fTexV);
 		}
 
 		// 頂点バッファをアンロックする
@@ -220,12 +226,12 @@ void DrawMeshCylinder(void)
 	// ワールドマトリックスの初期化
 	D3DXMatrixIdentity(&s_mesh.mtxWorld);
 
-	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, 0.0f, s_mesh.rot.x, 0.0f);
+	// Xの向きを反映
+	D3DXMatrixRotationX(&mtxRot, s_mesh.rot.x);
 	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
-	// 向きを反映
-	D3DXMatrixRotationYawPitchRoll(&mtxRot, 0.0f, 0.0f, s_mesh.rot.z);
+	// Zの向きを反映
+	D3DXMatrixRotationZ(&mtxRot, s_mesh.rot.z);
 	D3DXMatrixMultiply(&s_mesh.mtxWorld, &s_mesh.mtxWorld, &mtxRot);
 
 	// 位置を反映
@@ -245,7 +251,7 @@ void DrawMeshCylinder(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, s_pTexture);
+	pDevice->SetTexture(0, NULL);
 
 	// ポリゴン描画
 	pDevice->DrawIndexedPrimitive(
@@ -256,9 +262,6 @@ void DrawMeshCylinder(void)
 		0,							// 描画する最初の頂点インデックス
 		s_Number.nPolygon);			// プリミティブ(ポリゴン)数
 
-	// テクスチャの解除
-	pDevice->SetTexture(0, NULL);
-
 	// 頂点バッファをデータストリームに設定
 	pDevice->SetStreamSource(0, s_pVtxBuffLid, 0, sizeof(VERTEX_3D));
 
@@ -266,13 +269,21 @@ void DrawMeshCylinder(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
+	pDevice->SetTexture(0, s_pTextureLid);
+
+	// テクスチャのU, Vの繰り返し方を設定
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_CLAMP);
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_CLAMP);
 
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(
 		D3DPT_TRIANGLEFAN,			// プリミティブの種類
 		0,							// 描画する最初の頂点インデックス
 		s_Number.nHorizontal);		// プリミティブ(ポリゴン)数
+
+	// テクスチャのU, Vの繰り返し方を元に戻す
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSV, D3DTADDRESS_WRAP);
 
 	// 元に戻す
 	pDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
@@ -323,6 +334,8 @@ void SetMeshCylinder(void)
 	{// マイナス
 		s_mesh.fSize *= -1.0f;
 	}
+
+	s_fStartSize = s_mesh.fSize;
 
 	s_mesh.pos = D3DXVECTOR3(0.0f, s_mesh.fSize, START_POS_Z);
 	s_mesh.rot = D3DXVECTOR3(-D3DX_PI * 0.5f, 0.0f, 0.0f);
@@ -428,7 +441,7 @@ void SetMeshCylinder(void)
 	pVtx[0].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 	// テクスチャ座標の設定
-	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	pVtx[0].tex = D3DXVECTOR2(0.5f, 0.5f);
 
 	for (int i = 1; i <= nXLine; i++)
 	{
@@ -449,8 +462,11 @@ void SetMeshCylinder(void)
 		// 頂点カラーの設定
 		pVtx[i].col = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
+		float fTexU = (cosf(fRot) + 1.0f)/* * 0.5f */;
+		float fTexV = (sinf(fRot) + 1.0f)/* * 0.5f */;
+
 		// テクスチャ座標の設定
-		pVtx[i].tex = D3DXVECTOR2(0.0f, 0.0f);
+		pVtx[i].tex = D3DXVECTOR2(fTexU, fTexV);
 	}
 
 	// 頂点バッファをアンロックする

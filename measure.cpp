@@ -22,6 +22,7 @@
 #define MAX_DEPTH		(50.0f)			// 奥行きの最大値
 #define START_WIDTH		(0.0f)			// 幅の最初の値
 #define START_POS_Z		(-30.0f)		// Zの最初の位置
+#define MAX_SPLIT		(15.0f)			// 分割の最大数
 
 //--------------------------------------------------
 // 構造体
@@ -37,6 +38,7 @@ typedef struct
 //--------------------------------------------------
 // スタティック変数
 //--------------------------------------------------
+static LPDIRECT3DTEXTURE9			s_pTexture = NULL;		// テクスチャへのポインタ
 static LPDIRECT3DVERTEXBUFFER9		s_pVtxBuff = NULL;		// 頂点バッファへのポインタ
 static Measure						s_Measure;				// メジャーの情報
 
@@ -48,6 +50,12 @@ void InitMeasure(void)
 	// デバイスへのポインタの取得
 	LPDIRECT3DDEVICE9 pDevice = GetDevice();
 
+	// テクスチャの読み込み
+	D3DXCreateTextureFromFile(
+		pDevice,
+		"data\\TEXTURE\\measure.png",
+		&s_pTexture);
+
 	// 頂点バッファの生成
 	pDevice->CreateVertexBuffer(
 		sizeof(VERTEX_3D) * 4,
@@ -57,7 +65,7 @@ void InitMeasure(void)
 		&s_pVtxBuff,
 		NULL);
 
-	s_Measure.pos = D3DXVECTOR3(0.0f, 0.0f, START_POS_Z);
+	s_Measure.pos = D3DXVECTOR3(0.0f, 0.5f, START_POS_Z);
 	s_Measure.rot = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	s_Measure.fWidth = START_WIDTH;
 
@@ -87,6 +95,12 @@ void InitMeasure(void)
 //--------------------------------------------------
 void UninitMeasure(void)
 {
+	if (s_pTexture != NULL)
+	{// テクスチャの解放
+		s_pTexture->Release();
+		s_pTexture = NULL;
+	}
+
 	if (s_pVtxBuff != NULL)
 	{// 頂点バッファの解放
 		s_pVtxBuff->Release();
@@ -116,6 +130,14 @@ void UpdateMeasure(void)
 		// 頂点座標の設定
 		Setpos(pVtx, s_Measure.pos, -s_Measure.fWidth, MAX_HEIGHT, MAX_DEPTH * 0.5f, SETPOS_RIGHT);
 	}
+
+	float fTex = s_Measure.fWidth / MAX_SPLIT;
+
+	// テクスチャ座標の設定
+	pVtx[0].tex = D3DXVECTOR2(0.0f, 0.0f);
+	pVtx[1].tex = D3DXVECTOR2(fTex, 0.0f);
+	pVtx[2].tex = D3DXVECTOR2(0.0f, 1.0f);
+	pVtx[3].tex = D3DXVECTOR2(fTex, 1.0f);
 
 	// 頂点バッファをアンロックする
 	s_pVtxBuff->Unlock();
@@ -151,7 +173,10 @@ void DrawMeasure(void)
 	pDevice->SetFVF(FVF_VERTEX_3D);
 
 	// テクスチャの設定
-	pDevice->SetTexture(0, NULL);
+	pDevice->SetTexture(0, s_pTexture);
+
+	// テクスチャのUの繰り返し方を設定
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_MIRROR);
 	
 	// ポリゴンの描画
 	pDevice->DrawPrimitive(
@@ -161,4 +186,7 @@ void DrawMeasure(void)
 
 	// テクスチャの解除
 	pDevice->SetTexture(0, NULL);
+
+	// テクスチャのUの繰り返し方を元に戻す
+	pDevice->SetSamplerState(0, D3DSAMP_ADDRESSU, D3DTADDRESS_WRAP);
 }
