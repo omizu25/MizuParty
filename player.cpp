@@ -1120,7 +1120,7 @@ static void UpdateGame(Player *pPlayer)
 						s_bSoundRun = true;
 
 						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_走る);
+						PlaySound(SOUND_LABEL_SE_RUN);
 					}
 
 					pPlayer->pos.x += s_fSlopeMove;
@@ -1210,7 +1210,7 @@ static void UpdateGame(Player *pPlayer)
 						s_bSoundFall = true;
 
 						// サウンドの再生
-						PlaySound(SOUND_LABEL_SE_落下);
+						PlaySound(SOUND_LABEL_SE_FALL);
 					}
 				}
 			}

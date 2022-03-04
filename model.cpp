@@ -407,21 +407,21 @@ static void UpdateRotation(void)
 					if (fDiff <= STOP_GOOD)
 					{// Ž~‚ß‚é‚ÌãŽè
 						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚ÌãŽè);
+						PlaySound(SOUND_LABEL_SE_STOP_CRITICAL);
 
 						s_model.nRepeat = 10;
 					}
 					else if (fDiff <= STOP_NORMAL)
 					{// Ž~‚ß‚é‚Ì•’Ê
 						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì•’Ê);
+						PlaySound(SOUND_LABEL_SE_STOP_NORMAL);
 
 						s_model.nRepeat = 3;
 					}
 					else
 					{// Ž~‚ß‚é‚Ì‰ºŽè
 						// ƒTƒEƒ“ƒh‚ÌÄ¶
-						PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì‰ºŽè);
+						PlaySound(SOUND_LABEL_SE_STOP_BAD);
 
 						s_model.nRepeat = 1;
 					}
@@ -519,21 +519,21 @@ static void UpdateStop(void)
 				if (fDiff <= STOP_GOOD)
 				{// Ž~‚ß‚é‚ÌãŽè
 					// ƒTƒEƒ“ƒh‚ÌÄ¶
-					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚ÌãŽè);
+					PlaySound(SOUND_LABEL_SE_STOP_CRITICAL);
 
 					s_model.nRepeat = 10;
 				}
 				else if (fDiff <= STOP_NORMAL)
 				{// Ž~‚ß‚é‚Ì•’Ê
 					// ƒTƒEƒ“ƒh‚ÌÄ¶
-					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì•’Ê);
+					PlaySound(SOUND_LABEL_SE_STOP_NORMAL);
 
 					s_model.nRepeat = 3;
 				}
 				else
 				{// Ž~‚ß‚é‚Ì‰ºŽè
 					// ƒTƒEƒ“ƒh‚ÌÄ¶
-					PlaySound(SOUND_LABEL_SE_Ž~‚ß‚é‚Ì‰ºŽè);
+					PlaySound(SOUND_LABEL_SE_STOP_BAD);
 
 					s_model.nRepeat = 1;
 				}

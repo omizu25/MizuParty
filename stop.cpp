@@ -90,7 +90,7 @@ void InitStop(void)
 	SetResult(RESULT_NONE);
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_止める);
+	PlaySound(SOUND_LABEL_STOP);
 }
 
 //--------------------------------------------------
@@ -159,7 +159,7 @@ void UpdateStop(void)
 			SetGameState(GAMESTATE_COUNTDOWN);
 
 			//サウンドの再生
-			PlaySound(SOUND_LABEL_SE_カウントダウン);
+			PlaySound(SOUND_LABEL_SE_COUNTDOWN);
 		}
 
 		break;

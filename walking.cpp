@@ -97,7 +97,7 @@ void InitWalking(void)
 	SetResult(RESULT_NONE);
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_ウォーキング);
+	PlaySound(SOUND_LABEL_WALKING);
 }
 
 //--------------------------------------------------
@@ -169,7 +169,7 @@ void UpdateWalking(void)
 			SetGameState(GAMESTATE_COUNTDOWN);
 
 			//サウンドの再生
-			PlaySound(SOUND_LABEL_SE_カウントダウン);
+			PlaySound(SOUND_LABEL_SE_COUNTDOWN);
 		}
 
 		break;

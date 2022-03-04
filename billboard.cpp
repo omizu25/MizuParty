@@ -570,7 +570,7 @@ void CollisionBillboard(void)
 			SetFade(MODE_GAME);
 
 			//ƒTƒEƒ“ƒh‚ÌÄ¶
-			PlaySound(SOUND_LABEL_SE_Œˆ’è‰¹);
+			PlaySound(SOUND_LABEL_SE_DECISION);
 		}
 	}
 }

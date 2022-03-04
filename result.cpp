@@ -104,7 +104,7 @@ void InitResult(void)
 		InitClear();
 
 		// サウンドの再生
-		PlaySound(SOUND_LABEL_SE_ゲームクリア);
+		PlaySound(SOUND_LABEL_SE_GAMECLEAR);
 
 		break;
 
@@ -114,7 +114,7 @@ void InitResult(void)
 		InitGameOver();
 
 		// サウンドの再生
-		PlaySound(SOUND_LABEL_SE_ゲームオーバー);
+		PlaySound(SOUND_LABEL_SE_GAMEOVER);
 
 		break;
 

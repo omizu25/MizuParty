@@ -102,7 +102,7 @@ void InitSlope(void)
 	SetResult(RESULT_NONE);
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_坂);
+	PlaySound(SOUND_LABEL_SLOPE);
 }
 
 //--------------------------------------------------
@@ -174,7 +174,7 @@ void UpdateSlope(void)
 			SetGameState(GAMESTATE_COUNTDOWN);
 
 			//サウンドの再生
-			PlaySound(SOUND_LABEL_SE_カウントダウン);
+			PlaySound(SOUND_LABEL_SE_COUNTDOWN);
 		}
 
 		break;

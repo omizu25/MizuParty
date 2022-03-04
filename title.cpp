@@ -73,7 +73,7 @@ void InitTitle(void)
 	InitLight();
 
 	// サウンドの再生
-	PlaySound(SOUND_LABEL_タイトル);
+	PlaySound(SOUND_LABEL_TITLE);
 }
 
 //--------------------------------------------------
