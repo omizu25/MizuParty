@@ -81,7 +81,7 @@ void InitMeasure(void)
 	Initnor(pVtx);
 
 	// 頂点カラーの設定
-	Setcol(pVtx, D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+	Setcol(pVtx, WhiteColor);
 
 	// テクスチャ座標の設定
 	Inittex(pVtx);

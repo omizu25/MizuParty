@@ -306,6 +306,11 @@ void DrawLoop(void)
 //--------------------------------------------------
 static void Input(void)
 {
+	if (GetFade() != FADE_NONE)
+	{// フェードしてる
+		return;
+	}
+
 	if (GetJoypadStick(JOYKEY_LEFT_STICK, 0).x <= DEAD_ZONE &&
 		GetJoypadStick(JOYKEY_LEFT_STICK, 0).x >= -DEAD_ZONE)
 	{// 左スティックが傾いてない
